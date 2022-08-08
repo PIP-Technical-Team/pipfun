@@ -10,7 +10,7 @@
 #' @param clean logical: if TRUE it cleans all empty directories that have been
 #'   created by mistake. Default is FALSE.
 #' @param verbose logical: display messages. Default is
-#'   `getOption("pipload.verbose")`
+#'   `getOption("pipfun.verbose")`
 #' @param create_dir logical: If TRUE creates output directory or any other
 #'   directory that is part of the returned global and that does not exist.
 #'   Otherwise it just returns the directory path **even if**  the
@@ -27,7 +27,7 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
                                out_dir    = root_dir,
                                vintage    = NULL,
                                clean      = FALSE,
-                               verbose    = getOption("pipload.verbose"),
+                               verbose    = getOption("pipfun.verbose"),
                                create_dir = FALSE) {
 
 
