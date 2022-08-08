@@ -218,9 +218,10 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
     clean_data <- fs::path(glbs$PIP_PIPE_DIR,
                            'pc_data/cache/clean_survey_data')
 
-    cache_ppps <- fs::dir_ls(clean_data)
-    cache_ppps <- gsub("(.+/)([^/]+$)", "\\2",cache_ppps)
-    cache_ppp  <- max(cache_ppps)
+    cache_ppp <-
+      fs::dir_ls(clean_data) |>
+      fs::path_file() |>
+      max()
 
     glbs$CACHE_SVY_DIR_PC <- fs::path(glbs$PIP_PIPE_DIR,
                                       'pc_data/cache/clean_survey_data',
@@ -320,17 +321,16 @@ check_and_create <- function(dir,
 
         # computations
         # create vintage dir for PC
-        available_paths <- fs::dir_ls(path = dir,
-                                      type = "directory")
+        available_paths <- fs::dir_ls(dir,
+                                      type = "directory",
+                                      regexp = vintage_pattern)
 
 
         # all available directories
-        available_dirs  <- gsub("(.+)/([^/]+)", "\\2",  available_paths)
+        vintages_av  <-
+          fs::path_file(available_paths) |>
+          sort(decreasing = TRUE)
 
-        # directories that meet the criteria
-        vintages_av <- stringr::str_extract(available_dirs, vintage_pattern)
-        vintages_av <- vintages_av[!is.na(vintages_av)]
-        vintages_av <- sort(vintages_av, decreasing = TRUE)
 
         # Find out the latest vintage available
         if (length(vintages_av) == 0) {
