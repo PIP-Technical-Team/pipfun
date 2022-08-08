@@ -16,20 +16,22 @@ knitr::opts_chunk$set(
 # pipfun
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 The goal of pipfun is to ...
 
 ## Installation
 
-You can install the development version of pipfun from [GitHub](https://github.com/) with:
+You can install the development version of pipfun from
+[GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("PIP-Technical-Team/pipfun")
+# install.packages("remotes")
+remotes::install_github("PIP-Technical-Team/pipfun")
 ```
 
-## Example
+## Examples
 
 This is a basic example which shows you how to solve a common problem:
 
@@ -38,18 +40,41 @@ library(pipfun)
 ## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+### Saving files
 
-```{r cars}
-summary(cars)
+Save a list
+
+```{r save-list}
+
+  tdir <- fs::path_temp("pipfun-l")
+
+  lx <- list(x = 1)
+  measure <- "ltst"
+
+  pip_sign_save(x = lx,
+              measure = measure,
+              msrdir = tdir,
+              save_dta = TRUE)
+  
+  fs::dir_tree(tdir)
+  fs::dir_delete(tdir)
+
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/v1/examples>.
+Save a data-frame
 
-You can also embed plots, for example:
+```{r save-dataframe}
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+  tdir <- fs::path_temp("pipfun-df")
+
+  lx <- data.frame(x = 1)
+  measure <- "ltst"
+
+  pip_sign_save(x = lx,
+              measure = measure,
+              msrdir = tdir,
+              save_dta = TRUE)
+  
+  fs::dir_tree(tdir)
+  fs::dir_delete(tdir)
 ```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
