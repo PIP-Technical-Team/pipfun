@@ -4,7 +4,13 @@
 \alias{pip_create_vintage}
 \title{Create output directory name}
 \usage{
-pip_create_vintage(vintage = list(), DATE = format(Sys.Date(), "\%Y\%m\%d"))
+pip_create_vintage(
+  vintage = list(),
+  DATE = format(Sys.Date(), "\%Y\%m\%d"),
+  owner = getOption("pipfun.ghowner"),
+  branch = c("DEV", "PROD", "main"),
+  tag = match.arg(branch)
+)
 }
 \arguments{
 \item{vintage}{list or character: If list, all objects should be named and
@@ -13,6 +19,14 @@ only the following names are accepted: \code{c("release", "ppp_year", "ppp_rv", 
 be of length equal to 1.}
 
 \item{DATE}{character: date in the form \%y\%m\%d.}
+
+\item{owner}{character: Github repo owner. Default is
+\code{getOption("pipfun.ghowner")}}
+
+\item{branch}{character: either "DEV" or "PROD". Refers to the branch that
+will be used to update either the development server or production.}
+
+\item{tag}{character: specific release to be used in the update.}
 }
 \value{
 character  in the form "\%Y\%m\%d_YYYY_##_##_SSS"

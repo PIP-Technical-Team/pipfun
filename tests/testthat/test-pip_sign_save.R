@@ -74,7 +74,7 @@ test_that("Saves correctly if object is a dataframe", {
                 save_dta = TRUE) |>
     suppressWarnings()
 
-  expect_true(saved)
+  expect_true(saved, "Save data. If data is not saved, make sure to restart R")
 
 
   fs::path(tdir, "_vintage") |>

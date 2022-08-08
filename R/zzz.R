@@ -1,7 +1,8 @@
 
 
 pipfun_default_options <- list(
-  pipfun.verbose  = TRUE
+  pipfun.verbose  = TRUE,
+  pipfun.ghowner = "PIP-Technical-Team"
 )
 
 .onLoad <- function(libname, pkgname) {

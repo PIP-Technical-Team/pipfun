@@ -8,15 +8,18 @@
 #'   "ppp_av", "identity")`. Alternatively, it could a single-object list called
 #'   "names" like `vintage = list(name = "some_name")`.  If character, it should
 #'   be of length equal to 1.
-#'
 #' @param  DATE character: date in the form %y%m%d.
+#' @inheritParams load_from_gh
 #'
 #' @return character  in the form "%Y%m%d_YYYY_##_##_SSS"
 #' @export
 pip_create_vintage <- function(vintage = list(),
-                               DATE = format(Sys.Date(), "%Y%m%d")) {
+                               DATE    = format(Sys.Date(), "%Y%m%d"),
+                               owner   = getOption("pipfun.ghowner"),
+                               branch  = c("DEV","PROD","main"),
+                               tag     = match.arg(branch)) {
 
-
+  branch <- match.arg(branch)
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Defenses   ---------
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,9 +102,11 @@ pip_create_vintage <- function(vintage = list(),
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ## Load PPP vintage complementary data --------
-    ppp_v <- pip_load_aux("ppp",
-                          suffix = "vintage",
-                          verbose = FALSE)
+    ppp_v <-
+      load_from_gh(measure = "ppp",
+                 owner  = owner,
+                 branch = branch,
+                 filename = "ppp_vintage")
 
     # remove Vs in case they are available and add zeros
     ver_vars <- c("ppp_rv", "ppp_av")
