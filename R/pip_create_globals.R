@@ -262,7 +262,7 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
 #' Check if path is fs_path and then create folder
 #'
 #' @param glbs list of object. Some of them are fs_paths
-#'
+#' @noRd
 create_dir <- function(glbs) {
 
   is_fs_path <- which(purrr::map_lgl(glbs, inherits, "fs_path"))
@@ -282,11 +282,12 @@ create_dir <- function(glbs) {
 
 
 
-#' check vintage version and create
+#' check vintage version and create directory name
 #'
 #' @param dir character: output directory
 #' @param DATE character: date of the form "%Y%m%d"
 #' @inheritParams pip_create_globals
+#' @noRd
 check_and_create <- function(dir,
                              vintage,
                              DATE = format(Sys.Date(), "%Y%m%d"),

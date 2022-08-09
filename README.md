@@ -4,6 +4,9 @@
 # pipfun
 
 <!-- badges: start -->
+
+[![Codecov test
+coverage](https://codecov.io/gh/PIP-Technical-Team/pipfun/branch/main/graph/badge.svg)](https://app.codecov.io/gh/PIP-Technical-Team/pipfun?branch=main)
 <!-- badges: end -->
 
 The goal of pipfun is to …
@@ -46,13 +49,13 @@ Save a list
 #> 'ltst.rds' has been updated
   
   fs::dir_tree(tdir)
-#> C:/Users/wb384996/AppData/Local/Temp/Rtmp6ZvPdM/pipfun-l
+#> C:/Users/wb384996/AppData/Local/Temp/RtmpSWrAQv/pipfun-l
 #> +-- ltst.qs
 #> +-- ltst.rds
 #> +-- ltst_datasignature.txt
 #> \-- _vintage
-#>     +-- ltst_20220808152338.qs
-#>     \-- ltst_20220808152338.rds
+#>     +-- ltst_20220809123559.qs
+#>     \-- ltst_20220809123559.rds
   fs::dir_delete(tdir)
 ```
 
@@ -74,14 +77,14 @@ Save a data-frame
 #> 'ltst.fst' has been updated
   
   fs::dir_tree(tdir)
-#> C:/Users/wb384996/AppData/Local/Temp/Rtmp6ZvPdM/pipfun-df
+#> C:/Users/wb384996/AppData/Local/Temp/RtmpSWrAQv/pipfun-df
 #> +-- ltst.dta
 #> +-- ltst.fst
 #> +-- ltst.qs
 #> +-- ltst_datasignature.txt
 #> \-- _vintage
-#>     +-- ltst_20220808152338.dta
-#>     +-- ltst_20220808152338.fst
-#>     \-- ltst_20220808152338.qs
+#>     +-- ltst_20220809123602.dta
+#>     +-- ltst_20220809123602.fst
+#>     \-- ltst_20220809123602.qs
   fs::dir_delete(tdir)
 ```
