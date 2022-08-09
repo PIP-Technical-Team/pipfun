@@ -11,6 +11,7 @@
 #' @importFrom glue glue
 
 # Make sure data.table knows we know we're using it
+#' @noRd
 .datatable.aware = TRUE
 
 # Prevent R CMD check from complaining about the use of pipe expressions
