@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
+[![Codecov test coverage](https://codecov.io/gh/PIP-Technical-Team/pipfun/branch/main/graph/badge.svg)](https://app.codecov.io/gh/PIP-Technical-Team/pipfun?branch=main)
 <!-- badges: end -->
 
 The goal of pipfun is to ...
