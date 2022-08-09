@@ -8,35 +8,49 @@ names(vintage_lt) <- rqr_sect
 test_that("working as expected", {
   # convert list
 
-  vd <- pip_create_globals(vintage = vintage_lt)
+  root <- fs::path_temp("pcg")
+
+  vd <- pip_create_globals(root_dir = root,
+                           create_dir = TRUE,
+                           vintage = vintage_lt)
 
   expect_equal(vd$vintage_dir, vintage_ch)
 
   # convert character vector
-  expect_equal(pip_create_globals(vintage = vintage_ch)$vintage_dir, vintage_ch)
+  expect_equal(pip_create_globals(root_dir = root,
+                                  create_dir = TRUE,
+                                  vintage = vintage_ch)$vintage_dir, vintage_ch)
 
   # works with data frames
   vintage_DT <- data.table::as.data.table(vintage_lt)
   vintage_DF <- as.data.frame(vintage_lt)
 
-  expect_equal(pip_create_globals(vintage = vintage_DT)$vintage_dir, vintage_ch)
-  expect_equal(pip_create_globals(vintage = vintage_DF)$vintage_dir, vintage_ch)
+  expect_equal(pip_create_globals(root_dir = root,
+                                  create_dir = TRUE,
+                                  vintage = vintage_DT)$vintage_dir, vintage_ch)
+  expect_equal(pip_create_globals(root_dir = root,
+                                  create_dir = TRUE,
+                                  vintage = vintage_DF)$vintage_dir, vintage_ch)
 
 
-  vd <- pip_create_globals()
+  vd <- pip_create_globals(root_dir = root,
+                           create_dir = TRUE)
   expect_null(vd$vintage_dir)
 
 
 })
 
 test_that("not applicable in CI", {
-  skip_on_ci()
+  # skip_on_ci()
+
+  root <- fs::path_temp("pcg2")
 
   out_dir <-  fs::path_temp("pipfun-cg")
 
-  vd <- pip_create_globals(vintage = c("new", "test"),
-                           out_dir = out_dir,
-                           create_dir = TRUE)
+  vd <- pip_create_globals(root_dir = root,
+                           create_dir = TRUE,
+                           vintage = c("new", "test"),
+                           out_dir = out_dir)
 
   expect_equal(vd$vintage_dir, vintage_ch)
   expect_true(fs::dir_exists(vd$OUT_EST_DIR_PC))
@@ -46,10 +60,22 @@ test_that("not applicable in CI", {
 
 test_that("wrong inputs trigger error", {
 
-  expect_error(pip_create_globals(vintage = c("a", "b", "c")))
+  expect_error(pip_create_globals(root_dir = root,
+                                  create_dir = TRUE,
+                                  vintage = c("a", "b", "c")
+                                  )
+               )
 
-  expect_error(pip_create_globals(vintage = c("latest", "b")))
-  expect_error(pip_create_globals(vintage = c("fiejf", "int")))
+  expect_error(pip_create_globals(root_dir = root,
+                                  create_dir = TRUE,
+                                  vintage = c("latest", "b")
+                                  )
+               )
+  expect_error(pip_create_globals(root_dir = root,
+                                  create_dir = TRUE,
+                                  vintage = c("fiejf", "int")
+                                  )
+               )
 
 })
 
