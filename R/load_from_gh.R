@@ -158,3 +158,59 @@ load_from_gh <- function(measure,
   return(df)
 
 }
+
+
+
+
+
+#' Get tags from specific Github repo
+#'
+#' @param owner character: Github username that owns the repo
+#' @param repo character: Github repository name
+#' @param what character: either "tags" or "branches"
+#'
+#' @return character vector with tags
+#' @keywords internal
+get_gh <- function(owner,
+                   repo,
+                   what = c("tags", "branches")) {
+
+  # on.exit ------------
+  on.exit({
+
+  })
+
+  # Defenses -----------
+  what <- match.arg(what)
+  stopifnot( exprs = {
+
+  }
+  )
+
+  # Early returns ------
+  if (FALSE) {
+    return()
+  }
+
+  # Computations -------
+
+  rs <-
+    gh::gh("/repos/{owner}/{repo}/{what}",
+           owner = owner,
+           repo = repo,
+           what = what,
+           .limit = Inf)  |>
+    purrr::map_chr("name")
+
+  if (what == "tags") {
+    rs <- sort(rs, decreasing = TRUE)
+  }
+
+
+  # Return -------------
+  return(rs)
+
+}
+
+
+
