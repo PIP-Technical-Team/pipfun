@@ -1,4 +1,4 @@
-#' Load Raw Auxiliary data
+#' Load Data from github. This function is inspired in the {gh} package.
 #'
 #' @param measure character: measure to be loaded
 #' @param owner character: Github repo owner. Default is
@@ -13,8 +13,8 @@
 #' @param ... parameters to be passed to the loading functions depending of the
 #'   extension used
 #'
-#' @return dataset
-#' @keywords internal
+#' @return data.table
+#' @export
 load_from_gh <- function(measure,
                          owner     = getOption("pipfun.ghowner"),
                          repo      = paste0("aux_", measure),
