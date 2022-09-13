@@ -63,8 +63,8 @@ load_from_gh <- function(measure,
 
         if (ext == "csv") {
 
-          # readr::read_csv(path, ...)
-          data.table::fread(path, ...)
+          readr::read_csv(path, ...)
+          # data.table::fread(path, ...)
 
         } else if (ext  %in% c("xls", "xlsx")) {
 
