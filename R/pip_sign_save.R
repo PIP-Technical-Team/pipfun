@@ -9,13 +9,16 @@
 #' @param force logical: If TRUE data will be overwritten.
 #' @param save_dta logical: If TRUE a Stata (.dta) version of the dataset is
 #'   also saved.
+#' @inheritParams pip_create_globals
 #' @return logical
 #' @export
 pip_sign_save <- function(x,
                           measure,
                           msrdir,
                           force = FALSE,
-                          save_dta = TRUE) {
+                          save_dta = TRUE,
+                          verbose = getOption("pipfun.verbose")
+                          ) {
 
   #   ____________________________________________________________________________
   #   Files and directories                                                   ####
@@ -149,19 +152,22 @@ pip_sign_save <- function(x,
                         ms_status == "changed", "has changed",
                         default = "")
 
+    if (verbose) {
 
-    infmsg <-
-      "Data signature {fillintext}
-      {.file {measure}.{ext}} has been updated"
+      infmsg <-
+        "Data signature {fillintext}
+        {.file {measure}.{ext}} has been updated"
 
-    cli::cli_alert_warning(infmsg)
+      cli::cli_alert_warning(infmsg)
+    }
 
     return(invisible(TRUE))
 
   } else {
-
-    cli::cli_alert_info("Data signature is up to date.
+    if (verbose) {
+      cli::cli_alert_info("Data signature is up to date.
                         {cli::col_blue('No update performed')}")
+    }
     return(invisible(FALSE))
   }
 }

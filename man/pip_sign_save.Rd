@@ -4,7 +4,14 @@
 \alias{pip_sign_save}
 \title{Save PIP  data}
 \usage{
-pip_sign_save(x, measure, msrdir, force = FALSE, save_dta = TRUE)
+pip_sign_save(
+  x,
+  measure,
+  msrdir,
+  force = FALSE,
+  save_dta = TRUE,
+  verbose = getOption("pipfun.verbose")
+)
 }
 \arguments{
 \item{x}{data.frame Data frame to be signed and saved.}
@@ -18,6 +25,9 @@ saved.}
 
 \item{save_dta}{logical: If TRUE a Stata (.dta) version of the dataset is
 also saved.}
+
+\item{verbose}{logical: display messages. Default is
+\code{getOption("pipfun.verbose")}}
 }
 \value{
 logical
