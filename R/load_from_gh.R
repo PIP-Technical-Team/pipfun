@@ -19,7 +19,7 @@ load_from_gh <- function(measure,
                          owner     = getOption("pipfun.ghowner"),
                          repo      = paste0("aux_", measure),
                          branch    = "DEV",
-                         tag       = match.arg(branch),
+                         tag       = branch,
                          filename  = measure,
                          ext       = "csv",
                          ...) {
