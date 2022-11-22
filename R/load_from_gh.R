@@ -18,7 +18,7 @@
 load_from_gh <- function(measure,
                          owner     = getOption("pipfun.ghowner"),
                          repo      = paste0("aux_", measure),
-                         branch    = c("DEV","PROD","main"),
+                         branch    = "DEV",
                          tag       = match.arg(branch),
                          filename  = measure,
                          ext       = "csv",
@@ -38,9 +38,8 @@ load_from_gh <- function(measure,
 
   #   ____________________________________________________________________________
   #   Defenses                                                                ####
-  branch <- match.arg(branch)
   stopifnot(exprs = {
-
+    length(branch) == 1
   })
 
   #   ____________________________________________________________________________
