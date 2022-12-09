@@ -69,7 +69,13 @@ pip_merge_aux <- function(tables            = c("cpi", "ppp"),
   lby_vars <- uni_int(lid)
 
   # Merge aux tables
-  dt <- purrr::reduce2(laux, lby_vars, merge)
+  dt    <- purrr::reduce2(laux, lby_vars, merge)
+  dt_id <- purrr::reduce(lid, union)
+  if (anyDuplicated(dt, by = dt_id) == 0) {
+    attr(dt, "id")  <- dt_id
+  } else {
+    attr(dt, "id")  <- NA
+  }
 
 #   ____________________________________________________
 #   Return                                           ####
