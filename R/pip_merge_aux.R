@@ -122,7 +122,8 @@ aux_ids <- function(tables = NULL) {
   l[["gdm"]] <- c("country_code",
                   "data_level",
                   "survey_year",
-                  "welfare_type")
+                  "welfare_type",
+                  "surveyid_year")
 
 
   if (!is.null(tables)) {
