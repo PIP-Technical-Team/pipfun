@@ -17,11 +17,17 @@ Imports:
     digest,
     fs,
     fst,
+    gh,
     glue,
     haven,
+    httr,
+    pipload,
     purrr,
     qs,
-    readr
+    readr,
+    readxl,
+    remotes,
+    yaml
 Suggests: 
     covr,
     testthat (>= 3.0.0)

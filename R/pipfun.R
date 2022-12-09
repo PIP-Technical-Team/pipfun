@@ -25,11 +25,15 @@ if (getRversion() >= "2.15.1") {
       ".SD",
       ".",
       "!!",
-      ":="
+      ":=",
+      "data_level",
+      "ppp_av",
+      "ppp_default_by_year",
+      "ppp_rv",
+      "ppp_year"
     ),
     package = utils::packageName()
   )
 }
 
 NULL
-
