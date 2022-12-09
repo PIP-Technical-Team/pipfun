@@ -3,6 +3,7 @@
 export(load_from_gh)
 export(pip_create_globals)
 export(pip_create_vintage)
+export(pip_merge_aux)
 export(pip_sign_save)
 export(pipinstall)
 import(data.table)

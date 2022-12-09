@@ -8,8 +8,8 @@ load_from_gh(
   measure,
   owner = getOption("pipfun.ghowner"),
   repo = paste0("aux_", measure),
-  branch = c("DEV", "PROD", "main"),
-  tag = match.arg(branch),
+  branch = "DEV",
+  tag = branch,
   filename = measure,
   ext = "csv",
   ...
