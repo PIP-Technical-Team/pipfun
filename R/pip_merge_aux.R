@@ -56,6 +56,7 @@ pip_merge_aux <- function(tables            = c("cpi", "ppp"),
                verbose           = FALSE) |>
     # rename all xxx_data_level variables to data_level
     purrr::map(rename_data_level_var, verbose = FALSE)
+  names(laux) <- tables
 
   # fiter PPP dataset
   if ("ppp" %in% names(laux)) {
@@ -63,7 +64,6 @@ pip_merge_aux <- function(tables            = c("cpi", "ppp"),
     laux$ppp <- laux$ppp[ppp_year == py & ppp_default_by_year  == TRUE]
   }
 
-  names(laux) <- tables
 
   # Create by variables
   lby_vars <- uni_int(lid)
