@@ -58,10 +58,16 @@ pip_merge_aux <- function(tables            = c("cpi", "ppp"),
     purrr::map(rename_data_level_var, verbose = FALSE)
   names(laux) <- tables
 
-  # fiter PPP dataset
+  # fiter PPP based on ppp year
   if ("ppp" %in% names(laux)) {
     py <- ppp_year
     laux$ppp <- laux$ppp[ppp_year == py & ppp_default_by_year  == TRUE]
+  }
+
+  # filter CPI based on PPP year
+  if ("cpi" %in% names(laux)) {
+    cpi_var <- paste0("cpi", ppp_year)
+    laux$cpi[, cpi := get(cpi_var)]
   }
 
 
