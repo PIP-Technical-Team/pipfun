@@ -47,22 +47,33 @@ pip_merge_aux <- function(tables            = c("cpi", "ppp"),
   lid <- aux_ids(tables = tables)
 
   # load aux tables
-  laux <- purrr::map(tables,
-                     pipload::pip_load_aux,
-                     branch            = branch,
-                     root_dir          = root_dir,
-                     maindir           = maindir,
-                     verbose           = FALSE)
+  laux <-
+    purrr::map(tables,
+               pipload::pip_load_aux,
+               branch            = branch,
+               root_dir          = root_dir,
+               maindir           = maindir,
+               verbose           = FALSE) |>
+    # rename all xxx_data_level variables to data_level
+    purrr::map(rename_data_level_var, verbose = FALSE)
+
+  # fiter PPP dataset
+  if ("ppp" %in% names(laux)) {
+    py <- ppp_year
+    laux$ppp <- laux$ppp[ppp_year == py & ppp_default_by_year  == TRUE]
+  }
+
   names(laux) <- tables
 
-  purrr::accumulate(lid, uni_int, .init = NULL)
+  # Create by variables
+  lby_vars <- uni_int(lid)
 
-
-
+  # Merge aux tables
+  dt <- purrr::reduce2(laux, lby_vars, merge)
 
 #   ____________________________________________________
 #   Return                                           ####
-  return(TRUE)
+  return(dt)
 
 }
 
@@ -116,7 +127,7 @@ aux_ids <- function(tables = NULL) {
 }
 
 
-uni_int <- function(x, y, z) {
+uni_int <- function(l) {
 
 #   ____________________________________________________
 #   on.exit                                         ####
@@ -139,13 +150,69 @@ uni_int <- function(x, y, z) {
 
 #   ____________________________________________________
 #   Computations                                     ####
-  u <- c(x, y) |>
-    unique() |>
-    intersect(z)
 
+  x    <- NULL
+  lres <- vector("list", length = length(l) - 1)
+  for(i in seq_along(lres)) {
+    y <- l[[i]]
+    z <- l[[i + 1]]
+
+    lres[[i]] <- union(x, y) |>
+      intersect(z)
+    x <- y
+  }
 
 #   ____________________________________________________
 #   Return                                           ####
-  return(u)
+  return(lres)
+
+}
+
+
+rename_data_level_var <- function(dt,
+                                  verbose = TRUE) {
+
+  #   ____________________________________________________
+  #   Defenses                                        ####
+  stopifnot( exprs = {
+    is.data.frame(dt)
+  }
+  )
+
+  if (is.data.table(dt)) {
+    df <- copy(dt)
+  } else {
+    df <- as.data.table(dt)
+  }
+
+  vars <- names(df)
+
+  dl_var <- grep("data_level", vars, value = TRUE)
+
+
+  #   ____________________________________________________
+  #   Early returns                                   ####
+  ldl <- length(dl_var)
+  if (ldl == 0) {
+    if (verbose)
+      cli::cli_alert_warning("no {.code data_level} variable found")
+
+    return(dt)
+  } else if (ldl > 1) {
+    if (verbose)
+      cli::cli_alert_warning("Found {ldl} {.code data_level} variable{?s}: {.field {dl_var}}.
+                           Rename only works when one variable is found")
+    return(dt)
+  }
+
+  #   ____________________________________________________
+  #   Computations                                     ####
+  setnames(df, dl_var, "data_level")
+  df[, data_level := tolower(data_level)]
+
+
+  #   ____________________________________________________
+  #   Return                                           ####
+  return(df)
 
 }
