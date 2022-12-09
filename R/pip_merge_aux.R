@@ -89,6 +89,10 @@ pip_merge_aux <- function(tables            = c("cpi", "ppp"),
 #' @inheritParams pip_merge_aux
 #'
 #' @return list of ids per table
+#' @export
+#'
+#' @examples
+#' aux_ids()
 aux_ids <- function(tables = NULL) {
 
   l <- list()

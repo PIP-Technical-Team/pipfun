@@ -16,3 +16,6 @@ list of ids per table
 \description{
 list of ID variables in auxiliary tables
 }
+\examples{
+aux_ids()
+}
