@@ -232,7 +232,7 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
   # Max dates   ---------
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  max_year_country   <- 2019
+  max_year_country   <- NULL
   if (is.null(max_year_country)) {
 
     c_year   <- as.integer(format(Sys.Date(), "%Y"))
