@@ -192,8 +192,8 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ## Cached survey data dir -----
-    cache_ppp <- data.table::tstrsplit(vintage_dir, "_", keep = c(2:5))
-    cache_ppp <- paste0(cache_ppp, collapse = "_")
+    cache_ppp <- vintage_dir
+    # cache_ppp <- paste0(cache_ppp, collapse = "_")
 
     glbs$CACHE_SVY_DIR_PC <- fs::path(glbs$PIP_PIPE_DIR,
                                       'pc_data/cache/clean_survey_data',
