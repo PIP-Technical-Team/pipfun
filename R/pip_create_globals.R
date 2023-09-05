@@ -13,8 +13,12 @@
 #'   `getOption("pipfun.verbose")`
 #' @param create_dir logical: If TRUE creates output directory or any other
 #'   directory that is part of the returned global and that does not exist.
-#'   Otherwise it just returns the directory path **even if**  the
-#'   directory does not exist
+#'   Otherwise it just returns the directory path **even if**  the directory
+#'   does not exist
+#' @param max_year_country numeric: Max year for country lineup. Default NULL,
+#'   which is a heuristics that depends on the date this function is executed.
+#' @param max_year_aggregate numeric: Max year for regional lineup.Default NULL,
+#'   which is two years before the current year
 #'
 #' @return list
 #' @export
@@ -23,12 +27,14 @@
 #' \dontrun{
 #' pip_create_globals()
 #' }
-pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
-                               out_dir    = root_dir,
-                               vintage    = NULL,
-                               clean      = FALSE,
-                               verbose    = getOption("pipfun.verbose"),
-                               create_dir = FALSE) {
+pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
+                               out_dir            = root_dir,
+                               vintage            = NULL,
+                               clean              = FALSE,
+                               verbose            = getOption("pipfun.verbose"),
+                               create_dir         = FALSE,
+                               max_year_country   = NULL,
+                               max_year_aggregate = NULL) {
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,7 +238,7 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
   # Max dates   ---------
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  max_year_country   <- NULL
+
   if (is.null(max_year_country)) {
 
     c_year   <- as.integer(format(Sys.Date(), "%Y"))
@@ -254,7 +260,11 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
   # Compression level for .fst output files
   glbs$FST_COMP_LVL     <- 100
 
-  glbs$max_year_aggregate <- 2017
+  if (is.null(max_year_aggregate)) {
+    glbs$max_year_aggregate <- as.integer(format(Sys.Date(), "%Y")) - 2
+  } else {
+    glbs$max_year_aggregate <- max_year_aggregate
+  }
 
   return(glbs)
 }

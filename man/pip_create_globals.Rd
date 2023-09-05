@@ -10,7 +10,9 @@ pip_create_globals(
   vintage = NULL,
   clean = FALSE,
   verbose = getOption("pipfun.verbose"),
-  create_dir = FALSE
+  create_dir = FALSE,
+  max_year_country = NULL,
+  max_year_aggregate = NULL
 )
 }
 \arguments{
@@ -32,8 +34,14 @@ created by mistake. Default is FALSE.}
 
 \item{create_dir}{logical: If TRUE creates output directory or any other
 directory that is part of the returned global and that does not exist.
-Otherwise it just returns the directory path \strong{even if}  the
-directory does not exist}
+Otherwise it just returns the directory path \strong{even if}  the directory
+does not exist}
+
+\item{max_year_country}{numeric: Max year for country lineup. Default NULL,
+which is a heuristics that depends on the date this function is executed.}
+
+\item{max_year_aggregate}{numeric: Max year for regional lineup.Default NULL,
+which is two years before the current year}
 }
 \value{
 list
