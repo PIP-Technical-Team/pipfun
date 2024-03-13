@@ -22,6 +22,11 @@ compare_directories <- function(old, new) {
   # Get info on directory 2
   new_dir_info <- directory_info(dir = new)
 
+  # Track files that are in new but not in old directory
+  new_only <- new_dir_info |>
+    fselect("file_name") |>
+    fsubset(!(file_name %in% old_dir_info$file_name))
+
   # Combine info for common files only
   jn_info <- joyn::joyn(x                = old_dir_info,
                         y                = new_dir_info,
@@ -55,8 +60,9 @@ compare_directories <- function(old, new) {
                                     )))
 
   # return info data and table
-  return(list(info    = jn_info,
-              display = table_display))
+  return(list(new_only_files = new_only,
+              info           = jn_info,
+              display        = table_display))
 }
 
 
@@ -105,6 +111,18 @@ directory_info <- function(dir) {
 #
 # comparison_results$info
 # comparison_results$display
+
+# Track which files are in one dir and not in the other -v0 ####
+
+old_files <- fs::dir_ls(path = old,
+                        #glob = "*.R",
+                        recurse = TRUE)
+
+new_files <- fs::dir_ls(path = new,
+                        #glob = "*.R",
+                        recurse = TRUE)
+
+
 
 
 
