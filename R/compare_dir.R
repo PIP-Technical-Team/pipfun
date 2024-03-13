@@ -3,6 +3,7 @@ library(fs)
 library(fastverse)
 library(joyn)
 library(data.table)
+library(DT)
 
 # # Function to compare individual files
 # compare_files <- function(file1, file2) {
@@ -91,61 +92,61 @@ library(data.table)
 
 ## Store info on last modification_time for common files in new vs old dir ####
 
-library(fs)
-library(fastverse)
-library(dplyr)
-
-compare_directories <- function(old, new) {
-
-  # Get list of files in directories and sub-directories of dir1 and dir2
-  old_files <- fs::dir_ls(path = old,
-                           #glob = "*.R",
-                           recurse = TRUE)
-  new_files <- fs::dir_ls(path = new,
-                           #glob = "*.R",
-                           recurse = TRUE)
-
-  # Get common files, excluding special files
-  common_files <- intersect(fs::path_file(old_files),
-                            fs::path_file(new_files))
-
-  filetred_common_files <- common_files[!grepl("^\\.\\.$|^\\.$", common_files)]
-
-  # Create an empty data frame to store the results
-  info_df <- data.frame(
-    file_name = character(),
-    last_modified_old = character(),
-    last_modified_new = character(),
-    # new, initialized to logical, then:
-    #  -TRUE if file in new dir modified after that in old dir,
-    #  -FALSE otherwise
-    new = logical()
-  )
-
-  # Iterate over common files and collect information
-  for (file in old_files) {
-
-    file_name <- fs::path_file(old_files)
-    old_file_path <-
-    new_file_path <-
-
-    last_modified_old <- fs::file_info(path = old_file_path)
-    last_modified_new <- fs::file_info(path = new_file_path)
-
-    new_modified <- last_modified_new > last_modified_old
-
-
-    info_df <- rbind(info_df, data.frame(
-      file_name = fs::path_file(file),
-      last_modified_old = last_modified_old,
-      last_modified_new = last_modified_new,
-      new = new
-    ))
-
-  }
-
-  return(info_df)
-}
+# library(fs)
+# library(fastverse)
+# library(dplyr)
+#
+# compare_directories <- function(old, new) {
+#
+#   # Get list of files in directories and sub-directories of dir1 and dir2
+#   old_files <- fs::dir_ls(path = old,
+#                            #glob = "*.R",
+#                            recurse = TRUE)
+#   new_files <- fs::dir_ls(path = new,
+#                            #glob = "*.R",
+#                            recurse = TRUE)
+#
+#   # Get common files, excluding special files
+#   common_files <- intersect(fs::path_file(old_files),
+#                             fs::path_file(new_files))
+#
+#   filetred_common_files <- common_files[!grepl("^\\.\\.$|^\\.$", common_files)]
+#
+#   # Create an empty data frame to store the results
+#   info_df <- data.frame(
+#     file_name = character(),
+#     last_modified_old = character(),
+#     last_modified_new = character(),
+#     # new, initialized to logical, then:
+#     #  -TRUE if file in new dir modified after that in old dir,
+#     #  -FALSE otherwise
+#     new = logical()
+#   )
+#
+#   # Iterate over common files and collect information
+#   for (file in old_files) {
+#
+#     file_name <- fs::path_file(old_files)
+#     old_file_path <-
+#     new_file_path <-
+#
+#     last_modified_old <- fs::file_info(path = old_file_path)
+#     last_modified_new <- fs::file_info(path = new_file_path)
+#
+#     new_modified <- last_modified_new > last_modified_old
+#
+#
+#     info_df <- rbind(info_df, data.frame(
+#       file_name = fs::path_file(file),
+#       last_modified_old = last_modified_old,
+#       last_modified_new = last_modified_new,
+#       new = new
+#     ))
+#
+#   }
+#
+#   return(info_df)
+# }
 
 # Comparing directories by time - version 1 ####
 
@@ -171,9 +172,39 @@ compare_directories <- function(old, new) {
     collapse::ftransform(last_modified.x = NULL, last_modified.y = NULL) |>
     collapse::ftransform(new = last_modified_new > last_modified_old)
 
-  # convenient visualization TODO
+  # Create visualization
+  table_dispaly <- DT::datatable(jn_info,
+                                  options = list(
+                                  pageLength = 10, # number of rows to display per page
+                                  columnDefs = list(
+                                    list(targets = "new",
+                                         createdCell = JS(
+                                           "function(td, cellData, rowData, row, col) {
+                                  if (cellData === true) {
+                                    $(td).css({'background-color': 'lightgreen'});
+                                  } else {
+                                    $(td).css({'background-color': 'orange'});
+                                  }
+                                }"
+                                           )
+                                         )
+                                    )))
+  # visualize table
+  table_display
+
+  # return info data
   return(jn_info)
 }
+
+# Visualize comparison of directories by time - version 1 ####
+
+compare_by_time_vis <- function(info_df) {
+
+  # info_df should be the output of jn_info
+
+}
+
+
 
 # Directory info ####
 directory_info <- function(dir) {
