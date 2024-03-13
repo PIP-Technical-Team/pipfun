@@ -173,7 +173,7 @@ compare_directories <- function(old, new) {
     collapse::ftransform(new = last_modified_new > last_modified_old)
 
   # Create visualization
-  table_dispaly <- DT::datatable(jn_info,
+  table_display <- DT::datatable(jn_info,
                                   options = list(
                                   pageLength = 10, # number of rows to display per page
                                   columnDefs = list(
@@ -189,21 +189,11 @@ compare_directories <- function(old, new) {
                                            )
                                          )
                                     )))
-  # visualize table
-  table_display
 
-  # return info data
-  return(jn_info)
+  # return info data and table
+  return(list(info = jn_info,
+              display = table_display))
 }
-
-# Visualize comparison of directories by time - version 1 ####
-
-compare_by_time_vis <- function(info_df) {
-
-  # info_df should be the output of jn_info
-
-}
-
 
 
 # Directory info ####
@@ -246,8 +236,9 @@ directory_info <- function(dir) {
 new <- dir2_path <- "C:\\WBG\\Packages\\pipster"
 old <- dir2_new_path <- "C:\\Users\\wb621604\\OneDrive - WBG\\Desktop\\pipster"
 
-#comparison_results <- compare_directories(old_dir, new_dir)
-#print(comparison_results)
+comparison_results <- compare_directories(old = old,
+                                          new = new)
+print(comparison_results)
 
 
 
