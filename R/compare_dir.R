@@ -95,52 +95,98 @@ library(dplyr)
 
 compare_directories <- function(old, new) {
 
-  # Get list of .R files in directories and sub-directories of dir1 and dir2
+  # Get list of files in directories and sub-directories of dir1 and dir2
   old_files <- fs::dir_ls(path = old,
-                           glob = "*.R",
+                           #glob = "*.R",
                            recurse = TRUE)
   new_files <- fs::dir_ls(path = new,
-                           glob = "*.R",
+                           #glob = "*.R",
                            recurse = TRUE)
 
-  # Iterate over files in both directories - ISSUE
+  # Get common files, excluding special files
   common_files <- intersect(fs::path_file(old_files),
                             fs::path_file(new_files))
+
+  filetred_common_files <- common_files[!grepl("^\\.\\.$|^\\.$", common_files)]
 
   # Create an empty data frame to store the results
   info_df <- data.frame(
     file_name = character(),
     last_modified_old = character(),
     last_modified_new = character(),
-    stringsAsFactors = FALSE
+    # new, initialized to logical, then:
+    #  -TRUE if file in new dir modified after that in old dir,
+    #  -FALSE otherwise
+    new = logical()
   )
 
   # Iterate over common files and collect information
-  for (file in common_files) {
+  for (file in old_files) {
 
-    file_name <- file
+    file_name <- fs::path_file(old_files)
+    old_file_path <-
+    new_file_path <-
 
-    last_modified_old <- file_info(file) %>%
-      pull(modified) %>%
-      as.character()
+    last_modified_old <- fs::file_info(path = old_file_path)
+    last_modified_new <- fs::file_info(path = new_file_path)
 
-    last_modified_new <- file_info(file_path(file, dir = new_dir)) %>%
-      pull(modified) %>%
-      as.character()
+    new_modified <- last_modified_new > last_modified_old
 
-    results_df <- rbind(results_df, data.frame(
-      file_name = file_name,
+
+    info_df <- rbind(info_df, data.frame(
+      file_name = fs::path_file(file),
       last_modified_old = last_modified_old,
       last_modified_new = last_modified_new,
-      stringsAsFactors = FALSE
+      new = new
     ))
 
   }
 
-  return(results_df)
+  return(info_df)
 }
 
-## Get time of last modification of a file ####
+# Comparing directories by time - version 1 ####
+
+compare_directories <- function(old, new) {
+
+  # Get info on directory 1
+  # Get info on directory 2
+
+  # join by common name and create data frame and visualization
+}
+
+directory_info <- function(dir) {
+
+  # List of files -also in sub-directories
+  files <- fs::dir_ls(path = dir,
+                      #glob = "*.R",
+                      recurse = TRUE)
+
+  # Filtering out special files
+  files <- files[!grepl("^\\.\\.$|^\\.$", files)]
+
+  # Create an empty data frame to store the results
+  info_df <- data.frame(
+    file_name = character(),
+    last_modified = character()
+  )
+
+  for (file in files) {
+
+    file_name <- fs::path_file(file)
+
+    last_modified <- fs::file_info(path = file)$modification_time
+
+    info_df <- rbind(info_df, data.frame(
+      file_name = file_name,
+      last_modified = last_modified
+    ))
+
+  }
+
+  return(info_df)
+
+}
 
 # Example usage ####
 
