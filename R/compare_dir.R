@@ -1,6 +1,8 @@
 
 library(fs)
 library(fastverse)
+library(joyn)
+library(data.table)
 
 # # Function to compare individual files
 # compare_files <- function(file1, file2) {
@@ -150,11 +152,30 @@ compare_directories <- function(old, new) {
 compare_directories <- function(old, new) {
 
   # Get info on directory 1
-  # Get info on directory 2
+  old_dir_info <- directory_info(dir = old)
 
-  # join by common name and create data frame and visualization
+  # Get info on directory 2
+  new_dir_info <- directory_info(dir = new)
+
+  # Combine info for common files only
+  jn_info <- joyn::joyn(x = old_dir_info,
+                        y = new_dir_info,
+                        by = "file_name",
+                        keep_common_vars = TRUE,
+                        keep = "inner",
+                        reportvar = FALSE)
+
+
+  jn_info <- jn_info |>
+    collapse::ftransform(last_modified_old = last_modified.x, last_modified_new = last_modified.y) |>
+    collapse::ftransform(last_modified.x = NULL, last_modified.y = NULL) |>
+    collapse::ftransform(new = last_modified_new > last_modified_old)
+
+  # convenient visualization TODO
+  return(jn_info)
 }
 
+# Directory info ####
 directory_info <- function(dir) {
 
   # List of files -also in sub-directories
@@ -190,9 +211,9 @@ directory_info <- function(dir) {
 
 # Example usage ####
 
-dir1_path = "C:\\WBG\\Packages\\joyn"
-dir2_path <- "C:\\WBG\\Packages\\pipster"
-dir2_new_path <- "C:\\Users\\wb621604\\OneDrive - WBG\\Desktop\\pipster"
+# dir1_path = "C:\\WBG\\Packages\\joyn"
+new <- dir2_path <- "C:\\WBG\\Packages\\pipster"
+old <- dir2_new_path <- "C:\\Users\\wb621604\\OneDrive - WBG\\Desktop\\pipster"
 
 #comparison_results <- compare_directories(old_dir, new_dir)
 #print(comparison_results)
