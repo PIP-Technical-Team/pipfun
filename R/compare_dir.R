@@ -86,17 +86,28 @@ compare_directories <- function(old,
                                             )
                                        )
                                      )))
-    return(list(new_only, dt_compare, table_display))
+    return(list(new_files = new_only, dir_compare = dt_compare, display = table_display))
 
   }
 
   else {
     # note: to complete
-    return(list(new_only, dt_compare))
+    return(list(new_files = new_only, dir_compare = dt_compare))
 
     }
 
 } # close function
+
+# Move a file from old to new dir or viceversa
+
+update_dir <- function(dt_compare,
+                       source,
+                       destination) {
+
+
+#TODO
+
+}
 
 
 #### My example
