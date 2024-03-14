@@ -100,29 +100,4 @@ directory_info <- function(dir) {
 
 }
 
-# Example usage ####
-
-# dir1_path = "C:\\WBG\\Packages\\joyn"
-# new <- dir2_path <- "C:\\WBG\\Packages\\pipster"
-# old <- dir2_new_path <- "C:\\Users\\wb621604\\OneDrive - WBG\\Desktop\\pipster"
-#
-# comparison_results <- compare_directories(old = old,
-#                                           new = new)
-#
-# comparison_results$info
-# comparison_results$display
-
-# Track which files are in one dir and not in the other -v0 ####
-
-old_files <- fs::dir_ls(path = old,
-                        #glob = "*.R",
-                        recurse = TRUE)
-
-new_files <- fs::dir_ls(path = new,
-                        #glob = "*.R",
-                        recurse = TRUE)
-
-
-
-
 
