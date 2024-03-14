@@ -84,7 +84,7 @@ compare_directories <- function(old,
                                             )
                                        )
                                      )))
-    return(list(dt_compare, table_display))
+    return(list(new_only, dt_compare, table_display))
 
   }
 
