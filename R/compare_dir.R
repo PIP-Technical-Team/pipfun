@@ -9,7 +9,8 @@ directory_info <- function(dir,
   # List of files -also in sub-directories
   files <- fs::dir_ls(path = dir,
                       type = "file",
-                      recurse = recurse)
+                      recurse = recurse,
+                      ...)
 
   # Filtering out special files
   files <- files[!grepl("^\\.\\.$|^\\.$", files)]
@@ -28,7 +29,8 @@ compare_directories <- function(old,
                                 by = "date",
                                 ...) {
 
-  # Add checks on arguments
+  # memo: Add checks on arguments
+  #     -> should by match specific options, based on what's available in file_info?
 
 
   # Get info on directory 1
@@ -41,7 +43,7 @@ compare_directories <- function(old,
                                  recurse = recurse) |>
     ftransform(wo_root = gsub(new, "", path))
 
-  # Combine info for common files only
+  # Combine info with a full join
   dt_compare <- joyn::joyn(x                = old_dir_info,
                            y                = new_dir_info,
                            by               = "wo_root",
@@ -90,14 +92,14 @@ compare_directories <- function(old,
 
   else {
     # note: to complete
-    return(dt_compare)
+    return(list(new_only, dt_compare))
 
     }
 
 } # close function
 
 
-#### Example
+#### My example
 new <-  "C:/WBG/Packages/pipster"
 old <-  "C:/Users/wb621604/OneDrive - WBG/Desktop/pipster"
 
