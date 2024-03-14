@@ -7,7 +7,8 @@
 #'
 #' @docType package
 #' @name pipfun
-#' @import data.table
+#' @rawNamespace import(collapse, except = fdroplevels)
+#' @rawNamespace import(data.table, except = fdroplevels)
 #' @importFrom glue glue
 
 # Make sure data.table knows we know we're using it
