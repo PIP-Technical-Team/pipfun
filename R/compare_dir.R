@@ -98,14 +98,26 @@ compare_directories <- function(old,
 
 } # close function
 
-# Move a file from old to new dir or viceversa
+# Move a file from old to new dir or vice versa
 
-update_dir <- function(dt_compare,
-                       source,
-                       destination) {
+update_dir <- function(file_name,
+                       source_path,
+                       destination_path) {
+
+  compare_dirs <- compare_directories(old = source_path,
+                                      new = destination_path)
 
 
-#TODO
+
+  # Check if the file is newer in source or destination path
+
+
+  # If the file is newer in destination than in source, move the file:
+  #  source >> destination
+
+
+
+
 
 }
 
@@ -114,70 +126,4 @@ update_dir <- function(dt_compare,
 new <-  "C:/WBG/Packages/pipster"
 old <-  "C:/Users/wb621604/OneDrive - WBG/Desktop/pipster"
 
-# OLD ####
-#' # Comparing directories by time ####
-#' #' Comparing directories' common files by date of last modification
-#' #'
-#' #' @param old path to directory 1
-#' #' @param new path to directory 2
-#' #' @return list of info data frame and its visualization
-#' #' @keywords internal
-#' #' @noRd
-#'
-#'
-#' # Add by argument -by default would be "date"
-#' compare_directories_v0 <- function(old,
-#'                                 new,
-#'                                 by = "date") {
-#'
-#'
-#'   # Get info on directory 1
-#'   old_dir_info <- directory_info(dir = old)
-#'
-#'   # Get info on directory 2
-#'   new_dir_info <- directory_info(dir = new) |>
-#'     ftransform(wo_root = gsub(new, "", path))
-#'
-#'   # Combine info for common files only
-#'   jn_info <- joyn::joyn(x                = old_dir_info,
-#'                         y                = new_dir_info,
-#'                         by               = "file_name",
-#'                         keep_common_vars = TRUE,
-#'                         keep             = "inner",
-#'                         reportvar        = FALSE)
-#'
-#'   # Track files that are in new but not in old directory
-#'   # Do it here based on reportvar
-#'
-#'   # Rename cols and add `new` logical var
-#'   jn_info <- jn_info |>
-#'     ftransform(last_modified_old = last_modified.x, last_modified_new = last_modified.y) |>
-#'     collapse::ftransform(last_modified.x = NULL, last_modified.y = NULL) |>
-#'     collapse::ftransform(new = last_modified_new > last_modified_old)
-#'
-#'   # Create visualization
-#'   table_display <- DT::datatable(jn_info,
-#'                                   options = list(
-#'                                   pageLength = 10, # number of rows to display per page
-#'                                   columnDefs = list(
-#'                                     list(targets = "new",
-#'                                          createdCell = JS(
-#'                                            "function(td, cellData, rowData, row, col) {
-#'                                   if (cellData === true) {
-#'                                     $(td).css({'background-color': 'lightgreen'});
-#'                                   } else {
-#'                                     $(td).css({'background-color': 'orange'});
-#'                                   }
-#'                                 }"
-#'                                            )
-#'                                          )
-#'                                     )))
-#'
-#'   # return info data and table
-#'   return(list(new_only_files = new_only,
-#'               info           = jn_info,
-#'               display        = table_display))
-#' }
-#'
-#'
 
