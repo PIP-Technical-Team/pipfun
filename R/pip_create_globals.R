@@ -62,7 +62,7 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
             {.field %Y%m%d_YYYY_##_##_SSS}"
           )
           cli::cli_abort(msg,
-                         class = "pipload_error",
+                         class = "pipfun_error",
                          wrap = TRUE
           )
         }
@@ -83,7 +83,7 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
           "x" = "you provided {.field {vintage}}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error",
+                       class = "pipfun_error",
                        wrap  = TRUE
         )
 
@@ -369,7 +369,7 @@ check_and_create <- function(dir,
                 "*" = "vintages availables are {.file {vintages_av}}"
               )
               cli::cli_abort(msg,
-                             class = "pipload_error"
+                             class = "pipfun_error"
               )
 
             }
@@ -385,7 +385,7 @@ check_and_create <- function(dir,
                 "*" = "vintages availables are {.file {vintages_av}}"
               )
               cli::cli_abort(msg,
-                             class = "pipload_error"
+                             class = "pipfun_error"
               )
 
             }
@@ -402,7 +402,7 @@ check_and_create <- function(dir,
                 "*" = "vintages availables are {.file {vintages_av}}"
               )
               cli::cli_abort(msg,
-                             class = "pipload_error"
+                             class = "pipfun_error"
               )
 
             }
