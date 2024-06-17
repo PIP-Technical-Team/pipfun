@@ -18,6 +18,7 @@ Imports:
     fs,
     fst,
     gh,
+    gitcreds,
     glue,
     haven,
     httr,
