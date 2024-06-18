@@ -4,7 +4,7 @@
 \alias{get_gh}
 \title{Get tags from specific Github repo}
 \usage{
-get_gh(owner, repo, what = c("tags", "branches"))
+get_gh(owner, repo, what = c("tags", "branches", "releases", "contents"))
 }
 \arguments{
 \item{owner}{character: Github username that owns the repo}
