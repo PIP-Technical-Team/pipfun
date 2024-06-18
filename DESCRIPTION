@@ -21,7 +21,7 @@ Imports:
     gitcreds,
     glue,
     haven,
-    httr,
+    httr2,
     purrr,
     qs,
     readr,
@@ -30,6 +30,7 @@ Imports:
     yaml
 Suggests: 
     covr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    writexl
 Config/testthat/edition: 3
 URL: https://pip-technical-team.github.io/pipfun/

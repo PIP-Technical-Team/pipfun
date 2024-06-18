@@ -94,8 +94,8 @@ get_gh <- function(owner,
                    what = c("tags", "branches", "releases", "contents")) {
 
   # Defenses -----------
-  what <- match.arg(what)
-  cred <- get_github_creds()
+  what  <- match.arg(what)
+  creds <- get_github_creds()
 
   # Computations -------
 
@@ -216,11 +216,11 @@ download_from_gh <- function(path, temp_file) {
       path_parts <- gsub("https://raw.githubusercontent.com/", "", path) |>
         strsplit("/") |>
         unlist()
-      owner <- path_parts[1]
-      repo <- path_parts[2]
-      branch <- path_parts[3]
+      owner    <- path_parts[1]
+      repo     <- path_parts[2]
+      branch   <- path_parts[3]
       branches <- get_gh(owner, repo, what = "branches")
-      tags   <- get_gh(owner, repo, what = "tags")
+      tags     <- get_gh(owner, repo, what = "tags")
 
       if (!(branch %in% c(branches, tags))) {
         cli::cli_abort(c("{.field {branch}} is not a branch neither a tag
