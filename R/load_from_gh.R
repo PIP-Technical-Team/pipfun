@@ -23,82 +23,39 @@ load_from_gh <- function(measure,
                          filename  = measure,
                          ext       = "csv",
                          ...) {
+
+  # prepare temp file
+  # check if ext starts with .
+  temp_file <- tempfile(fileext = ifelse(grepl("^\\.", ext), ext, paste0(".", ext)))
+
   #   ____________________________________________________________________________
   #   on.exit                                                                 ####
   on.exit({
-
-    if (exists("temp_file")) {
-      if (fs::file_exists(temp_file)) {
-        unlink(temp_file)
-      }
-    }
-    # close(path)
-
+    if (fs::file_exists(temp_file)) unlink(temp_file)
   })
 
   #   ____________________________________________________________________________
   #   Defenses                                                                ####
-  check_github_token()
   stopifnot(exprs = {
     length(branch) == 1
   })
-  #   ____________________________________________________________________________
-  #   Early returns                                                           ####
-  if (FALSE) {
-    return()
-  }
 
   #   ____________________________________________________________________________
-  #   Initial params                                                ####
+  #   get data                                                ####
 
-  creds     <- gitcreds::gitcreds_get()
-  my_token  <- creds$password
-  path      <- glue("https://raw.githubusercontent.com/{owner}/{repo}/{tag}/{filename}.{ext}")
+  root <- "https://raw.githubusercontent.com"
+  path  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
 
+  # download the file
+  download_from_gh(path, temp_file)
 
-  path <-
-    glue("https://github.com/{owner}/{repo}/raw/{tag}/{filename}.{ext}")
-  # path <- file(path)
-
+  # load temporal file from disk
   tryCatch(
     expr = {
       # load depending of the extension
-      df <-  suppressMessages(  # suppress any loading message
-
-        if (ext == "csv") {
-
-          readr::read_csv(path, ...)
-          # data.table::fread(path, ...)
-
-        } else if (ext  %in% c("xls", "xlsx")) {
-
-          temp_file <- tempfile(fileext = ext)
-          req <- httr::GET(path,
-                           # write result to disk
-                           httr::write_disk(path = temp_file))
-
-
-          readxl::read_excel(path = temp_file, ...)
-
-        } else if (ext == "dta") {
-
-          haven::read_dta(path, ...)
-
-        } else if (ext == "qs") {
-
-          qs::qread(path, ...)
-
-        } else if (ext == "fst") {
-
-          fst::read_fst(path, ...)
-
-        } else if (ext == "yaml") {
-
-          yaml::read_yaml(path, ...)
-
-        }
-
-      )
+      df <-  load_from_disk(temp_file, ext, ...) |>
+        # suppress any loading message
+        suppressMessages()
 
       if (is.data.frame(df)) {
         setDT(df)
@@ -107,53 +64,10 @@ load_from_gh <- function(measure,
     # end of expr section
 
     error = function(e) {
-      if (tag == branch) {
+      cli::cli_abort(c("Error loading temp file from disk",
+                       x = "{e$message}"))
 
-        ##  ............................................................................
-        ##  Error in branches                                                       ####
-
-        branches <- get_gh(owner, repo, what = "branches")
-
-        if (!(branch  %in% branches)) {
-          msg     <- c(
-            "{.field branch} specified ({branch}) does not exist in repo
-          {.file {owner}/{repo}}",
-          "i" = "Select one among {.field {branches}}"
-          )
-          cli::cli_abort(msg, class = "pipaux_error")
-
-        } else {
-          msg     <- c("Problem loading {.file {filename}.{ext}} Correctly:
-                     {e$message}")
-          cli::cli_abort(msg, class = "pipaux_error",
-                         wrap = TRUE)
-
-        }
-
-      } else {
-
-        ##  ............................................................................
-        ##  Error in tags                                                           ####
-
-        tags     <- get_gh(owner, repo, what = "tags")
-
-        if (!(tag  %in% tags)) {
-          msg     <- c(
-            "{.field tag} specified ({tag}) does not exist in repo
-          {.file {owner}/{repo}}",
-          "i" = "Select one among {.field {tags}}"
-          )
-          cli::cli_abort(msg, class = "pipaux_error")
-
-        } else {
-          msg     <- c("Could not load {.file {filename}.{ext}} from Github repo:
-                     {e$message}")
-          cli::cli_abort(msg, class = "pipaux_error")
-
-        }
-      }
-
-    } # end of finally section
+    } # end of error section
 
   ) # End of trycatch
 
@@ -177,10 +91,11 @@ load_from_gh <- function(measure,
 #' @keywords internal
 get_gh <- function(owner,
                    repo,
-                   what = c("tags", "branches")) {
+                   what = c("tags", "branches", "releases", "contents")) {
 
   # Defenses -----------
   what <- match.arg(what)
+  cred <- get_github_creds()
 
   # Computations -------
 
@@ -189,8 +104,9 @@ get_gh <- function(owner,
            owner = owner,
            repo = repo,
            what = what,
-           .limit = Inf)  |>
-    purrr::map_chr("name")
+           .limit = Inf,
+           .token = creds$password)  |>
+    vapply(\(x) x[["name"]], character(1))
 
   if (what == "tags") {
     rs <- sort(rs, decreasing = TRUE)
@@ -272,3 +188,74 @@ is_private_repo <- function(measure   = NULL,
     cli::cli_abort("Error fetching repository information. Please check the repository name and owner.")
   }
 }
+
+
+download_from_gh <- function(path, temp_file) {
+
+  creds = get_github_creds()
+
+  # load temporal file from disk
+  tryCatch(
+    expr = {
+      # using httr2 to download the file
+      # Create a request object with authentication
+      httr2::request(path) |>
+        httr2::req_auth_basic(username = creds$username,
+                              password = creds$password) |>
+        httr2::req_perform() |>
+        httr2::resp_body_raw() |>
+        writeBin(temp_file)
+
+    },
+    # end of expr section
+
+    error = function(e) {
+      # extract owner and repo name from path of the form
+      # root <- "https://raw.githubusercontent.com"
+      # path  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
+      path_parts <- gsub("https://raw.githubusercontent.com/", "", path) |>
+        strsplit("/") |>
+        unlist()
+      owner <- path_parts[1]
+      repo <- path_parts[2]
+      branch <- path_parts[3]
+      branches <- get_gh(owner, repo, what = "branches")
+      tags   <- get_gh(owner, repo, what = "tags")
+
+      if (!(branch %in% c(branches, tags))) {
+        cli::cli_abort(c("{.field {branch}} is not a branch neither a tag
+                       available in repo {.file {owner}/{repo}}.
+                       \nAvailability:",
+                       i = "tags: {.field {tags}}",
+                       i = "branches: {.field {branches}}"))
+      } else {
+        cli::cli_abort(c("Error downloading file from github",
+                         x = "{e$message}"))
+      }
+
+    } # end of error section
+
+  ) # End of trycatch
+  invisible(temp_file)
+
+}
+
+
+load_from_disk <- function(temp_file, ext, ...) {
+  if (ext == "csv")  return(readr::read_csv(temp_file, ...))
+
+  if (ext  %in% c("xls", "xlsx"))
+    return(readxl::read_excel(temp_file, ...))
+
+  if (ext == "dta") return(haven::read_dta(temp_file, ...))
+
+  if (ext == "qs") return(qs::qread(temp_file, ...))
+
+  if (ext == "fst") return(fst::read_fst(temp_file, ...))
+
+  if (ext == "yaml") return(yaml::read_yaml(temp_file, ...))
+
+  cli::cli_abort("Extension {.field {ext}} not supported")
+}
+
+
