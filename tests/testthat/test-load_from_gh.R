@@ -168,7 +168,7 @@ test_that("load_from_disk loads Excel files correctly", {
   # expect_equal(dim(result_xls), dim(mtcars))
   expect_equal(dim(result_xlsx), dim(mtcars))
   # Cleanup
-  unlink(temp_file_xls)
+  # unlink(temp_file_xls)
   unlink(temp_file_xlsx)
 })
 

@@ -167,8 +167,10 @@ get_github_creds <- function() {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' is_private_repo("cpi")
 #' is_private_repo("nan")
+#' }
 is_private_repo <- function(measure   = NULL,
                             owner     = getOption("pipfun.ghowner"),
                             repo      = paste0("aux_", measure)) {
@@ -177,8 +179,10 @@ is_private_repo <- function(measure   = NULL,
   creds <- get_github_creds()
 
   # Make the API request
-  response <- httr2::request(url) |>
-    httr2::req_auth_basic(username = creds$username, password = creds$password) |>
+  response <- url |>
+    httr2::request() |>
+    httr2::req_auth_basic(username = creds$username,
+                          password = creds$password) |>
     httr2::req_perform()
   # Check status code
   if (response$status_code == 200) {
@@ -199,7 +203,8 @@ download_from_gh <- function(path, temp_file) {
     expr = {
       # using httr2 to download the file
       # Create a request object with authentication
-      httr2::request(path) |>
+      path |>
+        httr2::request() |>
         httr2::req_auth_basic(username = creds$username,
                               password = creds$password) |>
         httr2::req_perform() |>

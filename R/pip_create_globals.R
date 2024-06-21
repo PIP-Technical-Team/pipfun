@@ -17,7 +17,9 @@
 #'   does not exist
 #' @param max_year_country numeric: Max year for country lineup. Default NULL,
 #'   which is a heuristics that depends on the date this function is executed.
-#' @param max_year_aggregate numeric: Max year for regional lineup.Default NULL,
+#' @param max_year_aggregate numeric: Max year for regional nowcast.Default
+#'   NULL, which is the current year
+#' @param max_year_lineup numeric: Max year for regional lineup.Default NULL,
 #'   which is two years before the current year
 #'
 #' @return list
@@ -34,6 +36,7 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
                                verbose            = getOption("pipfun.verbose"),
                                create_dir         = FALSE,
                                max_year_country   = NULL,
+                               max_year_lineup    = NULL,
                                max_year_aggregate = NULL) {
 
 
@@ -239,29 +242,38 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+  c_year   <- as.integer(format(Sys.Date(), "%Y"))
+  c_month  <- as.integer(format(Sys.Date(), "%m"))
+
   if (is.null(max_year_country)) {
-
-    c_year   <- as.integer(format(Sys.Date(), "%Y"))
-    c_month  <- as.integer(format(Sys.Date(), "%m"))
-
     max_year <- ifelse(c_month >= 8,  # August
                        c_year - 1, # After or in August
                        c_year - 2) # Before August
-
   } else {
-
     max_year <- max_year_country
+  }
 
+  if (is.null(max_year_lineup)) {
+    max_year_lineup <- max_year
   }
   # Years used in PIP
   glbs$PIP_YEARS        <- 1977:(max_year + 1)
   # Years used in the interpolated means table
-  glbs$PIP_REF_YEARS    <- 1981:max_year
+  glbs$PIP_REF_YEARS    <- 1981:c_year
+
+  # lineup years for aggregate
+  glbs$PIP_LINEUP_YEARS    <- 1981:max_year_lineup
+
+
   # Compression level for .fst output files
-  glbs$FST_COMP_LVL     <- 100
+  glbs$FST_COMP_LVL     <- 20
 
   if (is.null(max_year_aggregate)) {
-    glbs$max_year_aggregate <- as.integer(format(Sys.Date(), "%Y")) - 2
+    glbs$max_year_aggregate <-
+      Sys.Date() |>
+      format("%Y") |>
+      as.integer()
+
   } else {
     glbs$max_year_aggregate <- max_year_aggregate
   }

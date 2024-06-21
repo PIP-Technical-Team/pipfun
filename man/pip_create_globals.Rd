@@ -12,6 +12,7 @@ pip_create_globals(
   verbose = getOption("pipfun.verbose"),
   create_dir = FALSE,
   max_year_country = NULL,
+  max_year_lineup = NULL,
   max_year_aggregate = NULL
 )
 }
@@ -40,8 +41,11 @@ does not exist}
 \item{max_year_country}{numeric: Max year for country lineup. Default NULL,
 which is a heuristics that depends on the date this function is executed.}
 
-\item{max_year_aggregate}{numeric: Max year for regional lineup.Default NULL,
+\item{max_year_lineup}{numeric: Max year for regional lineup.Default NULL,
 which is two years before the current year}
+
+\item{max_year_aggregate}{numeric: Max year for regional nowcast.Default
+NULL, which is the current year}
 }
 \value{
 list
