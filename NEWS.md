@@ -1,3 +1,3 @@
 # pipfun (development version)
 
-* Initial CRAN submission.
+* add checks for active package `check_pkg_active()`
