@@ -96,6 +96,7 @@ test_that("get_github_creds fails gracefully with no credentials", {
 
 # Test if download_from_gh() successfully downloads a file
 test_that("download_from_gh successfully downloads a file", {
+  skip_on_cran()
   temp_file <- tempfile(fileext = ".csv")
   path <- "https://raw.githubusercontent.com/PIP-Technical-Team/aux_cpi/DEV/cpi.csv"
 
@@ -111,6 +112,7 @@ test_that("download_from_gh successfully downloads a file", {
 
 # Test if download_from_gh() handles invalid paths correctly
 test_that("download_from_gh handles invalid information", {
+  skip_on_cran()
   temp_file <- tempfile()
   invalid_path <- "https://raw.githubusercontent.com/PIP-Technical-Team/aux_gdp/INVALID/gdp.csv"
 
@@ -124,6 +126,7 @@ test_that("download_from_gh handles invalid information", {
 )
 
 test_that("download_from_gh handles invalid credentials", {
+  skip_on_cran()
 
   temp_file <- tempfile(fileext = ".csv")
   path <- "https://raw.githubusercontent.com/PIP-Technical-Team/aux_nan/DEV/nan.csv"
