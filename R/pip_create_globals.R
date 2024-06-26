@@ -246,9 +246,10 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
   c_month  <- as.integer(format(Sys.Date(), "%m"))
 
   if (is.null(max_year_country)) {
-    max_year <- ifelse(c_month >= 8,  # August
-                       c_year - 1, # After or in August
-                       c_year - 2) # Before August
+    # max_year <- ifelse(c_month >= 8,  # August
+    #                    c_year - 1, # After or in August
+    #                    c_year - 2) # Before August
+    max_year <- c_year
   } else {
     max_year <- max_year_country
   }
