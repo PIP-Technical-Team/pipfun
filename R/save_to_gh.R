@@ -42,5 +42,5 @@ save_to_gh <- function(df,
     .token = Sys.getenv('GITHUB_PAT')
   )
 
-  cli::cli_alert_success("File saved to GitHub successfully!!")
+  cli::cli_alert_success("File {filename}.{ext} saved to {branch} branch of {repo} in GitHub successfully!!")
 }
