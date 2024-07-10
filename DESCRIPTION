@@ -31,6 +31,7 @@ Imports:
 Suggests: 
     covr,
     testthat (>= 3.0.0),
-    writexl
+    writexl, 
+    mockery
 Config/testthat/edition: 3
 URL: https://pip-technical-team.github.io/pipfun/
