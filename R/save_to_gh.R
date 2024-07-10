@@ -5,7 +5,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun {
+#' \dontrun{
 #' save_to_gh(iris, "gdp")
 #' }
 save_to_gh <- function(df,

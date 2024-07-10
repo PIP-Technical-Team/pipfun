@@ -43,7 +43,7 @@ extension used}
 Title
 }
 \examples{
-\dontrun {
+\dontrun{
 save_to_gh(iris, "gdp")
 }
 }
