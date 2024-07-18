@@ -2,6 +2,7 @@
 
 export(add_gls_to_env)
 export(check_pkg_active)
+export(convert_df_to_base64)
 export(get_github_creds)
 export(is_private_repo)
 export(load_from_gh)
