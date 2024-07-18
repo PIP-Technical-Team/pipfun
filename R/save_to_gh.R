@@ -2,6 +2,7 @@
 #' @param df A dataframe object
 #' @inheritParams load_from_gh
 #' @return NULL
+#' @importFrom gh gh
 #' @export
 #'
 #' @examples
@@ -18,9 +19,10 @@ save_to_gh <- function(df,
                        ext       = "csv",
                          ...) {
 
-  metapip:::check_github_token()
+  creds <- get_github_creds()
+
   # Get existing sha of the file
-  out <- gh::gh(
+  out <- gh(
     "GET /repos/{owner}/{repo}/contents/{file_path}",
     owner     = owner,
     repo      = repo,
@@ -28,7 +30,7 @@ save_to_gh <- function(df,
     .params   = list(ref = branch)
   )
   # Update the file
-  gh::gh(
+  gh(
     "PUT /repos/{owner}/{repo}/contents/{path}",
     owner   = owner,
     repo    = repo,
@@ -37,10 +39,11 @@ save_to_gh <- function(df,
       branch  = branch,
       message = "updating data",
       sha     = out$sha,
-      content = pipaux::convert_df_to_base64(df)
+      content = pipaux:::convert_df_to_base64(df)
     ),
-    .token = Sys.getenv('GITHUB_PAT')
+    .token = creds$password
   )
 
   cli::cli_alert_success("File {filename}.{ext} saved to {branch} branch of {repo} in GitHub successfully!!")
+  return(NULL)
 }
