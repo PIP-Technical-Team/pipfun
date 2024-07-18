@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_from_gh.R
 \name{load_from_gh}
 \alias{load_from_gh}
-\title{Load Data from github. This function is inspired in the {gh} package.}
+\title{Load Data from github. This function is inspired from the gh package.}
 \usage{
 load_from_gh(
   measure,
@@ -40,5 +40,5 @@ extension used}
 data.table
 }
 \description{
-Load Data from github. This function is inspired in the {gh} package.
+Load Data from github. This function is inspired from the gh package.
 }
