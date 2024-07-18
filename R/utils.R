@@ -14,10 +14,10 @@ convert_df_to_base64 <- function(df) {
     cli::cli_abort("df is not a dataframe")
   }
   df |>
-    write.table(quote = FALSE,
+    utils::write.table(quote = FALSE,
                 row.names = FALSE,
                 sep = ",") |>
-    capture.output() |>
+    utils::capture.output() |>
     paste(collapse = "\n") |>
     charToRaw() |>
     base64enc::base64encode()

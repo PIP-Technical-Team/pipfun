@@ -39,7 +39,7 @@ save_to_gh <- function(df,
       branch  = branch,
       message = "updating data",
       sha     = out$sha,
-      content = pipaux:::convert_df_to_base64(df)
+      content = convert_df_to_base64(df)
     ),
     .token = creds$password
   )

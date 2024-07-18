@@ -1,4 +1,4 @@
-#' Load Data from github. This function is inspired in the {gh} package.
+#' Load Data from github. This function is inspired from the gh package.
 #'
 #' @param measure character: measure to be loaded
 #' @param owner character: Github repo owner. Default is
