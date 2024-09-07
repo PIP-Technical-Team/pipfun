@@ -3,7 +3,7 @@
 pipfun_default_options <- list(
   pipfun.verbose  = TRUE,
   pipfun.ghowner = "PIP-Technical-Team",
-  pipfun.ppps    = c(2011, 2017),
+  pipfun.ppps    = c(2011, 2017)
 )
 
 .onLoad <- function(libname, pkgname) {

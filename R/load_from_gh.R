@@ -28,13 +28,13 @@ load_from_gh <- function(measure,
   # check if ext starts with .
   temp_file <- tempfile(fileext = ifelse(grepl("^\\.", ext), ext, paste0(".", ext)))
 
-  #   ____________________________________________________________________________
+  #   _________________________________________________
   #   on.exit                                                                 ####
   on.exit({
     if (fs::file_exists(temp_file)) unlink(temp_file)
   })
 
-  #   ____________________________________________________________________________
+  #   _______________________________________________________
   #   Defenses                                                                ####
   stopifnot(exprs = {
     length(branch) == 1

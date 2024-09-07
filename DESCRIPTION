@@ -27,8 +27,9 @@ Imports:
     readr,
     readxl,
     remotes,
-    yaml, 
-    base64enc
+    yaml,
+    base64enc,
+    openssl
 Suggests: 
     covr,
     testthat (>= 3.0.0),
