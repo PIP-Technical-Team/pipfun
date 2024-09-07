@@ -28,20 +28,20 @@ load_from_gh <- function(measure,
   # check if ext starts with .
   temp_file <- tempfile(fileext = ifelse(grepl("^\\.", ext), ext, paste0(".", ext)))
 
-  #   _________________________________________________
-  #   on.exit                                                                 ####
+  #   ____________________________________________
+  #   on.exit                                      ####
   on.exit({
     if (fs::file_exists(temp_file)) unlink(temp_file)
   })
 
-  #   _______________________________________________________
-  #   Defenses                                                                ####
+  #   ______________________________________________________
+  #   Defenses                                            ####
   stopifnot(exprs = {
     length(branch) == 1
   })
 
-  #   ____________________________________________________________________________
-  #   get data                                                ####
+  #   _____________________________________________________
+  #   get data                                            ####
 
   root <- "https://raw.githubusercontent.com"
   path  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
@@ -71,8 +71,8 @@ load_from_gh <- function(measure,
 
   ) # End of trycatch
 
-  #   ____________________________________________________________________________
-  #   Return                                                                  ####
+  #   __________________________________________________
+  #   Return                                ####
   return(df)
 
 }
@@ -194,73 +194,7 @@ is_private_repo <- function(measure   = NULL,
 }
 
 
-download_from_gh <- function(path, temp_file) {
-
-  creds = get_github_creds()
-
-  # load temporal file from disk
-  tryCatch(
-    expr = {
-      # using httr2 to download the file
-      # Create a request object with authentication
-      path |>
-        httr2::request() |>
-        httr2::req_auth_basic(username = creds$username,
-                              password = creds$password) |>
-        httr2::req_perform() |>
-        httr2::resp_body_raw() |>
-        writeBin(temp_file)
-
-    },
-    # end of expr section
-
-    error = function(e) {
-      # extract owner and repo name from path of the form
-      # root <- "https://raw.githubusercontent.com"
-      # path  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
-      path_parts <- gsub("https://raw.githubusercontent.com/", "", path) |>
-        strsplit("/") |>
-        unlist()
-      owner    <- path_parts[1]
-      repo     <- path_parts[2]
-      branch   <- path_parts[3]
-      branches <- get_gh(owner, repo, what = "branches")
-      tags     <- get_gh(owner, repo, what = "tags")
-
-      if (!(branch %in% c(branches, tags))) {
-        cli::cli_abort(c("{.field {branch}} is not a branch neither a tag
-                       available in repo {.file {owner}/{repo}}.
-                       \nAvailability:",
-                       i = "tags: {.field {tags}}",
-                       i = "branches: {.field {branches}}"))
-      } else {
-        cli::cli_abort(c("Error downloading file from github",
-                         x = "{e$message}"))
-      }
-
-    } # end of error section
-
-  ) # End of trycatch
-  invisible(temp_file)
-
-}
 
 
-load_from_disk <- function(temp_file, ext, ...) {
-  if (ext == "csv")  return(readr::read_csv(temp_file, ...))
-
-  if (ext  %in% c("xls", "xlsx"))
-    return(readxl::read_excel(temp_file, ...))
-
-  if (ext == "dta") return(haven::read_dta(temp_file, ...))
-
-  if (ext == "qs") return(qs::qread(temp_file, ...))
-
-  if (ext == "fst") return(fst::read_fst(temp_file, ...))
-
-  if (ext == "yaml") return(yaml::read_yaml(temp_file, ...))
-
-  cli::cli_abort("Extension {.field {ext}} not supported")
-}
 
 
