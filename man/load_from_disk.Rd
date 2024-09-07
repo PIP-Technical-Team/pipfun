@@ -4,12 +4,10 @@
 \alias{load_from_disk}
 \title{Load data from tempfile}
 \usage{
-load_from_disk(temp_file, ext, ...)
+load_from_disk(temp_file, ...)
 }
 \arguments{
 \item{temp_file}{temporal file}
-
-\item{ext}{extension of file}
 
 \item{...}{additional parameter to pass to corresponding reading function}
 }

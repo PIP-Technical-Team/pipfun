@@ -1,4 +1,5 @@
 # pipfun 0.1.0
+* add new suit of function to interact with GitHub.
 
 # pipfun 0.0.2
 
