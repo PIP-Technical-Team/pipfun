@@ -2,7 +2,7 @@
 % Please edit documentation in R/save_to_gh.R
 \name{save_to_gh}
 \alias{save_to_gh}
-\title{Title}
+\title{Save to GitHub}
 \usage{
 save_to_gh(
   df,
@@ -40,7 +40,7 @@ Default is \code{measure}}
 extension used}
 }
 \description{
-Title
+Save to GitHub
 }
 \examples{
 \dontrun{

@@ -9,7 +9,8 @@ if (!is_token) {
 }
 
 skip_if_not(is_token, "Github token not valid")
-library(fastverse)
+library(data.table)
+library(collapse)
 
 # init conditions -----------
 
@@ -75,6 +76,25 @@ test_that("download each extension correctly", {
   purrr::walk(file_urls, \(x) test_download(x))
 
 })
+
+test_that("branch or tag not available is returned as error", {
+  bad_file <- gsub("data", "flu", file_urls[1])
+  ext <- fs::path_ext(bad_file)
+  tfile <- tempfile(fileext = paste0(".",ext))
+
+  download_from_gh(bad_file, tfile) |>
+    expect_error()
+
+  bad_branch <- gsub("testing", "flu", file_urls[1])
+  ext <- fs::path_ext(bad_branch)
+  tfile <- tempfile(fileext = paste0(".",ext))
+
+  download_from_gh(bad_branch, tfile) |>
+    expect_error()
+
+
+})
+
 
 # load_from_disk() ---------------
 

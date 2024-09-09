@@ -29,15 +29,16 @@
 #' \dontrun{
 #' pip_create_globals()
 #' }
-pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
-                               out_dir            = root_dir,
-                               vintage            = NULL,
-                               clean              = FALSE,
-                               verbose            = getOption("pipfun.verbose"),
-                               create_dir         = FALSE,
-                               max_year_country   = NULL,
-                               max_year_lineup    = NULL,
-                               max_year_aggregate = NULL) {
+pip_create_globals <-
+  function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
+           out_dir            = root_dir,
+           vintage            = NULL,
+           clean              = FALSE,
+           verbose            = getOption("pipfun.verbose"),
+           create_dir         = FALSE,
+           max_year_country   = NULL,
+           max_year_lineup    = NULL,
+           max_year_aggregate = NULL) {
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

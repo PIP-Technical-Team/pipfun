@@ -1,9 +1,10 @@
 
 
 pipfun_default_options <- list(
-  pipfun.verbose  = TRUE,
-  pipfun.ghowner = "PIP-Technical-Team",
-  pipfun.ppps    = c(2011, 2017)
+  pipfun.verbose     = TRUE,
+  pipfun.ghowner     = "PIP-Technical-Team",
+  pipfun.ppps        = c(2011, 2017),
+  pipfun.working_dir = "PIP_ingestion_pipeline_v2"
 )
 
 .onLoad <- function(libname, pkgname) {

@@ -64,9 +64,10 @@ get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
       },
       download_and_read_file(metadata$download_url)
 
-    )
+    ) |>
+    setDT()
 
-  return(data)
+  data
 
 }
 
@@ -129,6 +130,7 @@ download_from_gh <- function(path, temp_file) {
       owner    <- path_parts[1]
       repo     <- path_parts[2]
       branch   <- path_parts[3]
+      file_path   <- paste(path_parts[4:length(path_parts)], collapse =  "/")
       branches <- get_gh(owner, repo, what = "branches")
       tags     <- get_gh(owner, repo, what = "tags")
 
@@ -139,7 +141,8 @@ download_from_gh <- function(path, temp_file) {
                          i = "tags: {.field {tags}}",
                          i = "branches: {.field {branches}}"))
       } else {
-        cli::cli_abort(c("Error downloading file from github",
+        cli::cli_abort(c(x = "Error downloading file from github",
+                         i = "check file {.file {file_path}} exists",
                          x = "{e$message}"))
       }
 
