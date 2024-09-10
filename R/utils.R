@@ -53,11 +53,6 @@ all_args <- function() {
   return(call_args)
 }
 
-
-
-
-
-
 # all_args <- function() {
 #   # Capture the full function call, with defaults evaluated
 #   frms <- formals(sys.function(sys.parent(n = 1)))
@@ -73,3 +68,46 @@ all_args <- function() {
 #   return(call_args)
 # }
 #
+
+
+
+
+
+#' get most recent version of PPP
+#'
+#' @return data frame with all PPP years and versions available
+#' @export
+#'
+#' @examples
+#' get_ppp_versions()
+get_ppp_versions <- function() {
+
+  get_file_from_gh(repo   = "aux_ppp",
+                   branch = "DEV_v2",
+                   file_path = "ppp_vintage.csv")
+
+}
+
+#' @rdname get_ppp_versions
+#' @inheritParams new_pip_release
+#' @return data frame with most recent versions for [ppps] selected
+#' @export
+get_latest_ppp_versions <- function(ppps = getOption("pipfun.ppps")) {
+
+  pppm <- get_ppp_versions()
+
+  pppmf <- pppm[ppp_year %in% ppps]
+  if (nrow(pppmf) == 0)
+    cli::cli_abort(c("{as.character(ppps)} {?is/are} not PPP
+                       year{?s} available",
+                     i = "Years available: {unique(pppm$ppp_year)}"))
+
+  pppmf <- pppmf[,
+                 .SD[which.max(ppp_av)],
+                 by = .(ppp_year, ppp_rv)
+  ][,
+    .SD[which.max(ppp_rv)],
+    by = ppp_year
+  ]
+  pppmf
+}

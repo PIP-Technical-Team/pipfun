@@ -8,8 +8,9 @@ new_pip_release(
   new_release = format(Sys.Date(), "\%Y\%m\%d"),
   identity = c("PROD", "INT", "TEST"),
   verbose = getOption("pipfun.verbose"),
-  root_dir = Sys.getenv("PIP_ROOT_DIR"),
   working_dir = fs::path(root_dir, getOption("pipfun.working_dir")),
+  root_dir = Sys.getenv("PIP_ROOT_DIR"),
+  ppps = getOption("pipfun.ppps"),
   ...
 )
 }
@@ -30,6 +31,11 @@ already available in env .pipenv}
     \item{\code{file_path}}{character: file path}
     \item{\code{branch}}{character: branch where the file is}
   }}
+
+\item{ppp}{numeric: vector of PPP years.}
+}
+\value{
+invisible TRUE if everything went fine
 }
 \description{
 Create new release for PIP update

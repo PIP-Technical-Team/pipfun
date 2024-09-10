@@ -67,8 +67,8 @@ get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
     ) |>
     setDT()
 
+  setattr(data, "metadata", metadata)
   data
-
 }
 
 #' Download and read file
