@@ -80,7 +80,8 @@ create_aux_dir <- function(aux_versions,
                                                   getOption("pipfun.working_dir"))
                            ) {
 
-  wdir <- fs::path(working_dir, "aux_data")
+  wdir  <- fs::path(working_dir, "aux_data")
+  ndirs <- create_dir(wdir, au)
 
 
 
@@ -124,6 +125,14 @@ create_dir <- function(wdir, ndirs,
 
 
 remove_pip_release <- function() {
+
+}
+
+remove_aux_dir <- function() {
+
+}
+
+remove_pc_dir <- function() {
 
 }
 
