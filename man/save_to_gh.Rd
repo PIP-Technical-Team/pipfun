@@ -6,12 +6,10 @@
 \usage{
 save_to_gh(
   df,
-  measure,
+  repo,
   owner = getOption("pipfun.ghowner"),
-  repo = paste0("aux_", measure),
   branch = "DEV",
-  tag = branch,
-  filename = measure,
+  filename = repo,
   ext = "csv",
   ...
 )
@@ -19,17 +17,13 @@ save_to_gh(
 \arguments{
 \item{df}{A dataframe object}
 
-\item{measure}{character: measure to be loaded}
+\item{repo}{character: name of the repo}
 
 \item{owner}{character: Github repo owner. Default is
 \code{getOption("pipfun.ghowner")}}
 
-\item{repo}{character: name of the repo}
-
 \item{branch}{character: either "DEV" or "PROD". Refers to the branch that
 will be used to update either the development server or production.}
-
-\item{tag}{character: specific release to be used in the update.}
 
 \item{filename}{character: Name of file name without the ".csv" extension.
 Default is \code{measure}}
@@ -44,6 +38,7 @@ Save to GitHub
 }
 \examples{
 \dontrun{
-save_to_gh(iris, "gdp")
+gdp <- data.frame(a = 1:10, b = letters[1:10])
+save_to_gh(gdp, repo = "aux_gdp", filename = "gdp")
 }
 }
