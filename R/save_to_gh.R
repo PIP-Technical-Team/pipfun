@@ -19,7 +19,15 @@ save_to_gh <- function(df,
                        ext       = "csv",
                        ...) {
 
-  creds <- get_github_creds()  # Assumes you have a function to get GitHub credentials
+  if (!requireNamespace("gh", quietly = TRUE)) {
+    stop("Package 'gh' is required. Please install it using install.packages('gh').")
+  }
+  if (!requireNamespace("cli", quietly = TRUE)) {
+    install.packages("cli")
+    library(cli)
+  }
+
+  creds <- get_github_creds()  # Use the passed function to get GitHub credentials
 
   # Construct the file path
   file_path <- glue::glue("{filename}.{ext}")
@@ -73,8 +81,10 @@ save_to_gh <- function(df,
 }
 
 
+
+
 # Helper function to convert data frame to base64-encoded content based on file extension
-convert_df_to_base64 <- function(df, ext) {
+convert_df_to_base64 <- function(df, ext = "csv") {
   ext <- tolower(ext)
 
 
