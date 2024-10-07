@@ -33,6 +33,9 @@ Default is \code{measure}}
 \item{...}{parameters to be passed to the loading functions depending of the
 extension used}
 }
+\value{
+invisible NULL
+}
 \description{
 Save to GitHub
 }

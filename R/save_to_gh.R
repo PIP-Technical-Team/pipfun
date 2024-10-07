@@ -2,8 +2,7 @@
 #'
 #' @param df A dataframe object
 #' @inheritParams load_from_gh
-#' @return NULL
-#' @importFrom gh gh
+#' @return invisible NULL
 #' @export
 #'
 #' @examples
@@ -75,9 +74,11 @@ save_to_gh <- function(df,
     .token  = creds$password
   )
 
-  cli::cli_alert_success("File {filename}.{ext} saved to
-                         {branch} branch of {repo} in GitHub successfully!")
-  return(NULL)
+  cli::cli_alert_success(
+  "File {.file {filename}.{ext}} saved successfully to
+  branch {.field {branch}}  of {owner}/{repo} in GitHub!")
+
+  return(invisible(NULL))
 }
 
 

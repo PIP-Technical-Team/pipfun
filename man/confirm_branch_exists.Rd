@@ -35,4 +35,3 @@ confirm_branch_exists("DEV", "regions")
 confirm_branch_exists("ijijiji", "regions")
 }
 }
-\keyword{internal}

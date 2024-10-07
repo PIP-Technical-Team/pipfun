@@ -98,8 +98,6 @@ download_and_read_file <- function(path) {
 #'
 #' @return file of extension in [path]
 #' @keywords internal
-#'
-#' @examples
 download_from_gh <- function(path, temp_file) {
 
   creds = get_github_creds()
@@ -163,8 +161,6 @@ download_from_gh <- function(path, temp_file) {
 #'
 #' @return data from disk
 #' @keywords internal
-#'
-#' @examples
 load_from_disk <- function(temp_file, ...) {
   ext <- fs::path_ext(temp_file) |>
     tolower()

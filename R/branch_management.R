@@ -219,7 +219,7 @@ delete_branch <- function(branch_to_delete,
 #' @param measure name of auxiliary repo
 #'
 #' @return logical
-#' @keywords internal
+#' @export
 #'
 #' @examples
 #' \dontrun{

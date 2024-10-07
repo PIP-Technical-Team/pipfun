@@ -8,6 +8,9 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' new_pip_release()
+#' }
 new_pip_release <-
   function(new_release = format(Sys.Date(), "%Y%m%d"),
            identity    = c("PROD", "INT", "TEST"),

@@ -1,0 +1,21 @@
+---
+title: "PIP Release Management"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PIP Release Management}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(pipfun)
+```
+
+

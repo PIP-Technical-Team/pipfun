@@ -1,0 +1,114 @@
+---
+title: "Tools for GitHub Interaction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{interact_with_Github}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(pipfun)
+```
+
+# Introduction
+
+The `{pipfun}` package provides a set of tools for interacting with GitHub content, especially designed for working with PIP repositories. These functions act as lightweight wrappers around the `{gh}` package, offering a simpler and more focused interface for specific GitHub tasks related to PIP.
+
+
+# Managing Credentials
+
+The `{pipfun}` package utilizes the `{gitcreds}` package to manage, store, and authenticate GitHub credentials. `{gitcreds}` provides a straightforward way to securely store your GitHub Personal Access Token (PAT) and ensure seamless access when using `{pipfun}`.
+
+To set up your credentials, you can follow the instructions provided on the [official `{gitcreds}` documentation page](https://gitcreds.r-lib.org/), or refer to Jenny Bryan's excellent guide, [Happy Git With R](https://happygitwithr.com/https-pat.html#gitcreds-package). Both resources provide detailed explanations on how to properly configure your Git credentials.
+
+Please note that `{pipfun}` requires valid GitHub credentials to interact with repositories. If your credentials are not set up correctly with `{gitcreds}`, you will be unable to use `{pipfun}` for any GitHub-related functionality.
+
+# Getting Data from GitHub
+
+The functions in `{pipfun}` are organized to build upon one another, allowing for progressively more complex interactions with GitHub. Below, we'll start by introducing the foundational, lower-level functions that provide core metadata and file information. We will then move towards the higher-level, more abstracted functions that make complex tasks easier.
+
+## Retrieving File Metadata from GitHub
+
+Every file stored in a GitHub repository contains a rich set of metadata, which can be very useful for tracking changes, validating updates, and managing file versions. For example, each file has a unique hash code that serves as a signature for its version. Whenever a file is updated, its hash changes, making it possible to determine whether a file has been modified since the last time it was accessed. This hash is also used to confirm overwriting files in a GitHub repository.
+
+To retrieve this metadata, you can use the `get_file_info_from_gh()` function as follows:
+
+```{r}
+ghf_info <- get_file_info_from_gh(
+  owner     = getOption("pipfun.ghowner"),
+  repo      = "pip_info",
+  file_path = "releases.csv",
+  branch    = "releases"
+)
+
+names(ghf_info)
+```
+
+In this example, we use the function to get information about the file `"releases.csv"` in the `"releases"` branch of the `"pip_info"` repository. The `owner` argument specifies the GitHub repository owner, which by default will be the value returned by `getOption("pipfun.ghowner")`. This default value simplifies repeated calls, especially when consistently working within a specific organization's repositories.
+
+The function returns metadata about the file, such as its current hash and other useful information that can be leveraged for version control or ensuring file consistency.
+
+## Downloading a File from GitHub and Reading from Local Drive
+
+Downloading and reading files from GitHub can be challenging due to the diversity of file formats, many of which cannot be read directly. This is where the `get_file_from_gh()` function in `{pipfun}` comes into play.
+
+The `get_file_from_gh()` function simplifies this process by identifying the format of the file, downloading it as a temporary file on your local drive (when necessary), and then loading it directly into memory. This function supports the most common file formats used in the PIP project, including:
+
+-   CSV (`.csv`)
+-   Excel files (`.xls`, `.xlsx`)
+-   Stata (`.dta`)
+-   Quick Serialization (`.qs`)
+-   Fast serialization (`.fst`)
+-   YAML (`.yaml`)
+-   R Data (`.rds`)
+-   JSON (`.json`)
+
+This flexibility allows users to work seamlessly with various data types commonly encountered in PIP, without worrying about the specific steps needed to handle each format.
+
+```{r}
+dt  <- get_file_from_gh(owner     = getOption("pipfun.ghowner"),
+                repo      = "pip_info",
+                file_path = "releases.csv",
+                branch    = "releases")
+
+head(dt)
+
+```
+
+# Saving Data to GitHub
+
+To save data to GitHub using `{pipfun}`, you need to have appropriate permissions configured in your R environment. Ensure that the token you use with `{gitcreds}` has the necessary permissions to write files to GitHub repositories.
+
+The process of saving data with the `save_to_gh()` function differs from the traditional Git workflow of staging, committing, and pushing changes. Instead, `save_to_gh()` interacts directly with the GitHub API, allowing you to upload data without manually handling Git commands. This approach provides a convenient way to programmatically save or update files in a repository.
+
+Here's an example of how to use `save_to_gh()`:
+
+```{r}
+df <- data.frame(x = 1:5, 
+                 y = letters[1:5])
+
+save_to_gh(df,
+           repo = "pip_info",
+           owner     = getOption("pipfun.ghowner"),
+           branch    = "testing",
+           filename  = "pipfun_vignette_example")
+```
+
+By default, `save_to_gh()` saves the data in CSV format, but you can choose any of the supported formats mentioned earlier.
+
+
+# Delete from Github
+
+blah
+
+# Branches management 
+
+Blah
