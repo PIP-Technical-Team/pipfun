@@ -40,3 +40,8 @@ invisible TRUE if everything went fine
 \description{
 Create new release for PIP update
 }
+\examples{
+\dontrun{
+new_pip_release()
+}
+}

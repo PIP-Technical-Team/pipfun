@@ -19,3 +19,37 @@ library(pipfun)
 ```
 
 
+# Intro
+
+The Poverty and Inequality Platform (PIP) by the World Bank, updates Global poverty numbers two times a year around one month before Spring Meetings and Annual Meetings. The `{pipfun}` package allows to manage the PIP releases from your R session. 
+
+# Basics
+
+The most relevant information about PIP is available in the repo *pip_info* of the *PIP-Technical-team* Github group. To get all the releases avialble, run:
+
+```{r}
+get_pip_releases()
+```
+
+To avoid querying the GitHub API multiple times, `get_pip_releases()` saves the results in the environment `.pipenv`, so it is easily available next time need during the same session.
+
+You can also get the most recent release by running, 
+
+```{r}
+get_latest_pip_release()
+```
+
+
+# Create a new PIP release
+
+
+
+# Remove a PIP release
+
+
+# Creation of directories
+
+With each new update, several directories must be created to have the data organized. 
+
+
+

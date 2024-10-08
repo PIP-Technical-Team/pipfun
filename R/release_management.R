@@ -29,7 +29,7 @@ new_pip_release <-
 
   # add new release to pool --------
   ## get current releases ---------
-  pr <- get_pip_releases()
+  pr <- get_pip_releases(...)
   mt <- attr(pr, "metadata") # get metadata from GH
 
 
@@ -74,28 +74,73 @@ new_pip_release <-
   pc_versions  <- df[,unique(pc_ver)]
 
 
+  aux_dir <- create_aux_dir(root_dir     = root_dir,
+                            aux_versions = aux_versions)
+
+  pc_dir <- create_pc_dir(root_dir     = root_dir,
+                          pc_versions  = pc_versions)
+
+
+  # Create repo--------
+
+  # Returning list ---------
+  ret_obj_names  <- c("aux_dir", "pc_dir")
+
+
+  lreturn <- vector("list", length = length(ret_obj_names))
+  for (i in seq_along(ret_obj_names)) {
+    lreturn[[i]] <- get(ret_obj_names[i])
+  }
+
+  names(lreturn) <- ret_obj_names
+  return(lreturn)
+
 }
 
 
-create_aux_dir <- function(aux_versions,
-                           root_dir    = Sys.getenv("PIP_ROOT_DIR"),
+#' Create auxiliary directories for new release
+#'
+#' @param aux_versions character: name of auxiliary folders. they must come in
+#'   the form "%Y%m%d_`identify`", where `identify` stands for [c("PROD", "INT",
+#'   "TEST")]
+#' @inheritParams new_pip_release
+#'
+#' @rdname create_dir
+#' @keywords internal
+create_aux_dir <- function(root_dir    = Sys.getenv("PIP_ROOT_DIR"),
+                           aux_versions,
                            working_dir = fs::path(root_dir,
                                                   getOption("pipfun.working_dir"))
                            ) {
 
-  wdir  <- fs::path(working_dir, "aux_data")
-  ndirs <- create_dir(wdir, au)
+  wdir    <- fs::path(working_dir, "aux_data")
+  newdirs <- create_dir(wdir, ndirs = aux_versions)
 
-
+  return(newdirs)
 
 }
 
-create_pc_dir <- function(pc_versions,
-                          root_dir    = Sys.getenv("PIP_ROOT_DIR"),
+#' Create poverty calculator directories for new release
+#'
+#' @param pc_versions character: name of auxiliary folders. they must come in
+#'   the form "%Y%m%d_YYYY_MM_AA_`identify`", where `YYYY` stands for the PPP
+#'   year, `MM` stands for the master version of the PPPs,  `AA` refers to the
+#'   adaptation  version of the pppp`, and where `identify` stands for
+#'   [c("PROD", "INT", "TEST")]
+#' @inheritParams new_pip_release
+#'
+#' @rdname create_dir
+#' @keywords internal
+create_pc_dir <- function(root_dir    = Sys.getenv("PIP_ROOT_DIR"),
+                          pc_versions,
                           working_dir = fs::path(root_dir,
                                                  getOption("pipfun.working_dir"))
                           ) {
 
+  wdir    <- fs::path(working_dir, "pc_data")
+  newdirs <- create_dir(wdir, ndirs = pc_versions)
+
+  return(newdirs)
 
 }
 
@@ -103,9 +148,11 @@ create_pc_dir <- function(pc_versions,
 #' Create directories in folder
 #'
 #' @param wdir chracter: working directory path
-#' @param ndirs chracter: new directories name
+#' @param ndirs chracter: new directories name that will be created inside
+#'   `wdir`
 #'
-#' @return logical vector with the folders that were created
+#' @return logical vector. the names of the elements correspond to the directory
+#'   paths
 #' @export
 create_dir <- function(wdir, ndirs,
                        verbose = getOption("pipfun.verbose")) {
@@ -123,7 +170,7 @@ create_dir <- function(wdir, ndirs,
     fs::dir_create() |>
     fs::dir_exists()
 
-  return(ndirs)
+  return(ndirs_ex)
 }
 
 
