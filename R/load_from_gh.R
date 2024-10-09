@@ -24,9 +24,6 @@ load_from_gh <- function(measure,
                          ext       = NULL,
                          ...) {
 
-  # prepare temp file
-  # check if ext starts with .
-  temp_file <- tempfile(fileext = ifelse(grepl("^\\.", ext), ext, paste0(".", ext)))
 
   #   ____________________________________________
   #   on.exit                                      ####
@@ -51,9 +48,18 @@ load_from_gh <- function(measure,
     cli::cli_warn("The extension of the file ({.field {fext}}) is different
                   from the one in the {.arg ext} argument ({.field {ext}}).
                   {.field {fext} will be used")
+
   } else if (!is.null(ext) && fext == "") {
     filename <- fs::path(filename, ext = ext)
   }
+
+
+
+  # prepare temp file ----------
+  # check if ext starts with .
+  temp_file <- fs::file_temp(ext = fs::path_ext(filename) |>
+                               tolower())
+
 
   #   _____________________________________________________
   #   get data                                            ####
