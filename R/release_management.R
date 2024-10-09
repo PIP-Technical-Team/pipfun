@@ -84,6 +84,8 @@ new_pip_release <-
   # Create repo--------
 
   # Returning list ---------
+  # add here the name of the objects that are wanted to be included in the
+  # returning list
   ret_obj_names  <- c("aux_dir", "pc_dir")
 
 

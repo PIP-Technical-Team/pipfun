@@ -49,7 +49,6 @@ get_latest_pip_release()
 
 # Creation of directories
 
-With each new update, several directories must be created to have the data organized. 
-
+With each new update, several directories must be created to have the data organized. Everything can be managed by the function `new_pip_release()`, but we provide several other functions to give you finner control. 
 
 

@@ -21,7 +21,8 @@ load_from_gh <- function(measure,
                          branch    = "DEV",
                          tag       = branch,
                          filename  = measure,
-                         ext       = "csv",
+                         ext       = fs::path_ext(filename) |>
+                           tolower(),
                          ...) {
 
   # prepare temp file
@@ -44,7 +45,7 @@ load_from_gh <- function(measure,
   #   get data                                            ####
 
   root <- "https://raw.githubusercontent.com"
-  path  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
+  path  <- glue("{root}/{owner}/{repo}/{tag}/{filename}")
 
   # download the file
   download_from_gh(path, temp_file)
@@ -53,7 +54,7 @@ load_from_gh <- function(measure,
   tryCatch(
     expr = {
       # load depending of the extension
-      df <-  load_from_disk(temp_file, ext, ...) |>
+      df <-  load_from_disk(temp_file,...) |>
         # suppress any loading message
         suppressMessages()
 
