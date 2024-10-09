@@ -21,8 +21,7 @@ load_from_gh <- function(measure,
                          branch    = "DEV",
                          tag       = branch,
                          filename  = measure,
-                         ext       = fs::path_ext(filename) |>
-                           tolower(),
+                         ext       = NULL,
                          ...) {
 
   # prepare temp file
