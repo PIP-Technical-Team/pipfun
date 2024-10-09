@@ -40,6 +40,21 @@ load_from_gh <- function(measure,
     length(branch) == 1
   })
 
+  # check ext of filename -------
+  fext <- fs::path_ext(filename) |>
+    tolower()
+
+  if (is.null(ext) && fext == "") {
+    cli::cli_abort("You need provide either a {.arg filename} with extension
+                   or an {.arg ext} in the arguments")
+  } else if (!is.null(ext) && fext != "" && fext != ext) {
+    cli::cli_warn("The extension of the file ({.field {fext}}) is different
+                  from the one in the {.arg ext} argument ({.field {ext}}).
+                  {.field {fext} will be used")
+  } else if (!is.null(ext) && fext == "") {
+    filename <- fs::path(filename, ext = ext)
+  }
+
   #   _____________________________________________________
   #   get data                                            ####
 
