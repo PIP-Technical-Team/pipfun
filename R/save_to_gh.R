@@ -1,6 +1,8 @@
 #' Save to GitHub
 #'
 #' @param df A dataframe object
+#' @param metadata a list with all the information of a file, usually from
+#'   [get_pip_releases]
 #' @inheritParams load_from_gh
 #' @return invisible NULL
 #' @export
@@ -16,6 +18,9 @@ save_to_gh <- function(df,
                        branch    = "DEV",
                        filename  = repo,
                        ext       = "csv",
+                       metadata  = NULL,
+                       message   = paste("Updating data via R script on",
+                                         Sys.time()),
                        ...) {
 
   if (!requireNamespace("gh", quietly = TRUE)) {
@@ -32,22 +37,24 @@ save_to_gh <- function(df,
   file_path <- glue::glue("{filename}.{ext}")
 
   # Try to get existing SHA of the file (if it exists)
-  out <- tryCatch({
-    gh::gh(
-      "GET /repos/{owner}/{repo}/contents/{file_path}",
-      owner     = owner,
-      repo      = repo,
-      file_path = file_path,
-      .params   = list(ref = branch),
-      .token    = creds$password
-    )
-  }, error = function(e) {
-    if (grepl("404", e$message)) {
-      NULL  # File does not exist; will create a new file
-    } else {
-      cli::cli_abort(e)
-    }
-  })
+  if (is.null(metadata)) {
+    metadata <- tryCatch({
+      gh::gh(
+        "GET /repos/{owner}/{repo}/contents/{file_path}",
+        owner     = owner,
+        repo      = repo,
+        file_path = file_path,
+        .params   = list(ref = branch),
+        .token    = creds$password
+      )
+    }, error = function(e) {
+      if (grepl("404", e$message)) {
+        NULL  # File does not exist; will create a new file
+      } else {
+        cli::cli_abort(e)
+      }
+    })
+  }
 
   # Convert data frame to base64-encoded content based on the file extension
   content <- convert_df_to_base64(df, ext)
@@ -55,13 +62,13 @@ save_to_gh <- function(df,
   # Prepare parameters for the GitHub API request
   params <- list(
     branch  = branch,
-    message = paste("Updating data via R script on", Sys.time()),
+    message = message,
     content = content
   )
 
   # Include 'sha' parameter if the file already exists (for updating)
-  if (!is.null(out)) {
-    params$sha <- out$sha
+  if (!is.null(metadata)) {
+    params$sha <- metadata$sha
   }
 
   # Upload the file to GitHub
