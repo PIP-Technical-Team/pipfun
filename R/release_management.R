@@ -82,11 +82,23 @@ new_pip_release <-
 
 
   # Create repo--------
+  # NOTE FOR THE FUTURE: I don't remember what I mean by
+  # "create repo" I guess is it related to create a branch for the new release
+  # in a particular repo, but I'm not sure
+
+  # Update release info ----------
+
+  release_info <-
+    save_to_gh(df       = dt,
+             owner    = mt$owner,
+             repo     = mt$repo,
+             branch   = mt$branch,
+             metadata = mt)
 
   # Returning list ---------
   # add here the name of the objects that are wanted to be included in the
   # returning list
-  ret_obj_names  <- c("aux_dir", "pc_dir")
+  ret_obj_names  <- c("aux_dir", "pc_dir", "release_info")
 
 
   lreturn <- vector("list", length = length(ret_obj_names))

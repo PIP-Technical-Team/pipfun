@@ -11,7 +11,7 @@ load_from_gh(
   branch = "DEV",
   tag = branch,
   filename = measure,
-  ext = tolower(fs::path_ext(filename)),
+  ext = NULL,
   ...
 )
 }

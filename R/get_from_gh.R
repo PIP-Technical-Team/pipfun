@@ -213,7 +213,7 @@ get_file_info_from_gh <- function(owner= getOption("pipfun.ghowner"),
   #        owner = owner, repo = repo, path = path, ref = ref,
   #        .token = Sys.getenv("GITHUB_PAT"))
 
-  gh::gh(
+  mt <- gh::gh(
     "GET /repos/{owner}/{repo}/contents/{file_path}",
     owner     = owner,
     repo      = repo,
@@ -222,6 +222,27 @@ get_file_info_from_gh <- function(owner= getOption("pipfun.ghowner"),
     .token = creds$password
   )
 
+  append(mt, info_from_url(mt$url))
+
+
 }
 
 
+info_from_url <- function(url) {
+  split_url <- url |>
+    strsplit("/", fixed = TRUE) |>
+    unlist()
+
+  repos_pos <- which(split_url == "repos")
+
+  owner  <-  split_url[repos_pos + 1]
+  repo   <-  split_url[repos_pos + 2]
+
+  branch_pattern <- "(.*ref=)(.*)"
+  branch <-  gsub(branch_pattern, "\\2", split_url[repos_pos + 4])
+
+
+  list(owner = owner,
+       repo  = repo,
+       branch = branch)
+}

@@ -38,21 +38,7 @@ load_from_gh <- function(measure,
   })
 
   # check ext of filename -------
-  fext <- fs::path_ext(filename) |>
-    tolower()
-
-  if (is.null(ext) && fext == "") {
-    cli::cli_abort("You need provide either a {.arg filename} with extension
-                   or an {.arg ext} in the arguments")
-  } else if (!is.null(ext) && fext != "" && fext != ext) {
-    cli::cli_warn("The extension of the file ({.field {fext}}) is different
-                  from the one in the {.arg ext} argument ({.field {ext}}).
-                  {.field {fext} will be used")
-
-  } else if (!is.null(ext) && fext == "") {
-    filename <- fs::path(filename, ext = ext)
-  }
-
+  filename <- check_filename_ext(filename, ext)
 
 
   # prepare temp file ----------
@@ -213,9 +199,4 @@ is_private_repo <- function(measure   = NULL,
     cli::cli_abort("Error fetching repository information. Please check the repository name and owner.")
   }
 }
-
-
-
-
-
 
