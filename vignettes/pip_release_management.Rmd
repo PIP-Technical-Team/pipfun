@@ -15,7 +15,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(pipfun)
+devtools::load_all(".")
+# library(pipfun)
 ```
 
 
@@ -28,20 +29,66 @@ The Poverty and Inequality Platform (PIP) by the World Bank, updates Global pove
 The most relevant information about PIP is available in the repo *pip_info* of the *PIP-Technical-team* Github group. To get all the releases available, run:
 
 ```{r}
-get_pip_releases()
+old_release <- get_pip_releases()
+old_release
 ```
 
 To avoid querying the GitHub API multiple times, `get_pip_releases()` saves the results in the environment `.pipenv`, so it is easily available next time you need it during the same session.
 
 You can also get the most recent release by running, 
 
-```{r}
+```{r latest-release}
 get_latest_pip_release()
 ```
 
 
 # Create a new PIP release
 
+To start a new release, you use function `new_pip_release`. All the arguments have default values, but it is highly recommended that you are explicit in the creation of the release. By default, the release date will be the current date in the form `format(Sys.Date(), "%Y%m%d")`. You need to provide the date in this format. Otherwise, you'll get an error. 
+```{r wrong-data, error=TRUE}
+new_pip_release(new_release = "10-28-2020") # wrong date format
+```
+
+By default, the identity of the release will be "PROD", but you can use either "INT" or "TEST". identity "INT" is mostly used for internal reports like the 3PR. "TEST" is mostly used by developers and have no use for transparency and replicability purposes. 
+
+```{r new-pip-release}
+tmp_dir <- tempdir()
+release_date <- format(Sys.Date(), "%Y%m%d")
+
+# New PIP release (NPR)
+npr <- new_pip_release(new_release = release_date,
+                       identity = "TEST",
+                       root_dir = tmp_dir)
+```
+
+
+When a new release is create, several things happen. All of them are stored in the returned object of the `new_pip_release()` function. First, you can see the Auxiliary directories that are currently available in the directory specified in `root_dir` argument. If no directory is specified, `{pipfun}` will use the official directory path, which should have access to if you want to modify. 
+
+
+## Working directories 
+
+In the example above we used a temporary directory, so it will be 
+
+Auxiliary data dir:
+```{r aux-dir}
+npr$aux_dir |> 
+  names()
+```
+
+
+Poverty Calculator dir:
+```{r pc-dir}
+npr$pc_dir |> 
+  names()
+```
+
+## New releasea
+```{r}
+new_release <- get_pip_releases(force = TRUE)
+new_release
+```
+
+Notice that we are using the option `force = TRUE` because, to avoid hitting the Github API constantly, `{pipfun}` saves releases in the `.pipenv` environment. To disable that function use option .... {NOTE: create option... }
 
 # Remove a PIP release
 

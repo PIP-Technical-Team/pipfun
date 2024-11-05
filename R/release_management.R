@@ -29,7 +29,8 @@ new_pip_release <-
 
   # add new release to pool --------
   ## get current releases ---------
-  pr <- get_pip_releases(...)
+  pr <- get_pip_releases(force = TRUE, ...)
+  # pr <- get_pip_releases(force = TRUE)
   mt <- attr(pr, "metadata") # get metadata from GH
 
 
@@ -41,8 +42,6 @@ new_pip_release <-
                   fill = TRUE,
                   use.names = TRUE) |>
     unique()
-
-  dt[, n := .I]
 
   # get PPP metadata
   ppp <- get_latest_ppp_versions(ppps = ppps)
@@ -56,7 +55,8 @@ new_pip_release <-
     # expand to match ppp
     rep(1:.N, nrow(ppp))
     # merge
-     ][ppp, on = "n"]
+     ][, n := rowid(release, identity)
+       ][ppp, on = "n"]
 
   df[,
      `:=`(
@@ -74,10 +74,10 @@ new_pip_release <-
   pc_versions  <- df[,unique(pc_ver)]
 
 
-  aux_dir <- create_aux_dir(root_dir     = root_dir,
+  aux_dir <- create_aux_dir(working_dir  = working_dir,
                             aux_versions = aux_versions)
 
-  pc_dir <- create_pc_dir(root_dir     = root_dir,
+  pc_dir <- create_pc_dir(working_dir  = working_dir,
                           pc_versions  = pc_versions)
 
 
@@ -121,9 +121,8 @@ new_pip_release <-
 #'
 #' @rdname create_dir
 #' @keywords internal
-create_aux_dir <- function(root_dir    = Sys.getenv("PIP_ROOT_DIR"),
-                           aux_versions,
-                           working_dir = fs::path(root_dir,
+create_aux_dir <- function(aux_versions,
+                           working_dir = fs::path(Sys.getenv("PIP_ROOT_DIR"),
                                                   getOption("pipfun.working_dir"))
                            ) {
 
@@ -145,9 +144,8 @@ create_aux_dir <- function(root_dir    = Sys.getenv("PIP_ROOT_DIR"),
 #'
 #' @rdname create_dir
 #' @keywords internal
-create_pc_dir <- function(root_dir    = Sys.getenv("PIP_ROOT_DIR"),
-                          pc_versions,
-                          working_dir = fs::path(root_dir,
+create_pc_dir <- function(pc_versions,
+                          working_dir = fs::path(Sys.getenv("PIP_ROOT_DIR"),
                                                  getOption("pipfun.working_dir"))
                           ) {
 
@@ -181,7 +179,7 @@ create_dir <- function(wdir, ndirs,
 
   ndirs <- dir_ex[dir_ex == FALSE]
   ndirs_ex <- names(ndirs) |>
-    fs::dir_create() |>
+    fs::dir_create(recurse = TRUE) |>
     fs::dir_exists()
 
   return(ndirs_ex)
@@ -308,7 +306,7 @@ check_pip_release_inputs <- function(call_args) {
 
   if (exists("working_dir")){
     if (!fs::dir_exists(working_dir))
-      cli::cli_abort("{.file {working_dir}} does not exist. Please check")
+      cli::cli_alert_danger("Directory {.file {working_dir}} does not exist. Please check")
   }
 
 
