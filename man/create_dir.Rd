@@ -4,21 +4,22 @@
 \alias{create_aux_dir}
 \alias{create_pc_dir}
 \alias{create_dir}
+\alias{remove_dir}
 \title{Create auxiliary directories for new release}
 \usage{
 create_aux_dir(
-  root_dir = Sys.getenv("PIP_ROOT_DIR"),
   aux_versions,
-  working_dir = fs::path(root_dir, getOption("pipfun.working_dir"))
+  working_dir = fs::path(Sys.getenv("PIP_ROOT_DIR"), getOption("pipfun.working_dir"))
 )
 
 create_pc_dir(
-  root_dir = Sys.getenv("PIP_ROOT_DIR"),
   pc_versions,
-  working_dir = fs::path(root_dir, getOption("pipfun.working_dir"))
+  working_dir = fs::path(Sys.getenv("PIP_ROOT_DIR"), getOption("pipfun.working_dir"))
 )
 
-create_dir(wdir, ndirs, verbose = getOption("pipfun.verbose"))
+create_dir(wdir, dirs, verbose = getOption("pipfun.verbose"))
+
+remove_dir(wdir, dirs, verbose = getOption("pipfun.verbose"))
 }
 \arguments{
 \item{aux_versions}{character: name of auxiliary folders. they must come in
@@ -33,7 +34,7 @@ adaptation  version of the pppp\verb{, and where }identify` stands for
 
 \item{wdir}{chracter: working directory path}
 
-\item{ndirs}{chracter: new directories name that will be created inside
+\item{dirs}{chracter: directories to be created inside or removed from
 \code{wdir}}
 }
 \value{
