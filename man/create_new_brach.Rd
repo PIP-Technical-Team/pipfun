@@ -8,10 +8,10 @@ create_new_brach(
   measure = NULL,
   owner = getOption("pipfun.ghowner"),
   repo = ifelse(is.null(measure), NA, paste0("aux_", measure)),
-  new_release = format(Sys.Date(), "\%Y\%m\%d"),
+  release = format(Sys.Date(), "\%Y\%m\%d"),
   identity = c("PROD", "INT", "TEST"),
   ref_branch = "DEV",
-  new_branch = paste0(new_release, "_", identity[1]),
+  new_branch = paste0(release, "_", identity[1]),
   verbose = getOption("pipfun.verbose")
 )
 }
@@ -23,7 +23,7 @@ create_new_brach(
 
 \item{repo}{character: name of the repo}
 
-\item{new_release}{character: date in the form "\%Y\%m\%d"}
+\item{release}{character: date in the form "\%Y\%m\%d"}
 
 \item{identity}{character: for PIP repos it must be one of \link[=c("PROD", "INT",
 "TEST")]{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
@@ -32,7 +32,7 @@ create_new_brach(
 created.}
 
 \item{new_branch}{character: name of new branch. Default is
-[paste0(new_release, "_", identity\link{1})]}
+[paste0(release, "_", identity\link{1})]}
 }
 \value{
 TRUE if \link{new_branch} already exists or if it was created
@@ -45,7 +45,7 @@ new branch in repo
 \dontrun{
 # success
   create_new_brach("regions",
-  new_release = "20240903")
+  release = "20240903")
 
   create_new_brach("regions",
   new_branch = "test")

@@ -5,7 +5,7 @@
 \title{Create new release for PIP update}
 \usage{
 new_pip_release(
-  new_release = format(Sys.Date(), "\%Y\%m\%d"),
+  release = format(Sys.Date(), "\%Y\%m\%d"),
   identity = c("PROD", "INT", "TEST"),
   verbose = getOption("pipfun.verbose"),
   root_dir = Sys.getenv("PIP_ROOT_DIR"),
@@ -15,7 +15,7 @@ new_pip_release(
 )
 }
 \arguments{
-\item{new_release}{character: date in the form "\%Y\%m\%d"}
+\item{release}{character: date in the form "\%Y\%m\%d"}
 
 \item{identity}{character: for PIP repos it must be one of \link[=c("PROD", "INT",
 "TEST")]{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}

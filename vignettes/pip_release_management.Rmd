@@ -46,7 +46,7 @@ get_latest_pip_release()
 To initiate a new release, use the `new_pip_release` function. Although all arguments have default values, it is recommended to specify values explicitly. By default, the release date is set to the current date in `YYYYMMDD` format (e.g., `format(Sys.Date(), "%Y%m%d")`). If the date format is incorrect, an error will occur:
 
 ```{r wrong-release, error=TRUE}
-new_pip_release(new_release = "10-28-2020") # incorrect date format
+new_pip_release(release = "10-28-2020") # incorrect date format
 ```
 
 The release identity defaults to "PROD" but can be set to "INT" for internal reports or "TEST" for developer testing. Note that "TEST" releases are not intended for transparency or replication purposes. Their main objective is to provide developers of pip a clear environment to experiment with new data and methodologies.
@@ -57,7 +57,7 @@ release_date <- "20241105"
 identity     <-  "TEST"
 
 # Create a New PIP Release (NPR)
-npr <- new_pip_release(new_release = release_date,
+npr <- new_pip_release(release = release_date,
                        identity = identity,
                        root_dir = tmp_dir)
 ```
@@ -87,8 +87,8 @@ npr$pc_dir |>
 ## Checking for New Releases
 
 ```{r new-release}
-new_release <- get_pip_releases(force = TRUE)
-new_release
+release <- get_pip_releases(force = TRUE)
+release
 ```
 
 Here, `force = TRUE` refreshes the release data by calling the GitHub API directly, bypassing the cached data in `.pipenv`. This is useful when you need the latest information. (Note: To disable this function permanently, you may use  option for `{pipfun}`.... (add this option) )

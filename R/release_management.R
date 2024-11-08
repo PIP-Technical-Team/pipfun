@@ -12,7 +12,7 @@
 #' new_pip_release()
 #' }
 new_pip_release <-
-  function(new_release = format(Sys.Date(), "%Y%m%d"),
+  function(release = format(Sys.Date(), "%Y%m%d"),
            identity    = c("PROD", "INT", "TEST"),
            verbose     = getOption("pipfun.verbose"),
            root_dir    = Sys.getenv("PIP_ROOT_DIR"),
@@ -35,7 +35,7 @@ new_pip_release <-
 
 
   # Create new release ----
-  nt <- data.table(release  = new_release,
+  nt <- data.table(release  = release,
                    identity = identity)
 
   dt <- rbindlist(list(pr, nt),
@@ -364,9 +364,9 @@ remove_dir <- function(wdir, dirs,
 
 
 new_aux_release <- function(measure     = NULL,
-                            new_release = format(Sys.Date(), "%Y%m%d"),
+                            release = format(Sys.Date(), "%Y%m%d"),
                             ref_branch  = "DEV",
-                            new_branch  = paste(new_release,
+                            new_branch  = paste(release,
                                                 identity[1],
                                                 sep = "_"),
                             verbose     = getOption("pipfun.verbose")
@@ -438,17 +438,32 @@ get_latest_pip_release <- function(identity = c("PROD", "INT", "TEST"),
                                    ...) {
 
   iden <- match.arg(identity)
+  df   <- get_pip_releases(...)
 
-    df <- get_pip_releases(...)
-
-    # Filter by identity and get max
-    df <- df[identity == iden
-             ][,
-               .SD[which.max(release)]]
-    # return
-    df
+  # Filter by identity and get max
+  df <- df[identity == iden
+           ][,
+             .SD[which.max(release)]]
+  # return
+  df
 }
 
+
+
+load_pip_relase <- function(release = NULL,
+                            identity = c("PROD", "INT", "TEST"),
+                            ...) {
+  identity <- match.arg(identity)
+  df   <-
+    if (is.null(release)) {
+    get_latest_pip_release(identity = identity, ...)
+  } else {
+    get_pip_releases(...)
+  }
+
+
+
+}
 
 
 
@@ -462,11 +477,11 @@ get_latest_pip_release <- function(identity = c("PROD", "INT", "TEST"),
 check_pip_release_inputs <- function(call_args) {
   list2env(call_args, envir = environment())
 
-  if (exists("new_release", envir = environment(), inherits = FALSE)){
-    if (!grepl("[0-9]{8}", new_release))
-      cli::cli_abort("{.arg new_release} must be a numeric chracter,
+  if (exists("release", envir = environment(), inherits = FALSE)){
+    if (!grepl("[0-9]{8}", release))
+      cli::cli_abort("{.arg release} must be a numeric chracter,
                      representing a date in the form {.field \"%Y%m%d\"}.
-                     You provided {.strong {new_release}}")
+                     You provided {.strong {release}}")
   }
 
   if (exists("working_dir")){
@@ -479,10 +494,41 @@ check_pip_release_inputs <- function(call_args) {
 }
 
 
-# new_release = format(Sys.Date(), "%Y%m%d"),
+# release = format(Sys.Date(), "%Y%m%d"),
 # identity    = c("PROD", "INT", "TEST"),
 # verbose     = getOption("pipfun.verbose"),
 # root_dir    = Sys.getenv("PIP_ROOT_DIR"),
 # working_dir = fs::path(root_dir,
 #                        getOption("pipfun.working_dir"))
+
+
+
+
+# find release  ----
+#' Find release in releases table
+#'
+#' @inheritParams get_latest_pip_release
+#' @param identity
+#' @param pr PIP Releases table from [get_pip_releases]
+#'
+#' @return
+#' @export
+#'
+#' @examples
+find_release <- function(release, identity, pr) {
+  release2del  <- release
+  identity2del <- identity
+  filtered_pr  <- pr[release == release2del & identity == identity2del]
+  nr <- nrow(filtered_pr)
+
+  if (nr == 0) {
+    cli::cli_abort("Release {.field {release2del}_{identity2del}} does not exist")
+  } else if (nr > 1) {
+    cli::cli_abort("Release {.field {release2del}_{identity2del}} does
+                     uniquely identify the data.
+                     Check with
+                     {.run pipfun::get_pip_releases(force = TRUE)}")
+  }
+  invisible(filtered_pr)
+}
 
