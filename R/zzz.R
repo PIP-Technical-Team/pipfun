@@ -9,6 +9,12 @@ pipfun_default_options <- list(
 
 .onLoad <- function(libname, pkgname) {
 
+  # make sure .pipenv is exported properly-----
+
+  if (!exists(".pipenv", envir = asNamespace(pkgname))) {
+    assign(".pipenv", new.env(parent = emptyenv()), envir = asNamespace(pkgname))
+  }
+
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Options --------
 
