@@ -12,7 +12,7 @@
 #' new_pip_release()
 #' }
 new_pip_release <-
-  function(release = format(Sys.Date(), "%Y%m%d"),
+  function(release     = format(Sys.Date(), "%Y%m%d"),
            identity    = c("PROD", "INT", "TEST"),
            verbose     = getOption("pipfun.verbose"),
            root_dir    = Sys.getenv("PIP_ROOT_DIR"),
@@ -232,19 +232,10 @@ remove_pip_release <-
 
 
   # find release to be removed ----
-  release2del  <- release
-  identity2del <- identity
-  filtered_pr  <- pr[release == release2del & identity == identity2del]
-  nr <- nrow(filtered_pr)
-
-  if (nr == 0) {
-    cli::cli_abort("Release {.field {release2del}_{identity2del}} does not exist")
-  } else if (nr > 1) {
-    cli::cli_abort("Release {.field {release2del}_{identity2del}} does
-                   uniquely identify the data.
-                   Check with
-                   {.run pipfun::get_pip_releases(force = TRUE)}")
-  }
+  filtered_pr  <-
+    find_release(pr      = pr,
+                 release = release,
+                 identity = identity)
 
   # get PPP metadata
   ppp <- get_latest_ppp_versions(ppps = ppps)
@@ -449,24 +440,6 @@ get_latest_pip_release <- function(identity = c("PROD", "INT", "TEST"),
 }
 
 
-
-load_pip_relase <- function(release = NULL,
-                            identity = c("PROD", "INT", "TEST"),
-                            ...) {
-  identity <- match.arg(identity)
-  df   <-
-    if (is.null(release)) {
-    get_latest_pip_release(identity = identity, ...)
-  } else {
-    get_pip_releases(...)
-  }
-
-
-
-}
-
-
-
 #' check arguments of release functions
 #'
 #' @param call_args arguments from release function in form of list. they should
@@ -508,16 +481,19 @@ check_pip_release_inputs <- function(call_args) {
 #' Find release in releases table
 #'
 #' @inheritParams get_latest_pip_release
-#' @param identity
+#' @inheritParams new_pip_release
 #' @param pr PIP Releases table from [get_pip_releases]
 #'
-#' @return
-#' @export
+#' @return invisible data frame with filtered release
 #'
-#' @examples
-find_release <- function(release, identity, pr) {
+#' @keywords internal
+find_release <- function(pr = NULL, release, identity) {
   release2del  <- release
   identity2del <- identity
+
+  if (is.null(pr))
+    pr <- get_pip_releases()
+
   filtered_pr  <- pr[release == release2del & identity == identity2del]
   nr <- nrow(filtered_pr)
 
