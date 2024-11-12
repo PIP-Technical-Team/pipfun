@@ -1,0 +1,28 @@
+---
+title: "Working with PIP releases"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working with PIP releases}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(pipfun)
+```
+
+
+# Introduction
+
+Creating releases goes beyond organization, information, and vintage control. The main purpose is having a well-defined structure that enables a clear,  efficient and reproducible workflow. 
+
+# Set up a release
+
+
