@@ -15,7 +15,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(pipfun)
+devtools::load_all(".")
+# library(pipfun)
 ```
 
 
@@ -24,5 +25,39 @@ library(pipfun)
 Creating releases goes beyond organization, information, and vintage control. The main purpose is having a well-defined structure that enables a clear,  efficient and reproducible workflow. 
 
 # Set up a release
+
+
+```{r setup-release}
+(wr <- setup_working_release())
+
+```
+
+Notice that, by default, the working release will correspond to the latest release of the most recent PPP round. In this case `r wr$release` and `r wr$ppp`, respectively. Also, if you try to setup the release again, you'll get an error because there is release already in the `.pipenv` environment.
+
+```{r setup-error, error=TRUE}
+(wr <- setup_working_release())
+
+```
+
+If you need to set the environment again, you need to either restart your R session or use argument `force = TRUE`
+
+# The `.pipenv` environment
+
+The `.pipenv` environment contains many pieces of information that are use internally by other functions of the PIP ecosystem. For instance, the `wr` object that is returned invisibly by `setup_working_release()` is available in 
+
+```{r wr-display}
+.pipenv$working_release
+```
+
+Moreover, all the information contained in the old function `pip_create_globals()` is now available in 
+
+```{r gls-display}
+head(.pipenv$gls)
+```
+
+
+
+
+
 
 

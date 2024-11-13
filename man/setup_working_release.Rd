@@ -8,7 +8,12 @@ setup_working_release(
   release = NULL,
   identity = c("PROD", "INT", "TEST"),
   force = FALSE,
-  verbose = TRUE,
+  owner = getOption("pipfun.ghowner"),
+  repo = "pip_info",
+  file_path = "releases.csv",
+  branch = "releases",
+  verbose = getOption("pipfun.verbose"),
+  ppp = getOption("pipfun.ppps"),
   ...
 )
 }
@@ -17,16 +22,32 @@ setup_working_release(
 
 \item{identity}{character: one of "PROD", "INT", or "TEST"}
 
-\item{...}{
-  Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
-  \describe{
-    \item{\code{force}}{logical: whether to load releases from Github even if they
+\item{force}{logical: whether to load releases from Github even if they
 already available in env .pipenv}
-    \item{\code{verbose}}{logical: whether to display additional information}
-    \item{\code{owner}}{character: owner of repo}
-    \item{\code{repo}}{character: repository name}
-    \item{\code{file_path}}{character: file path}
-    \item{\code{branch}}{character: branch where the file is}
+
+\item{owner}{character: owner of repo}
+
+\item{repo}{character: repository name}
+
+\item{file_path}{character: file path}
+
+\item{branch}{character: branch where the file is}
+
+\item{verbose}{logical: whether to display additional information}
+
+\item{...}{
+  Arguments passed on to \code{\link[=pip_create_globals]{pip_create_globals}}
+  \describe{
+    \item{\code{root_dir}}{character: root directory of the PIP data}
+    \item{\code{out_dir}}{character: Output Directory. Default is \code{root_dir}}
+    \item{\code{clean}}{logical: if TRUE it cleans all empty directories that have been
+created by mistake. Default is FALSE.}
+    \item{\code{max_year_country}}{numeric: Max year for country lineup. Default NULL,
+which is a heuristics that depends on the date this function is executed.}
+    \item{\code{max_year_aggregate}}{numeric: Max year for regional nowcast.Default
+NULL, which is the current year}
+    \item{\code{max_year_lineup}}{numeric: Max year for regional lineup.Default NULL,
+which is two years before the current year}
   }}
 }
 \value{
@@ -41,6 +62,6 @@ environment to be used by other PIP packages. It does not create releases.
 # latest PROD release
 setup_working_release()
 
-# error y set up again
+# error if set up again
 try(setup_working_release())
 }
