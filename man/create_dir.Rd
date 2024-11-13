@@ -23,14 +23,13 @@ remove_dir(wdir, dirs, verbose = getOption("pipfun.verbose"))
 }
 \arguments{
 \item{aux_versions}{character: name of auxiliary folders. they must come in
-the form "\%Y\%m\%d_\code{identify}", where \code{identify} stands for \link[=c("PROD", "INT",
-  "TEST")]{c("PROD", "INT", "TEST")}}
+the form "\%Y\%m\%d_\code{identify}", where \code{identify} stands for \code{c("PROD", "INT", "TEST")}}
 
 \item{pc_versions}{character: name of auxiliary folders. they must come in
 the form "\%Y\%m\%d_YYYY_MM_AA_\code{identify}", where \code{YYYY} stands for the PPP
 year, \code{MM} stands for the master version of the PPPs,  \code{AA} refers to the
-adaptation  version of the pppp\verb{, and where }identify` stands for
-\link{c("PROD", "INT", "TEST")}}
+adaptation  version of the PPPs, and  \code{identify} stands for one of
+\code{c("PROD", "INT", "TEST")}}
 
 \item{wdir}{chracter: working directory path}
 

@@ -115,8 +115,8 @@ new_pip_release <-
 #' Create auxiliary directories for new release
 #'
 #' @param aux_versions character: name of auxiliary folders. they must come in
-#'   the form "%Y%m%d_`identify`", where `identify` stands for [c("PROD", "INT",
-#'   "TEST")]
+#'   the form "%Y%m%d_`identify`", where `identify` stands for `c("PROD", "INT",
+#'   "TEST")`
 #' @inheritParams new_pip_release
 #'
 #' @rdname create_dir
@@ -138,8 +138,8 @@ create_aux_dir <- function(aux_versions,
 #' @param pc_versions character: name of auxiliary folders. they must come in
 #'   the form "%Y%m%d_YYYY_MM_AA_`identify`", where `YYYY` stands for the PPP
 #'   year, `MM` stands for the master version of the PPPs,  `AA` refers to the
-#'   adaptation  version of the pppp`, and where `identify` stands for
-#'   [c("PROD", "INT", "TEST")]
+#'   adaptation  version of the PPPs, and  `identify` stands for one of
+#'   `c("PROD", "INT", "TEST")`
 #' @inheritParams new_pip_release
 #'
 #' @rdname create_dir
