@@ -5,8 +5,8 @@
 #'
 #' @inheritParams load_from_gh
 #' @param release character: date in the form "%Y%m%d"
-#' @param identity character: for PIP repos it must be one of [c("PROD", "INT",
-#'   "TEST")]. For other repos, just leave de default, which is 'PROD'.
+#' @param identity character: for PIP repos it must be one of `c("PROD", "INT",
+#'   "TEST")`. For other repos, just leave de default, which is 'PROD'.
 #' @param ref_branch Character: reference branch from which the new branch will be
 #'   created.
 #' @param new_branch character: name of new branch. Default is

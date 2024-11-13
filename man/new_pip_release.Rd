@@ -17,8 +17,7 @@ new_pip_release(
 \arguments{
 \item{release}{character: date in the form "\%Y\%m\%d"}
 
-\item{identity}{character: for PIP repos it must be one of \link[=c("PROD", "INT",
-"TEST")]{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
+\item{identity}{character: for PIP repos it must be one of \code{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}

@@ -25,8 +25,7 @@ create_new_brach(
 
 \item{release}{character: date in the form "\%Y\%m\%d"}
 
-\item{identity}{character: for PIP repos it must be one of \link[=c("PROD", "INT",
-"TEST")]{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
+\item{identity}{character: for PIP repos it must be one of \code{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
 
 \item{ref_branch}{Character: reference branch from which the new branch will be
 created.}
