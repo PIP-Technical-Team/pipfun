@@ -160,6 +160,8 @@ create_pc_dir <-
 
 #' Create directories in folder
 #'
+#' This function is an informative wrapper around [fs::dir_create]
+#'
 #' @param wdir chracter: working directory path
 #' @param dirs chracter: directories to be created inside or removed from
 #'   `wdir`
@@ -188,6 +190,11 @@ create_dir <- function(wdir, dirs,
 
 
 
+#' Remove a PIP release from folders and Github
+#'
+#' CAUTION: Use this functions with care.
+#' @rdname new_pip_release
+#' @export
 remove_pip_release <-
   function(release,
            identity    = c("PROD", "INT", "TEST"),

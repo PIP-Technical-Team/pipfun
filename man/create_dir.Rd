@@ -42,10 +42,6 @@ logical vector. the names of the elements correspond to the directory
 paths
 }
 \description{
-Create auxiliary directories for new release
-
-Create poverty calculator directories for new release
-
-Create directories in folder
+This function is an informative wrapper around \link[fs:create]{fs::dir_create}
 }
 \keyword{internal}
