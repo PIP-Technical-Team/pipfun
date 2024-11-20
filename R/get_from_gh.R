@@ -109,8 +109,11 @@ download_from_gh <- function(path, temp_file) {
       # Create a request object with authentication
       path |>
         httr2::request() |>
-        httr2::req_auth_basic(username = creds$username,
+        #note (RT) - to remove
+        httr2::req_auth_basic(username = "RossanaTat",
                               password = creds$password) |>
+        # httr2::req_auth_basic(username = creds$username,
+        #                       password = creds$password) |>
         httr2::req_perform() |>
         httr2::resp_body_raw() |>
         writeBin(temp_file)
@@ -245,4 +248,36 @@ info_from_url <- function(url) {
   list(owner = owner,
        repo  = repo,
        branch = branch)
+}
+
+#' Get info of a branch in a GitHub repo
+#'
+#' @param owner character: owner of repo
+#' @param repo character: repository name
+#' @param branch character: branch name (default is "main")
+#'
+#' @return Complete response from GET method of GitHub API
+#' @export
+#'
+#' @examples
+#' get_branch_info_from_gh(owner     = getOption("pipfun.ghowner"),
+#'                         repo      = "pip_info",
+#'                         branch    = "releases")
+get_branch_info_from_gh <- function(owner  = getOption("pipfun.ghowner"),
+                                    repo,
+                                    branch = "main") {
+  # Get GitHub credentials
+  creds <- get_github_creds()
+
+  # Fetch branch metadata using GitHub API
+  mt <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = branch,
+    .token = creds$token  # Use your token for authentication
+  )
+
+  # Append additional information extracted from the URL
+  append(mt, info_from_url(mt$url))
 }
