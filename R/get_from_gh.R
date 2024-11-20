@@ -250,6 +250,31 @@ info_from_url <- function(url) {
        branch = branch)
 }
 
+#' Get info of a commit of a GitHub repo
+#' @param owner character: owner of repo
+#' @param repo character: repository name
+#' @param branch character: branch name (default is "main")
+#' @return A list containing detailed information about the latest commit on the specified branch.
+#' @export
+get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
+                                    repo,
+                                    branch = "main") {
+  # Get GitHub credentials
+  creds <- get_github_creds()
+
+  # Fetch the latest commit of the branch
+  commit_info <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = branch,
+    .token = creds$token
+  )
+
+  # Return the commit details
+  return(commit_info$commit)
+}
+
 #' Get info of a branch in a GitHub repo
 #'
 #' @param owner character: owner of repo
