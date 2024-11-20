@@ -279,5 +279,5 @@ get_branch_info_from_gh <- function(owner  = getOption("pipfun.ghowner"),
   )
 
   # Append additional information extracted from the URL
-  append(mt, info_from_url(mt$url))
+  append(mt, info_from_url(mt$protection_url))
 }
