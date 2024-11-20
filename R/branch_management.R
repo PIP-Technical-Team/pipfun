@@ -304,10 +304,9 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
   return(updated)
 }
 
-# Compare content of two branches
-#'  nheritParams compare_branches_sha
-#'
-
+#' Compare content of two branches
+#' @inheritParams compare_branches_sha
+#' @return logical. TRUE if branches have same content, FALSE otherwise
 compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
                                    repo,
                                    branch1 = "main",
