@@ -304,3 +304,39 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
   return(updated)
 }
 
+# Compare content of two branches
+#'  nheritParams compare_branches_sha
+#'
+
+compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
+                                   repo,
+                                   branch1 = "main",
+                                   branch2 = "dev") {
+  same_content <- FALSE
+
+  # Get commit info for both branches
+  commit1 <- get_commit_info_from_gh(owner = owner,
+                                     repo = repo,
+                                     branch = branch1)
+  commit2 <- get_commit_info_from_gh(owner = owner,
+                                     repo = repo,
+                                     branch = branch2)
+
+  # Extract the tree SHAs
+  tree_sha1 <- commit1$commit$tree$sha
+  tree_sha2 <- commit2$commit$tree$sha
+
+
+  # Compare the tree SHAs
+  if (tree_sha1 == tree_sha2) {
+    same_content <- TRUE
+    cli::cli_alert_success("The branches {branch1} and {branch2} have the same content at their latest commits.")
+  } else {
+    cli::cli_alert_warning("The branches {branch1} and {branch2} have different content at their latest commits.")
+    cli::cli_text("Branch 1 ({branch1}) Tree SHA: {tree_sha1}")
+    cli::cli_text("Branch 2 ({branch2}) Tree SHA: {tree_sha2}")
+  }
+
+  return(same_content)
+}
+
