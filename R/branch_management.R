@@ -258,3 +258,34 @@ confirm_branch_exists <- function(branch,
 
 
 }
+
+# Compare the SHA of the latest commit of two branches
+compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
+                                 repo,
+                                 branch1 = "main",
+                                 branch2 = "DEV") {
+
+  # Confirm branches exist
+
+  # Retrieve branch info for both branches
+  branch_info_1 <- get_branch_info_from_gh(owner = owner,
+                                           repo = repo,
+                                           branch = branch1)
+  branch_info_2 <- get_branch_info_from_gh(owner = owner,
+                                           repo = repo,
+                                           branch = branch2)
+
+  # Extract the SHA of the latest commit from each branch
+  sha_1 <- branch_info_1$commit$sha
+  sha_2 <- branch_info_2$commit$sha
+
+  # Compare the SHAs
+  if (sha_1 == sha_2) {
+    message("The SHAs of the latest commits on both branches are the same.")
+  } else {
+    message("The SHAs of the latest commits on the branches are different.")
+    message("Branch 1 (", branch1, "): ", sha_1)
+    message("Branch 2 (", branch2, "): ", sha_2)
+  }
+}
+
