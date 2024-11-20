@@ -214,7 +214,7 @@ delete_branch <- function(branch_to_delete,
 #' confirm branch exists in repo
 #'
 #' @param owner owner of repo
-#' @param repo repo
+#' @param repo character: name of repository
 #' @param branch branch to confirm
 #' @param measure name of auxiliary repo
 #'
@@ -259,13 +259,23 @@ confirm_branch_exists <- function(branch,
 
 }
 
-# Compare the SHA of the latest commit of two branches
+#' Compare the SHA of the latest commit of two branches
+#' @inheritParams confirm_branch_exists
+#' @param branch1 character: name of one branch
+#' @param branch2 character: name of the other branch
+#' @return logical. TRUE if same SHA, FALSE otherwise
+#'
 compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
-                                 repo,
+                                 measure = NULL,
+                                 repo        = ifelse(is.null(measure), NA,
+                                                      paste0("aux_", measure)),
                                  branch1 = "main",
                                  branch2 = "DEV") {
 
   # Confirm branches exist
+  # confirm_branch_exists(branch = branch1,
+  #                       owner = owner,
+  #                       repo = repo)
 
   # Retrieve branch info for both branches
   branch_info_1 <- get_branch_info_from_gh(owner = owner,
@@ -279,13 +289,18 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
   sha_1 <- branch_info_1$commit$sha
   sha_2 <- branch_info_2$commit$sha
 
+  updated <- FALSE
+
   # Compare the SHAs
   if (sha_1 == sha_2) {
-    message("The SHAs of the latest commits on both branches are the same.")
+    updated <- TRUE
+    cli::cli_alert_success(
+      "The {.strong {cli::col_blue('SHAs')}} of the latest commits on both branches are {.strong {cli::col_blue('the same')}}."
+    )
   } else {
-    message("The SHAs of the latest commits on the branches are different.")
-    message("Branch 1 (", branch1, "): ", sha_1)
-    message("Branch 2 (", branch2, "): ", sha_2)
+    cli::cli_alert_warning("The {.strong {cli::col_blue('SHAs')}} of the latest commits on the branches are {.strong {cli::col_blue('different')}}.")
   }
+
+  return(updated)
 }
 
