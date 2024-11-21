@@ -346,3 +346,22 @@ compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
   return(same_content)
 }
 
+#' Get branches from a GitHub repository
+#' @inheritParams compare_branches_sha
+#' @return vector with names of branches in specified repository
+#' @export
+get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
+                              repo) {
+  # Use the GitHub API to get the branches of the repository
+  branches_info <- gh::gh(
+    "GET /repos/:owner/:repo/branches",
+    owner = owner,
+    repo = repo
+  )
+
+  # Extract and return branch names
+  branch_names <- sapply(branches_info,
+                         function(branch) branch$name)
+  return(branch_names)
+}
+
