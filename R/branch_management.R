@@ -301,7 +301,9 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
     cli::cli_alert_warning("The {.strong {cli::col_blue('SHAs')}} of the latest commits on the branches are {.strong {cli::col_blue('different')}}.")
   }
 
-  return(updated)
+  return(list(sha_1 = sha_1,
+              sha_2 = sha_2,
+              updated = updated))
 }
 
 #' Compare content of two branches
@@ -343,7 +345,11 @@ compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
     cli::cli_alert_warning("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have different content at their latest commits.")
   }
 
-  return(same_content)
+  return(list(
+    tree_sha_1 = tree_sha1,
+    tree_sha_2 = tree_sha2,
+    same_content = same_content
+  ))
 }
 
 #' Get branches from a GitHub repository
@@ -376,5 +382,74 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
   )
 
   return(ret)
+}
+
+# Function to update branches
+
+# Update branch -TODO:
+# Maybe do sth like this to update:
+# tryCatch({
+#   gh::gh(
+#     "PATCH /repos/:owner/:repo/git/refs/heads/:branch",
+#     owner = owner,
+#     repo = repo,
+#     branch = branch2,
+#     sha = sha1,
+#     force = TRUE
+#   )
+#   return(TRUE)  # Update successful
+# }, error = function(e) {
+#   message("Error updating the branch: ", e$message)
+#   return(FALSE)  # Update failed
+# })
+# Wrapper to implement release branch mgt
+
+#' Update branches of a GitHub Repo
+#'
+#'
+update_branches <- function(owner = getOption("pipfun.ghowner"),
+                            repo,
+                            branch1,
+                            branch2
+) {
+
+  # Update branch 2 based on branch 1 latest commit
+
+  # Check sha of latest commit
+  branches_sha <- compare_branches_sha(repo = repo,
+                                       owner = owner,
+                                       branch1 = branch1,
+                                       branch2 = branch2)
+
+  # Check tree sha of latest commit
+  branches_content <- compare_branch_content(repo = repo,
+                                             owner = owner,
+                                             branch1 = branch1,
+                                             branch2 = branch2)
+
+  # Do nothing if branches already have same content
+  if (branches_content$same_content) {
+    cli::cli_alert_warning("Branches are already up-to-date.")
+    return(TRUE)
+  }
+
+  # If different content, update branch 2 -say, release branch- based on branch 1
+  result <- tryCatch({
+    gh::gh(
+      "PATCH /repos/:owner/:repo/git/refs/heads/:branch",
+      owner = owner,
+      repo = repo,
+      branch = branch2,
+      sha = branches_sha$sha_1,
+      force = TRUE
+    )
+    message("Branch ", branch2, " successfully updated to match ", branch1)
+    TRUE  # Update successful
+  }, error = function(e) {
+    message("Error updating the branch: ", e$message)
+    FALSE  # Update failed
+  })
+
+  return(result)
 }
 
