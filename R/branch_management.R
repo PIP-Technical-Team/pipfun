@@ -404,9 +404,18 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
 # })
 # Wrapper to implement release branch mgt
 
-#' Update branches of a GitHub Repo
+#' Update Branches of a GitHub Repository
 #'
+#' This function compares the commit history and content between two branches of a GitHub repository.
+#' If the content of the branches is different, it updates `branch2` to match the latest commit of `branch1`.
 #'
+#' @param owner The GitHub username or organization name. Defaults to the option `"pipfun.ghowner"` if not specified.
+#' @param repo The name of the GitHub repository.
+#' @param branch1 The source branch whose latest commit is used to update `branch2`.
+#' @param branch2 The target branch that will be updated to match the latest commit of `branch1`.
+#'
+#' @return Returns `TRUE` if the update was successful or if the branches were already up-to-date, `FALSE` if an error occurred during the update.
+#' @export
 update_branches <- function(owner = getOption("pipfun.ghowner"),
                             repo,
                             branch1,
