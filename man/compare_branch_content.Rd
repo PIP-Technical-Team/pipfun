@@ -26,3 +26,12 @@ logical. TRUE if branches have same content, FALSE otherwise
 \description{
 Compare content of two branches
 }
+\examples{
+\dontrun{
+# Different content
+compare_branch_content(repo   = "aux_ppp",
+                      branch1 = "DEV",
+                      branch2 = "DEV_v2")
+
+}
+}

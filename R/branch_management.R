@@ -307,6 +307,15 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
 #' Compare content of two branches
 #' @inheritParams compare_branches_sha
 #' @return logical. TRUE if branches have same content, FALSE otherwise
+#' @export
+#' @examples
+#' \dontrun{
+#' # Different content
+#' compare_branch_content(repo   = "aux_ppp",
+#'                       branch1 = "DEV",
+#'                       branch2 = "DEV_v2")
+#'
+#' }
 compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
                                    repo,
                                    branch1 = "main",
@@ -329,9 +338,9 @@ compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
   # Compare the tree SHAs
   if (tree_sha1 == tree_sha2) {
     same_content <- TRUE
-    cli::cli_alert_success("The branches {branch1} and {branch2} have the same content at their latest commits.")
+    cli::cli_alert_success("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have the same content at their latest commits.")
   } else {
-    cli::cli_alert_warning("The branches {branch1} and {branch2} have different content at their latest commits.")
+    cli::cli_alert_warning("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have different content at their latest commits.")
   }
 
   return(same_content)

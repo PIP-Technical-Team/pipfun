@@ -3,6 +3,7 @@
 export(add_gls_to_env)
 export(all_args)
 export(check_pkg_active)
+export(compare_branch_content)
 export(confirm_branch_exists)
 export(create_dir)
 export(create_new_brach)
