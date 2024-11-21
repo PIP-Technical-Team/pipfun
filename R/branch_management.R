@@ -362,6 +362,19 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
   # Extract and return branch names
   branch_names <- sapply(branches_info,
                          function(branch) branch$name)
-  return(branch_names)
+  # Check if any branch matches the release pattern (8 digits)
+  release_pattern <- "^\\d{8}$"
+  release_branches <- grep(release_pattern,
+                           branch_names,
+                           value = TRUE)
+
+  # Return all branch names and indicate if release branches are found
+  ret <- list(
+    all_branches       = branch_names,
+    release_branches   = release_branches,
+    has_release_branch = length(release_branches) > 0
+  )
+
+  return(ret)
 }
 
