@@ -31,7 +31,7 @@ load_all_from_gh <- function(owner= getOption("pipfun.ghowner"),
   metadata <- get_file_info_from_gh(owner     = owner,
                                     repo      = repo,
                                     branch    = branch,
-                                    file_path = file_path)
+                                    file_path = folder_path)
 
   # Create lists of paths
 
