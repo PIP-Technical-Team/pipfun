@@ -28,7 +28,9 @@ Imports:
     readxl,
     remotes,
     yaml, 
-    base64enc
+    base64enc, 
+    duckdb, 
+    DBI
 Suggests: 
     covr,
     testthat (>= 3.0.0),

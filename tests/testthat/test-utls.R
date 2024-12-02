@@ -9,3 +9,9 @@ test_that("convert_df_to_base64 returns an error if dataframe is not passed", {
                "df is not a dataframe"
   )
 })
+
+
+test_that("sql_compatible_collapse works correctly", {
+  expect_equal(nchar(sql_compatible_collapse(c("IND", "CHN"))), 14)
+  expect_equal(nchar(sql_compatible_collapse(LETTERS)), 130)
+})
