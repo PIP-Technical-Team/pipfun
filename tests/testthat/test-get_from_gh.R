@@ -118,15 +118,28 @@ test_that("files are read correctly from disk", {
   purrr::walk(file_urls, \(x) test_read(x))
 })
 
-
-
-
-
-
 #  get_file_info_from_gh() ---------
 test_that("get_file_info_from_gh extract right info", {
   info <- get_file_info_from_gh(owner,
                                      repo,
                                      branch = branch,
                                      "data/iris.csv")
+})
+
+# get repo branches
+test_that("get repo branches works as expected", {
+
+  repo       <- "aux_test"
+  branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
+                     owner = owner, repo = repo)
+  branch_names <- sapply(branches,
+                         function(branch) branch$name)
+
+  branch_names_test <- get_repo_branches(owner = owner,
+                                         repo = repo)$all_branches
+
+  expect_equal(branch_names,
+               branch_names_test)
+
+
 })

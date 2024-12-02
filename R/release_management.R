@@ -515,3 +515,6 @@ find_release <- function(pr = NULL, release, identity) {
   invisible(filtered_pr)
 }
 
+# Implement branch release management -wrapper function
+# TODO
+

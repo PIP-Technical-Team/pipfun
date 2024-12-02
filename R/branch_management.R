@@ -384,26 +384,6 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
   return(ret)
 }
 
-# Function to update branches
-
-# Update branch -TODO:
-# Maybe do sth like this to update:
-# tryCatch({
-#   gh::gh(
-#     "PATCH /repos/:owner/:repo/git/refs/heads/:branch",
-#     owner = owner,
-#     repo = repo,
-#     branch = branch2,
-#     sha = sha1,
-#     force = TRUE
-#   )
-#   return(TRUE)  # Update successful
-# }, error = function(e) {
-#   message("Error updating the branch: ", e$message)
-#   return(FALSE)  # Update failed
-# })
-# Wrapper to implement release branch mgt
-
 #' Update Branches of a GitHub Repository
 #'
 #' This function compares the commit history and content between two branches of a GitHub repository.
