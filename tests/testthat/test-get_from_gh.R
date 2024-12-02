@@ -166,3 +166,5 @@ test_that("get repo branches works as expected", {
                     repo = "aux_ppp")$has_release_branch |>
     expect_equal(FALSE)
 })
+
+
