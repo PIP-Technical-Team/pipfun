@@ -29,6 +29,7 @@
 #'   new_branch = "test") |>
 #'   try()
 #' }
+
 create_new_branch <- function(measure     = NULL,
                              owner       = getOption("pipfun.ghowner"),
                              repo        = ifelse(is.null(measure), NA,
