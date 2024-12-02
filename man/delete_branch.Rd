@@ -33,7 +33,7 @@ delete branch in Github repo
 }
 \examples{
 \dontrun{
-create_new_brach(
+create_new_branch(
   measure = "regions",
   release = "20240903")
 
@@ -41,7 +41,7 @@ delete_branch(branch_to_delete = "20240903_PROD",
               measure = "regions",
               ask = FALSE)
 
-create_new_brach("regions",
+create_new_branch("regions",
 new_branch = "test")
 
 delete_branch(branch_to_delete = "test",

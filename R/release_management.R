@@ -1,6 +1,6 @@
 #' Create new release for PIP update
 #'
-#' @inheritParams create_new_brach
+#' @inheritParams create_new_branch
 #' @inheritDotParams get_pip_releases
 #' @param ppp numeric: vector of PPP years.
 #'

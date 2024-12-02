@@ -18,18 +18,18 @@
 #' @examples
 #' \dontrun{
 #' # success
-#'   create_new_brach("regions",
+#'   create_new_branch("regions",
 #'   release = "20240903")
 #'
-#'   create_new_brach("regions",
+#'   create_new_branch("regions",
 #'   new_branch = "test")
 #'
 #' # Fail
-#'   create_new_brach("fjfjf",
+#'   create_new_branch("fjfjf",
 #'   new_branch = "test") |>
 #'   try()
 #' }
-create_new_brach <- function(measure     = NULL,
+create_new_branch <- function(measure     = NULL,
                              owner       = getOption("pipfun.ghowner"),
                              repo        = ifelse(is.null(measure), NA,
                                                   paste0("aux_", measure)) ,
@@ -122,7 +122,7 @@ create_new_brach <- function(measure     = NULL,
 #' delete branch in Github repo
 #'
 #' @param branch_to_delete character: branch to delete
-#' @inheritParams create_new_brach
+#' @inheritParams create_new_branch
 #' @param ask logical: whether to ask the user to confirm. Default is [interactive()]
 #'
 #' @return logical, whether or not branch was deleted
@@ -130,7 +130,7 @@ create_new_brach <- function(measure     = NULL,
 #'
 #' @examples
 #' \dontrun{
-#' create_new_brach(
+#' create_new_branch(
 #'   measure = "regions",
 #'   release = "20240903")
 #'
@@ -138,7 +138,7 @@ create_new_brach <- function(measure     = NULL,
 #'               measure = "regions",
 #'               ask = FALSE)
 #'
-#' create_new_brach("regions",
+#' create_new_branch("regions",
 #' new_branch = "test")
 #'
 #' delete_branch(branch_to_delete = "test",
