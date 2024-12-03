@@ -140,13 +140,46 @@ test_that("confirm branch exists work as expected", {
 
   # Error -incorrect input
 
-  confirm_branch_exists(repo = hfgv,
+  confirm_branch_exists(repo   = hfgv,
                         branch = "DEV") |>
     expect_error()
 
-  confirm_branch_exists(repo = "aux_test",
+  confirm_branch_exists(repo   = "aux_test",
                         branch = 2) |>
     expect_error()
+})
+
+
+
+# Test update branches
+test_that("update branches work as expected", {
+
+  # Already updated
+  update_branches(repo = "aux_test",
+                  branch1 = "main",
+                  branch2 = "test_main"
+                  ) |>
+    expect_equal(TRUE)
+
+  compare_branch_content(repo = "aux_test",
+                         branch1 = "DEV_v2",
+                         branch2 = "20241121"
+  )$same_content |>
+    expect_equal(FALSE)
+
+  # Update and check they have same content
+  update_branches(repo = "aux_test",
+                  branch1 = "DEV_v2",
+                  branch2 = "20241121"
+                  )
+
+  # check same content
+  compare_branch_content(repo = "aux_test",
+                         branch1 = "DEV_v2",
+                         branch2 = "20241121"
+                         )$same_content |>
+    expect_equal(TRUE)
+
 })
 
 

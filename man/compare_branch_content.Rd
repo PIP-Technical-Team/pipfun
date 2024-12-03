@@ -21,7 +21,7 @@ compare_branch_content(
 \item{branch2}{character: name of the other branch}
 }
 \value{
-logical. TRUE if branches have same content, FALSE otherwise
+list of 3 elements: tree sha of branch 1, tree sha of branch 2 and "same content" (TRUE if branches have same content, FALSE otherwise)
 }
 \description{
 Compare content of two branches
