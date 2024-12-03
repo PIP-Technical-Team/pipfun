@@ -70,8 +70,6 @@ test_that("compare branches sha works as expected", {
                       branch2 = "DEV")$updated |>
     expect_error()
 
-
-
 })
 
 # delete test branch

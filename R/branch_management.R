@@ -312,7 +312,7 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
 
 #' Compare content of two branches
 #' @inheritParams compare_branches_sha
-#' @return logical. TRUE if branches have same content, FALSE otherwise
+#' @return list of 3 elements: tree sha of branch 1, tree sha of branch 2 and "same content" (TRUE if branches have same content, FALSE otherwise)
 #' @export
 #' @examples
 #' \dontrun{
