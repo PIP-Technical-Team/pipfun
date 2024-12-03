@@ -127,6 +127,28 @@ test_that("compare branches content works as expected", {
 
 })
 
+# Test confirm branch exists
+test_that("confirm branch exists work as expected", {
+
+  confirm_branch_exists(repo = "aux_test",
+                        branch = "DEV") |>
+    expect_equal(TRUE)
+
+  confirm_branch_exists(repo = "aux_test",
+                        branch = "dchju") |>
+    expect_equal(FALSE)
+
+  # Error -incorrect input
+
+  confirm_branch_exists(repo = hfgv,
+                        branch = "DEV") |>
+    expect_error()
+
+  confirm_branch_exists(repo = "aux_test",
+                        branch = 2) |>
+    expect_error()
+})
+
 
 # delete test branch
 # TODO
