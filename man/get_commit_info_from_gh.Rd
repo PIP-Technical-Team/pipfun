@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_from_gh.R
 \name{get_commit_info_from_gh}
 \alias{get_commit_info_from_gh}
-\title{Get info of a commit of a GitHub repo}
+\title{Get info of latest commit of a GitHub repo}
 \usage{
 get_commit_info_from_gh(
   owner = getOption("pipfun.ghowner"),
@@ -21,5 +21,5 @@ get_commit_info_from_gh(
 A list containing detailed information about the latest commit on the specified branch.
 }
 \description{
-Get info of a commit of a GitHub repo
+Get info of latest commit of a GitHub repo
 }

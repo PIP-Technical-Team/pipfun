@@ -161,7 +161,7 @@ delete_branch <- function(branch_to_delete,
     is.character(branch_to_delete)
     length(branch_to_delete) == 1
   })
-  # Confirm branch exist -------
+  #Confirm branch exist -------
   branch_exists <-
     confirm_branch_exists(branch  = branch_to_delete,
                           measure = measure,
@@ -264,7 +264,7 @@ confirm_branch_exists <- function(branch,
 #' @inheritParams confirm_branch_exists
 #' @param branch1 character: name of one branch
 #' @param branch2 character: name of the other branch
-#' @return logical. TRUE if same SHA, FALSE otherwise
+#' @return list of 3 elements: sha1, sha2 and updated (logical, TRUE if sha codes are equal)
 #'
 compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
                                  measure = NULL,
@@ -277,6 +277,9 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
   # confirm_branch_exists(branch = branch1,
   #                       owner = owner,
   #                       repo = repo)
+
+  # Input -provide either measure or name of repo
+  # todo
 
   # Retrieve branch info for both branches
   branch_info_1 <- get_branch_info_from_gh(owner = owner,

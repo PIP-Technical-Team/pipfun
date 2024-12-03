@@ -250,7 +250,7 @@ info_from_url <- function(url) {
        branch = branch)
 }
 
-#' Get info of a commit of a GitHub repo
+#' Get info of latest commit of a GitHub repo
 #' @param owner character: owner of repo
 #' @param repo character: repository name
 #' @param branch character: branch name (default is "main")

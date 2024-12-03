@@ -24,7 +24,7 @@ compare_branches_sha(
 \item{branch2}{character: name of the other branch}
 }
 \value{
-logical. TRUE if same SHA, FALSE otherwise
+list of 3 elements: sha1, sha2 and updated (logical, TRUE if sha codes are equal)
 }
 \description{
 Compare the SHA of the latest commit of two branches
