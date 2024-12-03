@@ -79,8 +79,7 @@ test_that("compare branches content works as expected", {
   # Same content
   res <- compare_branch_content(repo = repo,
                                 branch1 = "main",
-                                branch2 = "PROD"
-                                  )
+                                branch2 = "PROD")
 
   res$tree_sha_1 |>
     expect_equal(res$tree_sha_2)

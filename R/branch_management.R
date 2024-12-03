@@ -238,25 +238,28 @@ confirm_branch_exists <- function(branch,
 ) {
 
   # defenses ----------
-  stopifnot(exprs = {
-    is.character(repo)
-    is.character(owner)
-    is.character(branch)
+  stopifnot(
+    is.character(repo),
+    is.character(owner),
+    is.character(branch),
     length(branch) == 1
-  })
+  )
 
-
-  tryCatch({
-    # Attempt to fetch the specific branch
-    branch <- gh("GET /repos/:owner/:repo/branches/:branch",
-                 owner = owner,
-                 repo = repo,
-                 branch = branch)
-    TRUE
+  result <- tryCatch({
+    gh::gh("GET /repos/:owner/:repo/branches/:branch",
+           owner = owner,
+           repo = repo,
+           branch = branch)
+    TRUE  # Branch exists
   }, error = function(e) {
-    FALSE
+    if (grepl("404", e$message)) {
+      FALSE  # Branch does not exist
+    } else {
+      stop(e)  # Re-raise other errors
+    }
   })
 
+  return(result)
 
 }
 
