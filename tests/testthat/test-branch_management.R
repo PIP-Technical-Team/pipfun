@@ -9,7 +9,7 @@ create_new_branch(measure    = "test",
                   ref_branch = "main",
                   new_branch = "test_main")
 
-
+# Test compare branches sha
 test_that("compare branches sha works as expected", {
 
   # Arguments
@@ -72,5 +72,64 @@ test_that("compare branches sha works as expected", {
 
 })
 
+# Test compare branches content
+
+test_that("compare branches content works as expected", {
+
+  # Same content
+  res <- compare_branch_content(repo = repo,
+                                branch1 = "main",
+                                branch2 = "PROD"
+                                  )
+
+  res$tree_sha_1 |>
+    expect_equal(res$tree_sha_2)
+
+
+  res$same_content |>
+    expect_equal(TRUE)
+
+  res <- compare_branch_content(repo = repo,
+                                branch1 = "main",
+                                branch2 = "test_main"
+  )
+
+  res$tree_sha_1 |>
+    expect_equal(res$tree_sha_2)
+
+
+  res$same_content |>
+    expect_equal(TRUE)
+
+  # Output class
+  class(res) |>
+    expect_equal("list")
+
+  class(res$tree_sha_1) |>
+    expect_equal(class(res$tree_sha_2))
+
+  class(res$tree_sha_2) |>
+    expect_equal("character")
+
+  # Different content
+  res <- compare_branch_content(repo = "aux_test",
+                                branch1 = "main",
+                                branch2 = "DEV_v2")
+
+  (res$tree_sha_1 == res$tree_sha_2) |>
+    expect_equal(FALSE)
+
+  res$same_content |>
+    expect_equal(FALSE)
+
+  # Error
+  compare_branch_content(repo = "test") |>
+    expect_error()
+
+})
+
+
 # delete test branch
 # TODO
+
+
