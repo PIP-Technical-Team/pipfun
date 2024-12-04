@@ -21,7 +21,64 @@ library(pipfun)
 
 The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions enable vintage control of auxiliary data, allowing users to track which version of each dataset was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
 
+The following workflow is recommended:
 
+### Step 1 - Check if repo has release branch
+As a first step, check whether any auxiliary data repo has or not a release branch. Release branches are named after the corresponding day of the release (e.g., 20241105 for November 5th 2024 release).
+
+To do so, call `get_repo_branches()`. It returns a list with 1. names of all branches, 2. name of release branch if present and 3. logical "has_release_branch"
+
+```{r}
+
+repo_branches <- get_repo_branches(repo = "aux_ppp",
+                  owner = getOption("pipfun.ghowner"))
+
+names(repo_branches)
+
+repo_branches$has_release_branch
+
+```
+For the sake of this vignette, let's use a fake auxiliary data repo, aux_test, to illustrate how the functions work. 
+
+### Step 2 - If absent, create release branch
+
+To create a release branch, simply call `create_new_branch()`, specifying the name of the new branch as well as the name of the reference branch it should be created from
+
+```{r}
+
+create_new_branch(repo = "aux_test",
+                  new_branch = format(Sys.Date(), "%Y%m%d"),
+                  ref_branch = "main"
+                  )
+
+# To check
+```
+
+### Step 3 - Check if release branch is updated with development branch
+
+ADD HERE 
+
+```{r}
+
+br_compare <- compare_branch_content(repo = "aux_test",
+                                     branch1 = "20241204",
+                                     branch2 = "DEV")
+
+br_compare$same_content
+
+```
+
+### Step 4 - Update accoridngly
+
+Update release branch based on the latest commit of the most recent version of DEV. Please note that this function updates `branch2` based on the latest commit of `branch1`.
+
+```{r}
+
+update_branches(repo    = "aux_test",
+                branch1 = "DEV_v2",
+                branch2 = "20241121")
+
+```
 
 
 

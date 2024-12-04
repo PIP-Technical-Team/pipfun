@@ -439,10 +439,12 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
       sha = branches_sha$sha_1,
       force = TRUE
     )
-    cli::cli_alert_success("Branch '{branch2}' successfully updated to match '{branch1}'.")
+    message("Branch ", branch2, " successfully updated to match ", branch1)
+    #cli::cli_alert_success("Branch '{branch2}' successfully updated to match '{branch1}'.")
     TRUE  # Update successful
   }, error = function(e) {
-    cli::cli_alert_warning("Error updating the branch: {e$message}")
+    message("Error updating the branch: ", e$message)
+    #cli::cli_alert_warning("Error updating the branch: {e$message}")
     FALSE  # Update failed
   })
 
