@@ -206,9 +206,12 @@ test_that("get branch info from gh works as expected", {
   )
 
   # Expectations
-  expect_equal(res$name, "main")
-  expect_equal(res$commit$sha, "testsha123")
-  expect_equal(res$protection_level, "high")
+  expect_equal(res$name,
+               "main")
+  expect_equal(res$commit$sha,
+               "testsha123")
+  expect_equal(res$protection_level,
+               "high")
 
 
 
