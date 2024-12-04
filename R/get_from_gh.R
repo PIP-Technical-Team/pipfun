@@ -260,7 +260,7 @@ get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
                                     repo,
                                     branch = "main") {
   # Get GitHub credentials
-  creds <- get_github_creds()
+  creds <- gitcreds::gitcreds_get()
 
   # Fetch the latest commit of the branch
   commit_info <- gh::gh(
@@ -268,7 +268,7 @@ get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
     owner  = owner,
     repo   = repo,
     branch = branch,
-    .token = creds$token
+    .token = creds$password
   )
 
   # Return the commit details
