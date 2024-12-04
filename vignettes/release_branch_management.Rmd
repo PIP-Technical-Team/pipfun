@@ -1,8 +1,8 @@
 ---
-title: "release_branch_management"
+title: "Functions for managing release branches"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{release_branch_management}
+  %\VignetteIndexEntry{"Functions for managing release branches"}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,3 +17,13 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(pipfun)
 ```
+
+
+The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions enable vintage control of auxiliary data, allowing users to track which version of each dataset was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
+
+
+
+
+
+
+
