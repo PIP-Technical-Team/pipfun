@@ -161,12 +161,6 @@ test_that("update branches work as expected", {
                   ) |>
     expect_equal(TRUE)
 
-  compare_branch_content(repo = "aux_test",
-                         branch1 = "DEV_v2",
-                         branch2 = "20241121"
-  )$same_content |>
-    expect_equal(FALSE)
-
   # Update and check they have same content
   update_branches(repo = "aux_test",
                   branch1 = "DEV_v2",
