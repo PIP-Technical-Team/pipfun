@@ -56,6 +56,20 @@ In this example, we use the function to get information about the file `"release
 
 The function returns metadata about the file, such as its current hash and other useful information that can be leveraged for version control or ensuring file consistency.
 
+## Retrieving branch metadata from Github
+In a similar way, users can use the `get_branch_info_from_gh()` function to retrieve detailed metadata about a specific branch within a GitHub repository. This function provides essential information, such as the branch's name, the latest commit's hash, and details about branch protection rules (if any). Like other {pipfun} functions, it uses the GitHub API for these queries, leveraging your credentials to authenticate requests.
+The output can be used for tasks such as verifying the latest changes, ensuring compliance with branch protection rules, or tracking updates across branches in the repository.
+
+```{r}
+gh_branch_info <- get_branch_info_from_gh(
+  owner     = getOption("pipfun.ghowner"),
+  repo      = "aux_ppp",
+  branch    = "DEV"
+)
+
+names(gh_branch_info)
+```
+
 ## Downloading a File from GitHub and Reading from Local Drive
 
 Downloading and reading files from GitHub can be challenging due to the diversity of file formats, many of which cannot be read directly. This is where the `get_file_from_gh()` function in `{pipfun}` comes into play.
@@ -95,11 +109,11 @@ Here's an example of how to use `save_to_gh()`:
 df <- data.frame(x = 1:5, 
                  y = letters[1:5])
 
-save_to_gh(df,
-           repo = "pip_info",
-           owner     = getOption("pipfun.ghowner"),
-           branch    = "testing",
-           filename  = "pipfun_vignette_example")
+# save_to_gh(df,
+#            repo = "pip_info",
+#            owner     = getOption("pipfun.ghowner"),
+#            branch    = "testing",
+#            filename  = "pipfun_vignette_example")
 ```
 
 By default, `save_to_gh()` saves the data in CSV format, but you can choose any of the supported formats mentioned earlier.

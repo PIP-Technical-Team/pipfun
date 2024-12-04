@@ -214,7 +214,4 @@ test_that("get branch info from gh works as expected", {
                "high")
 
 
-
-
-
 })

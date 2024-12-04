@@ -1,0 +1,19 @@
+---
+title: "release_branch_management"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{release_branch_management}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(pipfun)
+```
