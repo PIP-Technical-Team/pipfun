@@ -167,4 +167,51 @@ test_that("get repo branches works as expected", {
     expect_equal(FALSE)
 })
 
+# get branch info from gh
+test_that("get branch info from gh works as expected", {
 
+  get_branch_info_from_gh(repo = "aux_test",
+                          branch = "main") |>
+    expect_no_error()
+
+  branch_info <- get_branch_info_from_gh(repo = "aux_test",
+                                         branch = "main")
+
+  class(branch_info) |>
+    expect_equal("list")
+
+  get_branch_info_from_gh(repo = "cnjwe",
+                          branch = "main") |>
+    expect_error()
+
+  # Check correct info
+
+  fake_creds <- function() list(token = "fake_token")
+  fake_gh <- function(..., owner, repo, branch, .token) {
+    list(
+      name = branch,
+      commit = list(sha = "testsha123"),
+      protection_url = "https://api.github.com/repos/owner/repo/branches/main/protection"
+    )
+  }
+  fake_url <- function(url) list(protection_level = "high")
+
+  res <- get_branch_info_from_gh(
+    owner = "owner",
+    repo = "repo",
+    branch = "main",
+    gh_func = fake_gh,
+    creds_func = fake_creds,
+    url_func = fake_url
+  )
+
+  # Expectations
+  expect_equal(res$name, "main")
+  expect_equal(res$commit$sha, "testsha123")
+  expect_equal(res$protection_level, "high")
+
+
+
+
+
+})
