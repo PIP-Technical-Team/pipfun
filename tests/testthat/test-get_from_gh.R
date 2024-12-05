@@ -205,7 +205,6 @@ test_that("get branch info from gh works as expected", {
     url_func = fake_url
   )
 
-  # Expectations
   expect_equal(res$name,
                "main")
   expect_equal(res$commit$sha,

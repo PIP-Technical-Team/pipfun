@@ -29,7 +29,6 @@
 #'   new_branch = "test") |>
 #'   try()
 #' }
-
 create_new_branch <- function(measure     = NULL,
                              owner       = getOption("pipfun.ghowner"),
                              repo        = ifelse(is.null(measure), NA,
@@ -268,6 +267,7 @@ confirm_branch_exists <- function(branch,
 #' @param branch1 character: name of one branch
 #' @param branch2 character: name of the other branch
 #' @return list of 3 elements: sha1, sha2 and updated (logical, TRUE if sha codes are equal)
+#' @export
 #'
 compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
                                  measure = NULL,
@@ -277,12 +277,9 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
                                  branch2 = "DEV") {
 
   # Confirm branches exist
-  # confirm_branch_exists(branch = branch1,
-  #                       owner = owner,
-  #                       repo = repo)
-
-  # Input -provide either measure or name of repo
-  # todo
+  confirm_branch_exists(branch = branch1,
+                        owner = owner,
+                        repo = repo)
 
   # Retrieve branch info for both branches
   branch_info_1 <- get_branch_info_from_gh(owner = owner,
@@ -308,8 +305,8 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
     cli::cli_alert_warning("The {.strong {cli::col_blue('SHAs')}} of the latest commits on the branches are {.strong {cli::col_blue('different')}}.")
   }
 
-  return(list(sha_1 = sha_1,
-              sha_2 = sha_2,
+  return(list(sha_1   = sha_1,
+              sha_2   = sha_2,
               updated = updated))
 }
 

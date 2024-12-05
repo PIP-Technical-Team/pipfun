@@ -178,7 +178,13 @@ test_that("update branches work as expected", {
 
 # Create some branches in aux_test repo for for testing purposes
 create_new_branch(repo = "aux_test",
-                  new_branch <- format(Sys.Date(), "%Y%m%d"),
+                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"),
+                  ref_branch = "main",
+                  identity = "TEST"
+)
+
+create_new_branch(repo = "aux_test",
+                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"),
                   ref_branch = "main",
                   identity = "TEST"
 )
@@ -203,12 +209,12 @@ test_that("merge branch into works correctly", {
   # successful merge
   merge_branch_into(repo = "aux_test",
                     source_branch = "DEV",
-                    target_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"))|>
+                    target_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"))|>
     expect_no_error()
 
   compare_branch_content(repo = "aux_test",
                          branch1 = "DEV",
-                         branch2 = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"))$same_content |>
+                         branch2 = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"))$same_content |>
     expect_equal(TRUE)
 
 })
