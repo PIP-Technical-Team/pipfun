@@ -176,6 +176,24 @@ test_that("update branches work as expected", {
 
 })
 
+# Create some branches in aux_test repo for for testing purposes
+
+
+# Test merge branches
+test_that("merge branch into works correctly", {
+
+  # When branches have same content
+
+
+
+  # When branches have different content
+
+
+
+
+})
+
+
 
 # delete test branch
 # TODO

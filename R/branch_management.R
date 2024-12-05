@@ -496,6 +496,7 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
                               repo,
                               source_branch,
                               target_branch) {
+
   # Check tree SHA of latest commits
   branches_content <- compare_branch_content(
     repo = repo,
