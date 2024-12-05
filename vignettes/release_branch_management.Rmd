@@ -15,7 +15,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(pipfun)
+#library(pipfun)
+devtools::load_all()
 ```
 
 The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions are a starting point to enable vintage control of auxiliary data, so we can track track which version of aux data was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
@@ -66,7 +67,7 @@ In order to check whether the release branch is updated with the most recent ver
 ```{r}
 
 br_compare <- compare_branch_content(repo = "aux_test",
-                                     branch1 = "20241204",
+                                     branch1 = format(Sys.Date(), "%Y%m%d"),
                                      branch2 = "DEV")
 
 br_compare$same_content
@@ -85,11 +86,11 @@ Note (RT): as of now, I developed two functions that allow updating branches wit
 # Approach 1:
 update_branches(repo    = "aux_test",
                 branch1 = "DEV_v2",
-                branch2 = "20241121")
+                branch2 = format(Sys.Date(), "%Y%m%d"))
 
 
 # Approach 2:
 merge_branch_into(repo = "aux_test", 
                   source_branch = "DEV", 
-                  target_branch = "20240512")
+                  target_branch = format(Sys.Date(), "%Y%m%d"))
 ```
