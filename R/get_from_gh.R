@@ -255,7 +255,7 @@ info_from_url <- function(url) {
 #' @param repo character: repository name
 #' @param branch character: branch name (default is "main")
 #' @return A list containing detailed information about the latest commit on the specified branch.
-#' @export
+#' @keywords internal
 get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
                                     repo,
                                     branch = "main") {

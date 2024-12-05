@@ -23,3 +23,4 @@ A list containing detailed information about the latest commit on the specified 
 \description{
 Get info of latest commit of a GitHub repo
 }
+\keyword{internal}
