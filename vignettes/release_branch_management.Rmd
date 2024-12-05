@@ -75,17 +75,21 @@ br_compare$same_content
 
 ### Step 4 - Update branches
 
-Note (RT): as of now, I propose two approaches:
+Note (RT): as of now, I developed two functions that allow updating branches with two different approaches:
 
-1.  Update branch based on latest commit
-2.  Update branch mimicing git merge command
-
-Update release branch based on the latest commit of the most recent version of DEV. Please note that this function updates `branch2` making it point to the latest commit of `branch1`.
+1.  Update the target branch to point to the latest commit of the source branch. (this overwrites the history of target branc)
+2.  Update the target branch by merging the source branch into it.
 
 ```{r}
 
+# Approach 1:
 update_branches(repo    = "aux_test",
                 branch1 = "DEV_v2",
                 branch2 = "20241121")
 
+
+# Approach 2:
+merge_branch_into(repo = "aux_test", 
+                  source_branch = "DEV", 
+                  target_branch = "20240512")
 ```
