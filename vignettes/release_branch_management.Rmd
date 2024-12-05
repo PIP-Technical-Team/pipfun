@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 devtools::load_all()
 ```
 
-The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions are a starting point to enable vintage control of auxiliary data, so we can track track which version of aux data was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
+The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions are a starting point to enable vintage control of auxiliary data, so we can track which version of aux data was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
 
 The following workflow is recommended:
 
@@ -54,7 +54,6 @@ create_new_branch(repo = "aux_test",
                   ref_branch = "main"
                   )
 
-# To check
 ```
 
 ### Step 3 - Check if release branch is updated with development branch
@@ -78,7 +77,7 @@ br_compare$same_content
 
 Note (RT): as of now, I developed two functions that allow updating branches with two different approaches:
 
-1.  Update the target branch to point to the latest commit of the source branch. (this overwrites the history of target branc)
+1.  Update the target branch to point to the latest commit of the source branch (this overwrites the history of target branch).
 2.  Update the target branch by merging the source branch into it.
 
 ```{r}
