@@ -7,7 +7,10 @@
 get_branch_info_from_gh(
   owner = getOption("pipfun.ghowner"),
   repo,
-  branch = "main"
+  branch = "main",
+  gh_func = gh::gh,
+  creds_func = get_github_creds,
+  url_func = info_from_url
 )
 }
 \arguments{
