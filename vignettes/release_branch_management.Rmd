@@ -18,15 +18,15 @@ knitr::opts_chunk$set(
 library(pipfun)
 ```
 
-
-The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions enable vintage control of auxiliary data, allowing users to track which version of each dataset was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
+The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions are a starting point to enable vintage control of auxiliary data, so we can track track which version of aux data was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
 
 The following workflow is recommended:
 
 ### Step 1 - Check if repo has release branch
+
 As a first step, check whether any auxiliary data repo has or not a release branch. Release branches are named after the corresponding day of the release (e.g., 20241105 for November 5th 2024 release).
 
-To do so, call `get_repo_branches()`. It returns a list with 1. names of all branches, 2. name of release branch if present and 3. logical "has_release_branch"
+To do so, call `get_repo_branches()`. It returns a list with (1.) names of all branches, (2.) name of release branch if present and (3.) logical "has_release_branch" specifying whether or not the repo has a release branch.
 
 ```{r}
 
@@ -35,10 +35,12 @@ repo_branches <- get_repo_branches(repo = "aux_ppp",
 
 names(repo_branches)
 
+repo_branches$all_branches
 repo_branches$has_release_branch
 
 ```
-For the sake of this vignette, let's use a fake auxiliary data repo, aux_test, to illustrate how the functions work. 
+
+Let's use a fake auxiliary data repo, aux_test, to illustrate how the functions work.
 
 ### Step 2 - If absent, create release branch
 
@@ -56,7 +58,10 @@ create_new_branch(repo = "aux_test",
 
 ### Step 3 - Check if release branch is updated with development branch
 
-ADD HERE 
+In order to check whether the release branch is updated with the most recent version of development branch, call `compare_branch_content()`. This function compares the content of the two branches based on their corresponding latest commit tree SHAs. Comparing the SHA of the latest commits is not enough to determine if branches have the same content because:
+
+-   Tree SHA: Represents the state of the repository's content (files and directories) at a given point in time.
+-   Commit SHA: Includes metadata such as the author, timestamp, and commit message, in addition to referencing the tree SHA. Even if the content is identical, differences in metadata can cause the commit SHAs to differ.
 
 ```{r}
 
@@ -68,9 +73,14 @@ br_compare$same_content
 
 ```
 
-### Step 4 - Update accoridngly
+### Step 4 - Update branches
 
-Update release branch based on the latest commit of the most recent version of DEV. Please note that this function updates `branch2` based on the latest commit of `branch1`.
+Note (RT): as of now, I propose two approaches:
+
+1.  Update branch based on latest commit
+2.  Update branch mimicing git merge command
+
+Update release branch based on the latest commit of the most recent version of DEV. Please note that this function updates `branch2` making it point to the latest commit of `branch1`.
 
 ```{r}
 
@@ -79,8 +89,3 @@ update_branches(repo    = "aux_test",
                 branch2 = "20241121")
 
 ```
-
-
-
-
-
