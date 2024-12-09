@@ -10,19 +10,16 @@
 #'
 return_if_exists <- function(country_code, year, poverty_line, con) {
   all_args_data <- all_args(country_code, year, poverty_line)
+  # This file will be read from shared drive which will be an argument of this function.
+  master_file <- arrow::read_parquet('master_file.parquet')
 
-  duckdb::duckdb_register(con, "all_args_data", all_args_data, overwrite = TRUE)
+  args_not_present_in_master <- duckplyr::anti_join(
+    all_args_data, master_file,
+          by = c("country_code", "reporting_year", "poverty_line")
+    )
+  # args_not_present_in_master should be passed in pip function
 
-  result <- DBI::dbGetQuery(con, glue::glue("
-      SELECT *
-      FROM master_file mf
-      INNER JOIN all_args_data ad
-      ON mf.country_code = ad.country_code
-      AND mf.reporting_year = ad.reporting_year
-      AND mf.poverty_line = ad.poverty_line
-      "))
-  #calculate the arguments that are remaining and return for the pip call
-  return(result)
+  return(args_not_present_in_master)
 }
 
 #' Create a dataframe with all possible combinations of `country_code`, `reporting_year` and `poverty_line`
