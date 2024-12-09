@@ -10,15 +10,20 @@
 return_if_exists <- function(country_code, year, poverty_line) {
   all_args_data <- all_args(country_code, year, poverty_line)
   # This file will be read from shared drive which will be an argument of this function.
+  # Additionally there were will more arguments to join instead of only 3
+  # In fact, it will be joined by all the arguments in `pip` call
   master_file <- arrow::read_parquet('master_file.parquet')
 
   args_not_present_in_master <- duckplyr::anti_join(
     all_args_data, master_file,
           by = c("country_code", "reporting_year", "poverty_line")
     )
-  # args_not_present_in_master should be passed in pip function
+  args_present_in_master <- duckplyr::inner_join(
+    master_file, all_args_data,
+    by = c("country_code", "reporting_year", "poverty_line")
+  )
 
-  return(args_not_present_in_master)
+  return(list(present_data = args_present_in_master, absent_args = args_not_present_in_master))
 }
 
 #' Create a dataframe with all possible combinations of `country_code`, `reporting_year` and `poverty_line`
