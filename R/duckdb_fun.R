@@ -3,12 +3,11 @@
 #' @param country_code Country Code
 #' @param year Year
 #' @param poverty_line Poverty Lines
-#' @param con Connection object where master_file exists
 #'
 #' @return Dataframe
 #' @export
 #'
-return_if_exists <- function(country_code, year, poverty_line, con) {
+return_if_exists <- function(country_code, year, poverty_line) {
   all_args_data <- all_args(country_code, year, poverty_line)
   # This file will be read from shared drive which will be an argument of this function.
   master_file <- arrow::read_parquet('master_file.parquet')
