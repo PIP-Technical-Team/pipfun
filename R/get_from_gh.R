@@ -322,7 +322,7 @@ get_branch_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
     owner  = owner,
     repo   = repo,
     branch = branch,
-    .token = creds$token
+    .token = creds$password
   )
 
   # Append additional information extracted from the URL

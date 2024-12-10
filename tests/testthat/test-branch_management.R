@@ -6,6 +6,7 @@
 owner <- getOption("pipfun.ghowner")
 measure <- "test"
 repo <- paste0("aux_", measure)
+creds <- get_github_creds()
 
 # create branches for testing purposes
 create_new_branch(measure    = "test",
@@ -49,14 +50,6 @@ test_that("compare branches sha works as expected", {
                        branch2 = "main") |>
     expect_no_error()
 
-  # error if both measure and repo name are provided
-  # compare_branches_sha(owner = owner,
-  #                      measure = "test",
-  #                      repo = repo,
-  #                      branch1 = "DEV",
-  #                      branch2 = "main") |>
-  #   expect_error()
-
   # error if incorrect repo
   compare_branches_sha(owner = owner,
                        repo = "ahguenc",
@@ -80,8 +73,30 @@ test_that("compare branches sha works as expected", {
                               branch1 = "main",
                               branch2 = "DEV")
 
+  # different shas
+  sha_1 <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = "main",
+    .token = creds$password
+  )$commit$sha
+
+  sha_2 <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = "DEV",
+    .token = creds$password
+  )$commit$sha
+
+  same_sha <- sha_1 == sha_2
+
   out$updated |>
     expect_equal(FALSE)
+
+  out$updated |>
+    expect_equal(same_sha)
 
 
   # TRUE
@@ -89,6 +104,28 @@ test_that("compare branches sha works as expected", {
                               repo = repo,
                               branch1 = "main",
                               branch2 = "test_main")
+
+  sha_1 <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = "main",
+    .token = creds$password
+  )$commit$sha
+
+  sha_2 <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = "test_main",
+    .token = creds$password
+  )$commit$sha
+
+  same_sha <- sha_1 == sha_2
+
+  out$updated |>
+    expect_equal(same_sha)
+
   out$updated |>
     expect_equal(TRUE)
 
