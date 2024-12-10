@@ -8,7 +8,8 @@ merge_branch_into(
   owner = getOption("pipfun.ghowner"),
   repo,
   source_branch,
-  target_branch
+  target_branch,
+  force = TRUE
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ Defaults to the value of the \code{pipfun.ghowner} option}
 \item{source_branch}{Character. The name of the branch to merge from}
 
 \item{target_branch}{Character. The name of the branch to merge into}
+
+\item{force}{logical. If \code{FALSE}, ask permission to user before merging. Default is TRUE}
 }
 \value{
 Logical. Returns \code{TRUE} if the merge was successful or the branches

@@ -468,6 +468,7 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 #' @param repo Character. The name of the repository.
 #' @param source_branch Character. The name of the branch to merge from
 #' @param target_branch Character. The name of the branch to merge into
+#' @param force logical. If `FALSE`, ask permission to user before merging. Default is TRUE
 #'
 #' @return Logical. Returns `TRUE` if the merge was successful or the branches
 #'   already had the same content. Returns `FALSE` if the merge failed.

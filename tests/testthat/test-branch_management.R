@@ -217,6 +217,10 @@ test_that("merge branch into works correctly", {
                          branch2 = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"))$same_content |>
     expect_equal(TRUE)
 
+  # error when branches do not exist
+
+  # force option
+
 })
 
 

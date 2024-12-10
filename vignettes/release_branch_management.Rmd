@@ -107,6 +107,6 @@ update_branches(repo    = "aux_test",
 
 # Approach 2:
 merge_branch_into(repo = "aux_test", 
-                  source_branch = "DEV", 
+                  source_branch = "DEV",
                   target_branch = format(Sys.Date(), "%Y%m%d"))
 ```
