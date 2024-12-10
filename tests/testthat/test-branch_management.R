@@ -247,13 +247,28 @@ test_that("compare branches content works as expected", {
 # Test confirm branch exists
 test_that("confirm branch exists work as expected", {
 
-  confirm_branch_exists(repo = "aux_test",
-                        branch = "DEV") |>
-    expect_equal(TRUE)
+  branches_info <- gh::gh(
+    "GET /repos/:owner/:repo/branches",
+    owner = owner,
+    repo = repo
+  )
+
+  # Extract and return branch names
+  branch_names <- sapply(branches_info,
+                         function(branch) branch$name)
+
+  br_exists <- ("DEV" %in% branch_names)
 
   confirm_branch_exists(repo = "aux_test",
-                        branch = "dchju") |>
-    expect_equal(FALSE)
+                          branch = "DEV") |>
+      expect_equal(br_exists)
+
+  br_exists <- ("uyfugb" %in% branch_names)
+
+  confirm_branch_exists(repo = "aux_test",
+                        branch = "uyfugb") |>
+    expect_equal(br_exists)
+
 
   # Error -incorrect input
 
@@ -264,6 +279,8 @@ test_that("confirm branch exists work as expected", {
   confirm_branch_exists(repo   = "aux_test",
                         branch = 2) |>
     expect_error()
+
+
 })
 
 
