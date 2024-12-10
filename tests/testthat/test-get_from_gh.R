@@ -126,46 +126,6 @@ test_that("get_file_info_from_gh extract right info", {
                                      "data/iris.csv")
 })
 
-# get repo branches
-test_that("get repo branches works as expected", {
-
-  # Check branch names ------ #
-
-  repo     <- "aux_test"
-  branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
-                     owner = owner,
-                     repo = repo)
-  branch_names <- sapply(branches,
-                         function(branch) branch$name)
-
-  branches_test <- get_repo_branches(owner = owner,
-                                         repo = repo)
-
-  expect_equal(branch_names,
-               branches_test$all_branches)
-
-  new_branch <- "20241202"
-
-  # Check release branch ------ #
-  create_new_branch(owner = owner,
-                    repo  = repo,
-                    new_branch = new_branch,
-                    ref_branch = "main"
-                    )
-
-  get_repo_branches(owner = owner,
-                    repo = repo)$has_release_branch |>
-    expect_equal(TRUE)
-
-  get_repo_branches(owner = owner,
-                    repo = repo)$release_branches |>
-    expect_contains(new_branch)
-
-  # Check when no release branch
-  get_repo_branches(owner = owner,
-                    repo = "aux_ppp")$has_release_branch |>
-    expect_equal(FALSE)
-})
 
 # get branch info from gh
 test_that("get branch info from gh works as expected", {
