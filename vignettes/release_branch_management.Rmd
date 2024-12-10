@@ -110,3 +110,22 @@ merge_branch_into(repo = "aux_test",
                   source_branch = "DEV",
                   target_branch = format(Sys.Date(), "%Y%m%d"))
 ```
+
+In both cases, you can set the `force` option to `FALSE` to make the function ask confirmation before proceeding with the operation. 
+
+### Additional: Delete branches
+
+To delete a branch, you can use the `delete_branch()` function. Here's an example that demonstrates creating and subsequently deleting a branch:
+
+```{r}
+
+# Create a new branch named "to_delete"
+create_new_branch(repo = "aux_test",
+                  new_branch = "to_delete")
+
+# Delete the branch named "to_delete" (asks for confirmation in interactive mode)
+delete_branch(repo = "aux_test",
+              branch_to_delete = "to_delete")
+
+```
+

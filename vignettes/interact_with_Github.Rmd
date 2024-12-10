@@ -121,7 +121,7 @@ By default, `save_to_gh()` saves the data in CSV format, but you can choose any 
 
 # Delete from Github
 
-blah
+
 
 # Branches management 
 
