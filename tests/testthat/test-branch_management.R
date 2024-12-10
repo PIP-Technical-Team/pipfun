@@ -221,7 +221,47 @@ test_that("merge branch into works correctly", {
 
 
 
-# delete test branch
-# TODO
+# Test delete branches function
+test_that("delete branch works", {
+
+  # create a branch
+  create_new_branch(measure = "test",
+                    new_branch = "to_delete",
+                    ref_branch = "DEV")
+
+  # confirms it exists
+  branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
+                     owner = owner,
+                     repo = repo)
+  branch_names <- sapply(branches, function(branch) branch$name)
+
+  ("to_delete" %in% branch_names) |>
+    expect_equal(TRUE)
+
+  # delete branch
+  delete_branch(branch_to_delete = "to_delete",
+                repo = repo,
+                owner = owner,
+                ask = FALSE)
+
+  # confirm it was deleted
+  branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
+                     owner = owner,
+                     repo = repo)
+
+  branch_names <- sapply(branches,
+                         function(branch) branch$name)
+
+  ("to_delete" %in% branch_names) |>
+    expect_equal(FALSE)
+
+
+
+
+
+
+
+})
+
 
 
