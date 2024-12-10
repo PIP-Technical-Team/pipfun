@@ -160,8 +160,33 @@ test_that("compare branches content works as expected", {
                                 branch2 = "test_main"
   )
 
+  commit_1 <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = "main",
+    .token = creds$password
+  )$commit
+
+  tree_sha_1 <- commit_1$commit$tree$sha
+
+  commit_2 <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = "test_main",
+    .token = creds$password
+  )$commit
+
+  tree_sha_2 <- commit_2$commit$tree$sha
+
+  same_tree_sha <- tree_sha_1 == tree_sha_2
+
   res$tree_sha_1 |>
     expect_equal(res$tree_sha_2)
+
+  res$same_content |>
+    expect_equal(same_tree_sha)
 
 
   res$same_content |>
@@ -182,11 +207,36 @@ test_that("compare branches content works as expected", {
                                 branch1 = "main",
                                 branch2 = "DEV_v2")
 
+  commit_1 <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = "main",
+    .token = creds$password
+  )$commit
+
+  tree_sha_1 <- commit_1$commit$tree$sha
+
+  commit_2 <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = "DEV_v2",
+    .token = creds$password
+  )$commit
+
+  tree_sha_2 <- commit_2$commit$tree$sha
+
+  same_tree_sha <- tree_sha_1 == tree_sha_2
+
   (res$tree_sha_1 == res$tree_sha_2) |>
     expect_equal(FALSE)
 
   res$same_content |>
     expect_equal(FALSE)
+
+  res$same_content |>
+    expect_equal(same_tree_sha)
 
   # Error
   compare_branch_content(repo = "test") |>
