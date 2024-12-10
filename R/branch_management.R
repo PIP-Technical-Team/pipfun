@@ -403,13 +403,15 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
 #' @param repo The name of the GitHub repository.
 #' @param branch1 The source branch whose latest commit is used to update `branch2`.
 #' @param branch2 The target branch that will be updated to match the latest commit of `branch1`.
+#' @param force logical. If `FALSE`, ask permission to user before merging. Default is TRUE
 #'
 #' @return Returns `TRUE` if the update was successful or if the branches were already up-to-date, `FALSE` if an error occurred during the update.
 #' @export
 update_branches <- function(owner = getOption("pipfun.ghowner"),
                             repo,
                             branch1,
-                            branch2
+                            branch2,
+                            force = TRUE
 ) {
 
   # Update branch 2 based on branch 1 latest commit
@@ -432,6 +434,17 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
     return(TRUE)
   }
 
+  if (force == FALSE) {
+
+    Ask <- askYesNo(msg     = "Do you want to proceed with the update? Type your answer",
+                    default = TRUE,
+                    prompts = c("Yes", "No", "Cancel"))
+
+    if (Ask == FALSE | is.na(Ask)) {
+      cli::cli_abort(message = "Update interrupted.
+                                No action taken on branches")}
+
+  }
   # If different content, update branch 2 -say, release branch- based on branch 1
   result <- tryCatch({
     gh::gh(
