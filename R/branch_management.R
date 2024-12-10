@@ -160,6 +160,7 @@ delete_branch <- function(branch_to_delete,
     is.character(branch_to_delete)
     length(branch_to_delete) == 1
   })
+
   #Confirm branch exist -------
   branch_exists <-
     confirm_branch_exists(branch  = branch_to_delete,
@@ -492,7 +493,8 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
                               repo,
                               source_branch,
-                              target_branch) {
+                              target_branch,
+                              force = TRUE) {
 
   # Check tree SHA of latest commits
   branches_content <- compare_branch_content(
@@ -508,6 +510,19 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
     return(TRUE)
   }
 
+  if (force == FALSE) {
+
+    Ask <- askYesNo(msg     = "Do you want to proceed with merging? Type your answer",
+                    default = TRUE,
+                    prompts = c("Yes", "No", "Cancel"))
+
+    if (Ask == FALSE | is.na(Ask)) {
+      cli::cli_abort(message = "Merge interrupted.
+                                No action taken on branches")}
+
+
+
+  }
   # Create a merge of source_branch into target_branch
   result <- tryCatch({
     merge_result <- gh::gh(

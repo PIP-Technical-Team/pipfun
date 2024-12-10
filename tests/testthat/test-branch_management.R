@@ -255,12 +255,6 @@ test_that("delete branch works", {
   ("to_delete" %in% branch_names) |>
     expect_equal(FALSE)
 
-
-
-
-
-
-
 })
 
 
