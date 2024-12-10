@@ -36,7 +36,9 @@ repo_branches <- get_repo_branches(repo = "aux_ppp",
 
 names(repo_branches)
 
+# printing all elements of the list
 repo_branches$all_branches
+repo_branches$release_branch
 repo_branches$has_release_branch
 
 ```
@@ -58,10 +60,14 @@ create_new_branch(repo = "aux_test",
 
 ### Step 3 - Check if release branch is updated with development branch
 
-In order to check whether the release branch is updated with the most recent version of development branch, call `compare_branch_content()`. This function compares the content of the two branches based on their corresponding latest commit tree SHAs. Comparing the SHA of the latest commits is not enough to determine if branches have the same content because:
+In order to check whether the release branch is updated with the most recent version of development branch, call `compare_branch_content()`. This function compares the content of the two branches based on their corresponding latest commit tree SHAs. This is a string representing the SHA hash of the tree object associated with the branch. In Git, a tree represents the entire directory structure and content of a commit. The SHA is a unique identifier based on the files and folders' state in that branch.
+
+Therefore, comparing the SHA of the latest commits is not enough to determine if branches have the same content because:
 
 -   Tree SHA: Represents the state of the repository's content (files and directories) at a given point in time.
 -   Commit SHA: Includes metadata such as the author, timestamp, and commit message, in addition to referencing the tree SHA. Even if the content is identical, differences in metadata can cause the commit SHAs to differ.
+
+As a result, `compare_branch_content()` returns a list with: (1) tree SHA of branch 1, (2) tree SHA of branch 2 and (3) a TRUE/FALSE value indicating whether the two branches have identical content. If the tree SHAs for both branches are the same, `same_content` will be `TRUE`; otherwise, it will be `FALSE`.
 
 ```{r}
 
@@ -69,7 +75,18 @@ br_compare <- compare_branch_content(repo = "aux_test",
                                      branch1 = format(Sys.Date(), "%Y%m%d"),
                                      branch2 = "DEV")
 
+# Output list
+names(br_compare)
+
+br_compare$tree_sha_1
+br_compare$tree_sha_2
+
 br_compare$same_content
+
+# Example with branches of the same content
+compare_branch_content(repo    = "aux_test",
+                       branch1 = "main",
+                       branch2 = "test_main")
 
 ```
 
