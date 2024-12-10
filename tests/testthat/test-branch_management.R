@@ -1,13 +1,43 @@
-# Save vars
+
+# ----------------------------------------- #
+# Preliminary operations ####
+# ----------------------------------------- #
 
 owner <- getOption("pipfun.ghowner")
 measure <- "test"
 repo <- paste0("aux_", measure)
 
-# create test branch
+# create branches for testing purposes
 create_new_branch(measure    = "test",
                   ref_branch = "main",
                   new_branch = "test_main")
+
+create_new_branch(repo = "aux_test",
+                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"),
+                  ref_branch = "main",
+                  identity = "TEST"
+)
+
+create_new_branch(repo = "aux_test",
+                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"),
+                  ref_branch = "main",
+                  identity = "TEST"
+)
+
+create_new_branch(repo = repo, owner = owner,
+                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"),
+                  ref_branch = "main")
+
+create_new_branch(repo = repo, owner = owner,
+                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_cancel"),
+                  ref_branch = "main")
+
+create_new_branch(repo = repo, owner = owner,
+                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_false"),
+                  ref_branch = "main")
+
+
+
 
 # Test compare branches sha
 test_that("compare branches sha works as expected", {
@@ -176,18 +206,6 @@ test_that("update branches work as expected", {
 
 })
 
-# Create some branches in aux_test repo for for testing purposes
-create_new_branch(repo = "aux_test",
-                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"),
-                  ref_branch = "main",
-                  identity = "TEST"
-)
-
-create_new_branch(repo = "aux_test",
-                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"),
-                  ref_branch = "main",
-                  identity = "TEST"
-)
 
 # Test merge branches
 test_that("merge branch into works correctly", {
@@ -218,8 +236,58 @@ test_that("merge branch into works correctly", {
     expect_equal(TRUE)
 
   # error when branches do not exist
+  merge_branch_into(repo = "aux_test",
+                    source_branch = "hvhtfj",
+                    target_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"))|>
+    expect_error()
 
-  # force option
+  # Testing the force option
+
+  # Case: force = TRUE (default)
+  merge_branch_into(repo = "aux_test",
+                    source_branch = "DEV",
+                    target_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"),
+                    force = TRUE) |>
+    expect_no_error()
+
+  # Confirm the merge was successful
+  compare_branch_content(repo = "aux_test",
+                         branch1 = "DEV",
+                         branch2 = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"))$same_content |>
+    expect_equal(TRUE)
+
+  # Case: force = FALSE with user confirmation (simulating "Yes")
+  assign("askYesNo", function(...) TRUE, envir = .GlobalEnv)
+
+  merge_branch_into(repo = "aux_test",
+                    source_branch = "DEV",
+                    target_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_false"),
+                    force = FALSE) |>
+    expect_no_error()
+
+  # Confirm the merge was successful
+  compare_branch_content(repo = "aux_test",
+                         branch1 = "DEV",
+                         branch2 = paste0(format(Sys.Date(), "%Y%m%d"), "_force_false"))$same_content |>
+    expect_equal(TRUE)
+
+  # Remove the custom `askYesNo` function after the test
+  rm(askYesNo, envir = .GlobalEnv)
+
+  # Case: force = FALSE with user canceling (simulating "No")
+  assign("askYesNo", function(...) FALSE, envir = .GlobalEnv)
+
+
+    merge_branch_into(repo = "aux_test",
+                      source_branch = "DEV",
+                      target_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_cancel"),
+                      force = FALSE) |>
+      expect_error()
+
+
+  # Clean up the environment by removing the custom `askYesNo`
+  rm(askYesNo, envir = .GlobalEnv)
+
 
 })
 
@@ -261,5 +329,17 @@ test_that("delete branch works", {
 
 })
 
+# ----------------------------------------- #
+# Cleaning ####
+# ----------------------------------------- #
 
+# Delete branches used for testing
+delete_branch(repo = "aux_test",
+              branch_to_delete = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"))
+
+delete_branch(repo = "aux_test",
+              branch_to_delete = paste0(format(Sys.Date(), "%Y%m%d"), "_force_false"))
+
+delete_branch(repo = "aux_test",
+              branch_to_delete = paste0(format(Sys.Date(), "%Y%m%d"), "_force_cancel"))
 
