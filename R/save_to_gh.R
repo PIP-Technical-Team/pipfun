@@ -1,21 +1,29 @@
 #' Save to GitHub
 #'
 #' @param df A dataframe object
+#' @param metadata a list with all the information of a file, usually from
+#'   [get_pip_releases]
 #' @inheritParams load_from_gh
 #' @return invisible NULL
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' gdp <- data.frame(a = 1:10, b = letters[1:10])
-#' save_to_gh(gdp, repo = "aux_gdp", filename = "gdp")
+#' df <- data.frame(a = 1:10, b = letters[1:10])
+#' save_to_gh(df, repo = "pip_info",
+#'            filename = "to_delete.csv",
+#'            branch = "testing")
 #' }
 save_to_gh <- function(df,
                        repo,
                        owner     = getOption("pipfun.ghowner"),
                        branch    = "DEV",
                        filename  = repo,
-                       ext       = "csv",
+                       ext       = NULL,
+                       metadata  = NULL,
+                       message   = paste("Updating data via R script on",
+                                         Sys.time()),
+                       verbose   = TRUE,
                        ...) {
 
   if (!requireNamespace("gh", quietly = TRUE)) {
@@ -28,26 +36,32 @@ save_to_gh <- function(df,
 
   creds <- get_github_creds()  # Use the passed function to get GitHub credentials
 
-  # Construct the file path
-  file_path <- glue::glue("{filename}.{ext}")
 
   # Try to get existing SHA of the file (if it exists)
-  out <- tryCatch({
-    gh::gh(
-      "GET /repos/{owner}/{repo}/contents/{file_path}",
-      owner     = owner,
-      repo      = repo,
-      file_path = file_path,
-      .params   = list(ref = branch),
-      .token    = creds$password
-    )
-  }, error = function(e) {
-    if (grepl("404", e$message)) {
-      NULL  # File does not exist; will create a new file
-    } else {
-      cli::cli_abort(e)
-    }
-  })
+  if (is.null(metadata)) {
+    # Construct the file path
+    file_path <- check_filename_ext(filename, ext)
+
+    metadata <- tryCatch({
+      gh::gh(
+        "GET /repos/{owner}/{repo}/contents/{file_path}",
+        owner     = owner,
+        repo      = repo,
+        file_path = file_path,
+        .params   = list(ref = branch),
+        .token    = creds$password
+      )
+    }, error = function(e) {
+      if (grepl("404", e$message)) {
+        NULL  # File does not exist; will create a new file
+      } else {
+        cli::cli_abort(e)
+      }
+    })
+  } else {
+    file_path <- metadata$path
+
+  }
 
   # Convert data frame to base64-encoded content based on the file extension
   content <- convert_df_to_base64(df, ext)
@@ -55,17 +69,17 @@ save_to_gh <- function(df,
   # Prepare parameters for the GitHub API request
   params <- list(
     branch  = branch,
-    message = paste("Updating data via R script on", Sys.time()),
+    message = message,
     content = content
   )
 
   # Include 'sha' parameter if the file already exists (for updating)
-  if (!is.null(out)) {
-    params$sha <- out$sha
+  if (!is.null(metadata)) {
+    params$sha <- metadata$sha
   }
 
   # Upload the file to GitHub
-  gh::gh(
+  output <- gh::gh(
     "PUT /repos/{owner}/{repo}/contents/{path}",
     owner   = owner,
     repo    = repo,
@@ -74,11 +88,26 @@ save_to_gh <- function(df,
     .token  = creds$password
   )
 
-  cli::cli_alert_success(
-  "File {.file {filename}.{ext}} saved successfully to
-  branch {.field {branch}}  of {owner}/{repo} in GitHub!")
+  if (verbose) {
+    cli::cli_alert_success("File {.file {filename}.{ext}} saved successfully to
+    branch {.field {branch}}  of {owner}/{repo} in GitHub!")
+  }
 
-  return(invisible(NULL))
+  mt <- output |>
+    append(list(init = metadata)) |>
+    append(info_from_url(output$content$url))
+
+  mt$data_change <- mt$content$sha != mt$init$sha
+
+  if (verbose) {
+    if (mt$data_change) {
+      cli::cli_alert("Data has been updated")
+    } else {
+      cli::cli_alert("Data did not change")
+    }
+  }
+
+  return(invisible(mt))
 }
 
 
@@ -86,6 +115,9 @@ save_to_gh <- function(df,
 
 # Helper function to convert data frame to base64-encoded content based on file extension
 convert_df_to_base64 <- function(df, ext = "csv") {
+  if (is.null(ext))
+    ext <- "csv"
+
   ext <- tolower(ext)
 
 
@@ -130,3 +162,25 @@ convert_df_to_base64 <- function(df, ext = "csv") {
     cli::cli_abort("Unsupported file extension: {.ext {ext}}")
   }
 }
+
+
+
+check_filename_ext <- function(filename, ext = NULL) {
+  fext <- fs::path_ext(filename) |>
+    tolower()
+
+  if (is.null(ext) && fext == "") {
+    cli::cli_abort("You need provide either a {.arg filename} with extension
+                     or an {.arg ext} in the arguments")
+  } else if (!is.null(ext) && fext != "" && fext != ext) {
+    cli::cli_warn("The extension of the file ({.field {fext}}) is different
+                    from the one in the {.arg ext} argument ({.field {ext}}).
+                    {.field {fext} will be used")
+
+  } else if (!is.null(ext) && fext == "") {
+    filename <- fs::path(filename, ext = ext)
+  }
+  filename
+}
+
+

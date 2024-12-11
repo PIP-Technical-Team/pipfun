@@ -4,36 +4,36 @@
 \alias{create_aux_dir}
 \alias{create_pc_dir}
 \alias{create_dir}
+\alias{remove_dir}
 \title{Create auxiliary directories for new release}
 \usage{
 create_aux_dir(
-  root_dir = Sys.getenv("PIP_ROOT_DIR"),
   aux_versions,
-  working_dir = fs::path(root_dir, getOption("pipfun.working_dir"))
+  working_dir = fs::path(Sys.getenv("PIP_ROOT_DIR"), getOption("pipfun.working_dir"))
 )
 
 create_pc_dir(
-  root_dir = Sys.getenv("PIP_ROOT_DIR"),
   pc_versions,
-  working_dir = fs::path(root_dir, getOption("pipfun.working_dir"))
+  working_dir = fs::path(Sys.getenv("PIP_ROOT_DIR"), getOption("pipfun.working_dir"))
 )
 
-create_dir(wdir, ndirs, verbose = getOption("pipfun.verbose"))
+create_dir(wdir, dirs, verbose = getOption("pipfun.verbose"))
+
+remove_dir(wdir, dirs, verbose = getOption("pipfun.verbose"))
 }
 \arguments{
 \item{aux_versions}{character: name of auxiliary folders. they must come in
-the form "\%Y\%m\%d_\code{identify}", where \code{identify} stands for \link[=c("PROD", "INT",
-  "TEST")]{c("PROD", "INT", "TEST")}}
+the form "\%Y\%m\%d_\code{identify}", where \code{identify} stands for \code{c("PROD", "INT", "TEST")}}
 
 \item{pc_versions}{character: name of auxiliary folders. they must come in
 the form "\%Y\%m\%d_YYYY_MM_AA_\code{identify}", where \code{YYYY} stands for the PPP
 year, \code{MM} stands for the master version of the PPPs,  \code{AA} refers to the
-adaptation  version of the pppp\verb{, and where }identify` stands for
-\link{c("PROD", "INT", "TEST")}}
+adaptation  version of the PPPs, and  \code{identify} stands for one of
+\code{c("PROD", "INT", "TEST")}}
 
 \item{wdir}{chracter: working directory path}
 
-\item{ndirs}{chracter: new directories name that will be created inside
+\item{dirs}{chracter: directories to be created inside or removed from
 \code{wdir}}
 }
 \value{
@@ -41,10 +41,6 @@ logical vector. the names of the elements correspond to the directory
 paths
 }
 \description{
-Create auxiliary directories for new release
-
-Create poverty calculator directories for new release
-
-Create directories in folder
+This function is an informative wrapper around \link[fs:create]{fs::dir_create}
 }
 \keyword{internal}

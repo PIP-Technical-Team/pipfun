@@ -10,7 +10,10 @@ save_to_gh(
   owner = getOption("pipfun.ghowner"),
   branch = "DEV",
   filename = repo,
-  ext = "csv",
+  ext = NULL,
+  metadata = NULL,
+  message = paste("Updating data via R script on", Sys.time()),
+  verbose = TRUE,
   ...
 )
 }
@@ -30,6 +33,9 @@ Default is \code{measure}}
 
 \item{ext}{character: Extension of \code{filename}. Default "csv"}
 
+\item{metadata}{a list with all the information of a file, usually from
+\link{get_pip_releases}}
+
 \item{...}{parameters to be passed to the loading functions depending of the
 extension used}
 }
@@ -41,7 +47,9 @@ Save to GitHub
 }
 \examples{
 \dontrun{
-gdp <- data.frame(a = 1:10, b = letters[1:10])
-save_to_gh(gdp, repo = "aux_gdp", filename = "gdp")
+df <- data.frame(a = 1:10, b = letters[1:10])
+save_to_gh(df, repo = "pip_info",
+           filename = "to_delete.csv",
+           branch = "testing")
 }
 }

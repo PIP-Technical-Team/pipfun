@@ -104,9 +104,10 @@ pip_create_vintage <- function(vintage = list(),
     ## Load PPP vintage complementary data --------
     ppp_v <-
       load_from_gh(measure = "ppp",
-                 owner  = owner,
-                 branch = branch,
-                 filename = "ppp_vintage")
+                 owner     = owner,
+                 branch    = branch,
+                 filename  = "ppp_vintage",
+                 ext       = "csv")
 
     # remove Vs in case they are available and add zeros
     ver_vars <- c("ppp_rv", "ppp_av")

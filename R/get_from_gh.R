@@ -109,8 +109,11 @@ download_from_gh <- function(path, temp_file) {
       # Create a request object with authentication
       path |>
         httr2::request() |>
-        httr2::req_auth_basic(username = creds$username,
+        #note (RT) - to remove
+        httr2::req_auth_basic(username = "RossanaTat",
                               password = creds$password) |>
+        # httr2::req_auth_basic(username = creds$username,
+        #                       password = creds$password) |>
         httr2::req_perform() |>
         httr2::resp_body_raw() |>
         writeBin(temp_file)
@@ -213,7 +216,7 @@ get_file_info_from_gh <- function(owner= getOption("pipfun.ghowner"),
   #        owner = owner, repo = repo, path = path, ref = ref,
   #        .token = Sys.getenv("GITHUB_PAT"))
 
-  gh::gh(
+  mt <- gh::gh(
     "GET /repos/{owner}/{repo}/contents/{file_path}",
     owner     = owner,
     repo      = repo,
@@ -222,6 +225,108 @@ get_file_info_from_gh <- function(owner= getOption("pipfun.ghowner"),
     .token = creds$password
   )
 
+  append(mt, info_from_url(mt$url))
+
+
 }
 
+
+info_from_url <- function(url) {
+  split_url <- url |>
+    strsplit("/", fixed = TRUE) |>
+    unlist()
+
+  repos_pos <- which(split_url == "repos")
+
+  owner  <-  split_url[repos_pos + 1]
+  repo   <-  split_url[repos_pos + 2]
+
+  branch_pattern <- "(.*ref=)(.*)"
+  branch <-  gsub(branch_pattern, "\\2", split_url[repos_pos + 4])
+
+
+  list(owner = owner,
+       repo  = repo,
+       branch = branch)
+}
+
+#' Get info of latest commit of a GitHub repo
+#' @param owner character: owner of repo
+#' @param repo character: repository name
+#' @param branch character: branch name (default is "main")
+#' @return A list containing detailed information about the latest commit on the specified branch.
+#' @keywords internal
+get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
+                                    repo,
+                                    branch = "main") {
+  # Get GitHub credentials
+  creds <- gitcreds::gitcreds_get()
+
+  # Fetch the latest commit of the branch
+  commit_info <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = branch,
+    .token = creds$password
+  )
+
+  # Return the commit details
+  return(commit_info$commit)
+}
+
+#' Get info of a branch in a GitHub repo
+#'
+#' @param owner character: owner of repo
+#' @param repo character: repository name
+#' @param branch character: branch name (default is "main")
+#'
+#' @return Complete response from GET method of GitHub API
+#' @export
+#'
+#' @examples
+#' get_branch_info_from_gh(owner     = getOption("pipfun.ghowner"),
+#'                         repo      = "pip_info",
+#'                         branch    = "releases")
+# get_branch_info_from_gh <- function(owner  = getOption("pipfun.ghowner"),
+#                                     repo,
+#                                     branch = "main") {
+#   # Get GitHub credentials
+#   creds <- get_github_creds()
+#
+#   # Fetch branch metadata using GitHub API
+#   mt <- gh::gh(
+#     "GET /repos/{owner}/{repo}/branches/{branch}",
+#     owner  = owner,
+#     repo   = repo,
+#     branch = branch,
+#     .token = creds$token  # Use your token for authentication
+#   )
+#
+#   # Append additional information extracted from the URL
+#   append(mt,
+#          info_from_url(mt$protection_url))
+# }
+get_branch_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
+                                    repo,
+                                    branch = "main",
+                                    gh_func = gh::gh,
+                                    creds_func = get_github_creds,
+                                    url_func = info_from_url) {
+  # Get GitHub credentials
+  creds <- creds_func()
+
+  # Fetch branch metadata using GitHub API
+  mt <- gh_func(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = branch,
+    .token = creds$password
+  )
+
+  # Append additional information extracted from the URL
+  append(mt,
+         url_func(mt$protection_url))
+}
 
