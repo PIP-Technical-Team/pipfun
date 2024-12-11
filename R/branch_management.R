@@ -4,13 +4,13 @@
 #' new branch in repo
 #'
 #' @inheritParams load_from_gh
-#' @param new_release character: date in the form "%Y%m%d"
-#' @param identity character: for PIP repos it must be one of [c("PROD", "INT",
-#'   "TEST")]. For other repos, just leave de default, which is 'PROD'.
+#' @param release character: date in the form "%Y%m%d"
+#' @param identity character: for PIP repos it must be one of `c("PROD", "INT",
+#'   "TEST")`. For other repos, just leave de default, which is 'PROD'.
 #' @param ref_branch Character: reference branch from which the new branch will be
 #'   created.
 #' @param new_branch character: name of new branch. Default is
-#'   [paste0(new_release, "_", identity[1])]
+#'   [paste0(release, "_", identity[1])]
 #'
 #' @return TRUE if [new_branch] already exists or if it was created
 #' @export
@@ -19,7 +19,7 @@
 #' \dontrun{
 #' # success
 #'   create_new_brach("regions",
-#'   new_release = "20240903")
+#'   release = "20240903")
 #'
 #'   create_new_brach("regions",
 #'   new_branch = "test")
@@ -33,17 +33,17 @@ create_new_brach <- function(measure     = NULL,
                              owner       = getOption("pipfun.ghowner"),
                              repo        = ifelse(is.null(measure), NA,
                                                   paste0("aux_", measure)) ,
-                             new_release = format(Sys.Date(), "%Y%m%d"),
+                             release     = format(Sys.Date(), "%Y%m%d"),
                              identity    = c("PROD", "INT", "TEST"),
                              ref_branch  = "DEV",
-                             new_branch  = paste0(new_release, "_", identity[1]),
+                             new_branch  = paste0(release, "_", identity[1]),
                              verbose     = getOption("pipfun.verbose")) {
 
   identity <- match.arg(identity)
 
   # defenses ----------
   stopifnot(exprs = {
-    grepl("-?\\d{8}", new_release)
+    grepl("-?\\d{8}", release)
     is.character(repo)
     is.character(owner)
     is.character(ref_branch)
@@ -132,7 +132,7 @@ create_new_brach <- function(measure     = NULL,
 #' \dontrun{
 #' create_new_brach(
 #'   measure = "regions",
-#'   new_release = "20240903")
+#'   release = "20240903")
 #'
 #' delete_branch(branch_to_delete = "20240903_PROD",
 #'               measure = "regions",

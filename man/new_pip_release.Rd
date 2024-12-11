@@ -2,10 +2,11 @@
 % Please edit documentation in R/release_management.R
 \name{new_pip_release}
 \alias{new_pip_release}
+\alias{remove_pip_release}
 \title{Create new release for PIP update}
 \usage{
 new_pip_release(
-  new_release = format(Sys.Date(), "\%Y\%m\%d"),
+  release = format(Sys.Date(), "\%Y\%m\%d"),
   identity = c("PROD", "INT", "TEST"),
   verbose = getOption("pipfun.verbose"),
   root_dir = Sys.getenv("PIP_ROOT_DIR"),
@@ -13,12 +14,20 @@ new_pip_release(
   ppps = getOption("pipfun.ppps"),
   ...
 )
+
+remove_pip_release(
+  release,
+  identity = c("PROD", "INT", "TEST"),
+  verbose = getOption("pipfun.verbose"),
+  working_dir = NULL,
+  ppps = getOption("pipfun.ppps"),
+  ...
+)
 }
 \arguments{
-\item{new_release}{character: date in the form "\%Y\%m\%d"}
+\item{release}{character: date in the form "\%Y\%m\%d"}
 
-\item{identity}{character: for PIP repos it must be one of \link[=c("PROD", "INT",
-"TEST")]{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
+\item{identity}{character: for PIP repos it must be one of \code{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
 
 \item{...}{
   Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
@@ -38,7 +47,7 @@ already available in env .pipenv}
 invisible TRUE if everything went fine
 }
 \description{
-Create new release for PIP update
+CAUTION: Use this functions with care.
 }
 \examples{
 \dontrun{
