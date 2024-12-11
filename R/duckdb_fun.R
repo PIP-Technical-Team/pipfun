@@ -8,11 +8,13 @@
 #' @export
 #'
 return_if_exists <- function(country_code, year, poverty_line) {
-  all_args_data <- all_args(country_code, year, poverty_line)
+  all_args_data <- all_args(country_code, year, poverty_line) |>
+    duckplyr::as_duckplyr_tibble()
   # This file will be read from shared drive which will be an argument of this function.
   # Additionally there were will more arguments to join instead of only 3
   # In fact, it will be joined by all the arguments in `pip` call
-  master_file <- arrow::read_parquet('master_file.parquet')
+  master_file <- arrow::read_parquet('master_file.parquet') |>
+    duckplyr::as_duckplyr_tibble()
 
   args_not_present_in_master <- duckplyr::anti_join(
     all_args_data, master_file,
