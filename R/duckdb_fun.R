@@ -42,3 +42,19 @@ return_if_exists <- function(country_code, year, poverty_line, con) {
 all_args <- function(country_code, reporting_year, poverty_line) {
   expand.grid(country_code = country_code, reporting_year = reporting_year, poverty_line = poverty_line)
 }
+
+#' Update master file with the contents of the dataframe
+#'
+#' @param dat Dataframe to be appended
+#' @param con DuckDB connection object
+#'
+#' @return number of rows updated
+#' @export
+#'
+update_master_file <- function(dat, con) {
+  duckdb::duckdb_register(con, "append_data", dat, overwrite = TRUE)
+  DBI::dbExecute(con, "INSERT INTO master_file SELECT * FROM append_data;")
+  message("Master File is updated.")
+
+  return(nrow(dat))
+}

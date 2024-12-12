@@ -4,7 +4,7 @@
 \alias{return_if_exists}
 \title{Return the rows of the table if they exist in master file}
 \usage{
-return_if_exists(country_code, year, poverty_line)
+return_if_exists(country_code, year, poverty_line, con)
 }
 \arguments{
 \item{country_code}{Country Code}
@@ -12,6 +12,8 @@ return_if_exists(country_code, year, poverty_line)
 \item{year}{Year}
 
 \item{poverty_line}{Poverty Lines}
+
+\item{con}{Connection object}
 }
 \value{
 Dataframe
