@@ -10,7 +10,7 @@ save_to_gh(
   owner = getOption("pipfun.ghowner"),
   branch = "DEV",
   filename = repo,
-  ext = NULL,
+  ext = "csv",
   metadata = NULL,
   message = paste("Updating data via R script on", Sys.time()),
   verbose = TRUE,
