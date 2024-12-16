@@ -97,13 +97,15 @@ save_to_gh <- function(df,
     append(list(init = metadata)) |>
     append(info_from_url(output$content$url))
 
-  mt$data_change <- mt$content$sha != mt$init$sha
+  if(!is.null(mt$init$sha)){
+    mt$data_change <- mt$content$sha != mt$init$sha
 
-  if (verbose) {
-    if (mt$data_change) {
-      cli::cli_alert("Data has been updated")
-    } else {
-      cli::cli_alert("Data did not change")
+    if (verbose) {
+      if (mt$data_change) {
+        cli::cli_alert("Data has been updated")
+      } else {
+        cli::cli_alert("Data did not change")
+      }
     }
   }
 

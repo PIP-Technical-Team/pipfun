@@ -55,7 +55,8 @@ test_that("save_to_gh works correctly with mocked functions", {
     } else if (grepl("^PUT", endpoint)) {
       # Simulate a successful file upload
       return(list(content = list(name = "dummy_name",
-                                 url = "https://git.com/dummy_url"),
+                                 url = "https://git.com/dummy_url",
+                                 sha = "wrong_sha"),
                   sha = "dummy_sha"))
     }
   }, .package = "gh"
