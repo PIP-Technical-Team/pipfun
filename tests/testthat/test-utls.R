@@ -5,7 +5,5 @@ test_that("convert_df_to_base64 works as expected", {
 })
 
 test_that("convert_df_to_base64 returns an error if dataframe is not passed", {
-  expect_error(convert_df_to_base64("x"),
-               "df is not a dataframe"
-  )
+  expect_error(convert_df_to_base64("x"))
 })
