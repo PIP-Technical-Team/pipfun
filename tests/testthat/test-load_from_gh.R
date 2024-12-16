@@ -151,7 +151,7 @@ test_that("download_from_gh handles invalid credentials", {
 test_that("load_from_disk loads CSV files correctly", {
   temp_file <- tempfile(fileext = ".csv")
   write.csv(mtcars, temp_file, row.names = FALSE)
-  result <- load_from_disk(temp_file, "csv") |>
+  result <- load_from_disk(temp_file) |>
     suppressMessages()
   expect_equal(dim(result), dim(mtcars))
   unlink(temp_file)
@@ -166,7 +166,7 @@ test_that("load_from_disk loads Excel files correctly", {
   # writexl::write_xlsx(mtcars, temp_file_xls)
   writexl::write_xlsx(mtcars, temp_file_xlsx)
   # result_xls <- load_from_disk(temp_file_xls, "xls")
-  result_xlsx <- load_from_disk(temp_file_xlsx, "xlsx")
+  result_xlsx <- load_from_disk(temp_file_xlsx)
   # Assuming the Excel files have the same structure as mtcars for this test
   # expect_equal(dim(result_xls), dim(mtcars))
   expect_equal(dim(result_xlsx), dim(mtcars))
@@ -181,7 +181,7 @@ test_that("load_from_disk loads Stata files correctly", {
   temp_file <- tempfile(fileext = ".dta")
   # Assuming the presence of a function to write Stata files for testing
   haven::write_dta(mtcars, temp_file)
-  result <- load_from_disk(temp_file, "dta")
+  result <- load_from_disk(temp_file)
   # Assuming the Stata file has the same structure as mtcars for this test
   expect_equal(dim(result), dim(mtcars))
   unlink(temp_file)
@@ -192,7 +192,7 @@ test_that("load_from_disk loads QS files correctly", {
   skip_if_not(requireNamespace("qs", quietly = TRUE))
   temp_file <- tempfile(fileext = ".qs")
   qs::qsave(mtcars, temp_file)
-  result <- load_from_disk(temp_file, "qs")
+  result <- load_from_disk(temp_file)
   expect_equal(dim(result), dim(mtcars))
   unlink(temp_file)
 })
@@ -202,7 +202,7 @@ test_that("load_from_disk loads FST files correctly", {
   skip_if_not(requireNamespace("fst", quietly = TRUE))
   temp_file <- tempfile(fileext = ".fst")
   fst::write_fst(mtcars, temp_file)
-  result <- load_from_disk(temp_file, "fst")
+  result <- load_from_disk(temp_file)
   expect_equal(dim(result), dim(mtcars))
   unlink(temp_file)
 })
@@ -212,7 +212,7 @@ test_that("load_from_disk loads YAML files correctly", {
   skip_if_not(requireNamespace("yaml", quietly = TRUE))
   temp_file <- tempfile(fileext = ".yaml")
   yaml::write_yaml(list(mtcars), temp_file)
-  result <- load_from_disk(temp_file, "yaml")
+  result <- load_from_disk(temp_file)
   expect_true(is.list(result))
   unlink(temp_file)
 })
@@ -220,6 +220,6 @@ test_that("load_from_disk loads YAML files correctly", {
 # Test unsupported file extension
 test_that("load_from_disk handles unsupported extensions correctly", {
   temp_file <- tempfile(fileext = ".unsupported")
-  expect_error(load_from_disk(temp_file, "unsupported"))
+  expect_error(load_from_disk(temp_file))
   unlink(temp_file)
 })
