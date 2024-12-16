@@ -112,59 +112,6 @@ save_to_gh <- function(df,
 
 
 
-
-# Helper function to convert data frame to base64-encoded content based on file extension
-convert_df_to_base64 <- function(df, ext = "csv") {
-  if (is.null(ext))
-    ext <- "csv"
-
-  ext <- tolower(ext)
-
-
-  if (ext == "csv") {
-
-    content <- readr::format_csv(df)
-    encoded <- base64enc::base64encode(charToRaw(content))
-    return(encoded)
-
-  } else if (ext == "json") {
-    content <- jsonlite::toJSON(df, pretty = TRUE, auto_unbox = TRUE)
-    encoded <- base64enc::base64encode(charToRaw(content))
-    return(encoded)
-
-  } else if (ext == "rds") {
-    raw_content <- serialize(df, NULL)
-    encoded <- base64enc::base64encode(raw_content)
-    return(encoded)
-
-  } else if (ext == "qs") {
-    raw_content <- qs::qserialize(df)
-    encoded <- base64enc::base64encode(raw_content)
-    return(encoded)
-
-  } else if (ext == "fst") {
-    temp_file <- tempfile(fileext = ".fst")
-    on.exit(unlink(temp_file), add = TRUE)
-    fst::write_fst(df, temp_file)
-    raw_content <- readBin(temp_file, what = "raw", n = file.info(temp_file)$size)
-    encoded <- base64enc::base64encode(raw_content)
-    return(encoded)
-
-  } else if (ext == "dta") {
-    temp_file <- tempfile(fileext = ".dta")
-    on.exit(unlink(temp_file), add = TRUE)
-    haven::write_dta(df, temp_file)
-    raw_content <- readBin(temp_file, what = "raw", n = file.info(temp_file)$size)
-    encoded <- base64enc::base64encode(raw_content)
-    return(encoded)
-
-  } else {
-    cli::cli_abort("Unsupported file extension: {.ext {ext}}")
-  }
-}
-
-
-
 check_filename_ext <- function(filename, ext = NULL) {
   fext <- fs::path_ext(filename) |>
     tolower()
