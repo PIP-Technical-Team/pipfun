@@ -119,7 +119,7 @@ new_pip_release <-
 #'   "TEST")`
 #' @inheritParams new_pip_release
 #'
-#' @rdname create_dir
+#' @rdname create_dir_wrp
 #' @keywords internal
 create_aux_dir <- function(aux_versions,
                            working_dir = fs::path(Sys.getenv("PIP_ROOT_DIR"),
@@ -127,7 +127,7 @@ create_aux_dir <- function(aux_versions,
                            ) {
 
   wdir    <- fs::path(working_dir, "aux_data")
-  newdirs <- create_dir(wdir, dirs = aux_versions)
+  newdirs <- create_dir_wrp(wdir, dirs = aux_versions)
 
   return(newdirs)
 
@@ -142,7 +142,7 @@ create_aux_dir <- function(aux_versions,
 #'   `c("PROD", "INT", "TEST")`
 #' @inheritParams new_pip_release
 #'
-#' @rdname create_dir
+#' @rdname create_dir_wrp
 #' @keywords internal
 create_pc_dir <-
   function(pc_versions,
@@ -151,7 +151,7 @@ create_pc_dir <-
                           ) {
 
   wdir    <- fs::path(working_dir, "pc_data")
-  newdirs <- create_dir(wdir, dirs = pc_versions)
+  newdirs <- create_dir_wrp(wdir, dirs = pc_versions)
 
   return(newdirs)
 
@@ -169,7 +169,7 @@ create_pc_dir <-
 #' @return logical vector. the names of the elements correspond to the directory
 #'   paths
 #' @export
-create_dir <- function(wdir, dirs,
+create_dir_wrp <- function(wdir, dirs,
                        verbose = getOption("pipfun.verbose")) {
   dir_ex <- fs::path(wdir, dirs) |>
     fs::dir_exists()
@@ -331,7 +331,7 @@ remove_pc_dir <-
 }
 
 
-#' @rdname create_dir
+#' @rdname create_dir_wrp
 #' @export
 remove_dir <- function(wdir, dirs,
                        verbose = getOption("pipfun.verbose")) {
