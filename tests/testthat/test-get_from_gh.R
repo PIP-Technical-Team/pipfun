@@ -9,8 +9,8 @@ if (!is_token) {
 }
 
 skip_if_not(is_token, "Github token not valid")
-library(data.table)
-library(collapse)
+# library(data.table)
+# library(collapse)
 
 # init conditions -----------
 
@@ -46,7 +46,7 @@ iris10 <- iris[1:10,] |>
   janitor::clean_names()
 
 fct_vars <- iris10 |>
-  fact_vars("names")
+  collapse::fact_vars("names")
 
 iris10[, (fct_vars) := lapply(.SD, as.character),
        .SDcols = fct_vars]
