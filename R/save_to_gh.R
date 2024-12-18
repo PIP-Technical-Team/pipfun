@@ -183,4 +183,3 @@ check_filename_ext <- function(filename, ext = NULL) {
   filename
 }
 
-
