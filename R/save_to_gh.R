@@ -89,7 +89,7 @@ save_to_gh <- function(df,
   )
 
   if (verbose) {
-    cli::cli_alert_success("File {.file {filename}.{ext}} saved successfully to
+    cli::cli_alert_success("File {.file {file_path}} saved successfully to
     branch {.field {branch}}  of {owner}/{repo} in GitHub!")
   }
 
