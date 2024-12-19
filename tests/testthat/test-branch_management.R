@@ -38,6 +38,13 @@ create_new_branch(repo = repo, owner = owner,
                   ref_branch = "main")
 
 
+create_new_branch(repo = repo,
+                  owner = owner,
+                  new_branch = "20241121",
+                  ref_branch = "DEV")
+
+
+
 # Test get repo branches
 test_that("get repo branches works as expected", {
 
