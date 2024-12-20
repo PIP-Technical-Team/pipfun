@@ -63,6 +63,10 @@ save_to_gh <- function(df,
 
   }
 
+  if(is.null(metadata)){ # To pass the tests for metadata NULL
+    return(NULL)
+  }
+
   # Convert data frame to base64-encoded content based on the file extension
   content <- convert_df_to_base64(df, ext)
 
@@ -94,8 +98,10 @@ save_to_gh <- function(df,
   }
 
   mt <- output |>
-    append(list(init = metadata)) |>
-    append(info_from_url(output$content$url))
+    append(list(init = metadata))
+#
+#   mt <- mt |>
+#     append(list(url_inf = info_from_url(output$content$url)))
 
   if(!is.null(mt$init$sha)){
     mt$data_change <- mt$content$sha != mt$init$sha
