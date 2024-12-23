@@ -3,7 +3,7 @@
 \name{create_aux_dir}
 \alias{create_aux_dir}
 \alias{create_pc_dir}
-\alias{create_dir}
+\alias{create_dir_wrp}
 \alias{remove_dir}
 \title{Create auxiliary directories for new release}
 \usage{
@@ -17,7 +17,7 @@ create_pc_dir(
   working_dir = fs::path(Sys.getenv("PIP_ROOT_DIR"), getOption("pipfun.working_dir"))
 )
 
-create_dir(wdir, dirs, verbose = getOption("pipfun.verbose"))
+create_dir_wrp(wdir, dirs, verbose = getOption("pipfun.verbose"))
 
 remove_dir(wdir, dirs, verbose = getOption("pipfun.verbose"))
 }
