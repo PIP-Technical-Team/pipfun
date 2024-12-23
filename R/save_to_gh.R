@@ -111,6 +111,105 @@ save_to_gh <- function(df,
 }
 
 
+# RT New version of save to github
+
+save_file_to_gh <- function(df,
+                            repo,
+                            owner,
+                            branch,
+                            filename,
+                            ext,
+                            metadata = NULL,
+                            message   = paste("Updating data via R script on",
+                                              Sys.time())) {
+
+  if (!requireNamespace("gh", quietly = TRUE)) {
+    stop("Package 'gh' is required. Please install it using install.packages('gh').")
+  }
+
+  if (!requireNamespace("cli", quietly = TRUE)) {
+    install.packages("cli")
+    library(cli)
+  }
+
+  # Get GetHib credentials
+  creds <- get_github_creds()
+
+  # Prepare content -convert data frame to base64-encoded based on the file extension
+  content <- convert_df_to_base64(df,
+                                  ext)
+
+  # Prepare params for Gh request
+  params <- list(
+    branch  = branch,
+    message = message,
+    content = content
+  )
+
+  # Prepare metadata: if provided by user, check it has valid SHA and valid `path`
+  if (!is.null(metadata) && (!"sha" %in% names(metadata) || !"path" %in% names(metadata))) {
+    cli::cli_abort("Invalid metadata provided. It must contain 'sha' and 'path'.")
+  }
+
+
+  # Version control of file --- #
+
+  if (is.null(metadata)) {
+
+    # Construct the file path
+    file_path <- check_filename_ext(filename, ext)
+
+    metadata <- tryCatch({
+      gh::gh(
+        "GET /repos/{owner}/{repo}/contents/{file_path}",
+        owner     = owner,
+        repo      = repo,
+        file_path = file_path,
+        .params   = list(ref = branch),
+        .token    = creds$password
+      )
+    }, error = function(e) {
+      if (grepl("404", e$message)) {
+        NULL  # File does not exist; will create a new file
+      } else {
+        cli::cli_abort(e)
+      }
+    })
+  } else {
+    # if metadata is provided, get path from there
+    file_path <- metadata$path
+
+  }
+
+
+
+
+
+
+
+
+  # Add SHA of file to params if available in metadata
+
+  if (!is.null(metadata)) {
+    params$sha <- metadata$sha
+  }
+
+  # If file does not exist
+
+
+
+
+  # Upload the file to GitHub
+
+
+  # Update metadata after succesfull request
+
+
+
+}
+
+
+
 
 
 # Helper function to convert data frame to base64-encoded content based on file extension
