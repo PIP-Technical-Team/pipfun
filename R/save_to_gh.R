@@ -44,14 +44,14 @@
 #' @export
 #'
 save_to_gh <- function(df,
-                            repo,
-                            owner = getOption("pipfun.ghowner"),
-                            branch = "DEV",
-                            filename = repo,
-                            ext = NULL,
-                            metadata = NULL,
-                            verbose = TRUE,
-                            message = paste("Updating data via R script on", Sys.time())) {
+                      repo,
+                      owner    = getOption("pipfun.ghowner"),
+                      branch   = "DEV",
+                      filename = repo,
+                      ext      = NULL,
+                      metadata = NULL,
+                      verbose  = TRUE,
+                      message  = paste("Updating data via R script on", Sys.time())) {
 
   # Ensure the required packages are installed
   if (!requireNamespace("gh", quietly = TRUE)) {
