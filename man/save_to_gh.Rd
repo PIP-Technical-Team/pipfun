@@ -10,7 +10,7 @@ save_to_gh(
   owner = getOption("pipfun.ghowner"),
   branch = "DEV",
   filename = repo,
-  ext = NULL,
+  ext = "csv",
   metadata = NULL,
   verbose = TRUE,
   message = paste("Updating data via R script on", Sys.time())
@@ -33,8 +33,7 @@ the file should be uploaded or updated. The default is \code{DEV} branch}
 \item{filename}{A character string specifying the name of the file to be created
 or updated in the GitHub repository. If not provided, it defaults to repo name}
 
-\item{ext}{A character string representing the file extension (e.g., \code{.csv}, \code{.json})
-If \code{NULL}, it will be inferred from the data frame type or can be left unspecified.}
+\item{ext}{A character string representing the file extension (e.g., \code{.csv}). Default is \code{csv}}
 
 \item{metadata}{A list containing metadata for an existing file in the repository. Usually from \link{get_pip_releases}
 It should contain \code{sha} (the SHA hash of the file) and \code{path} (the file
@@ -61,10 +60,10 @@ file already exists, it will be updated with the new data.
 \dontrun{
   # Create a new file on GitHub
   df <- data.frame(a = 1:5, b = letters[1:5])
-  save_to_gh(df = df, repo = "aux_test", filename = "data.csv", ext = "csv")
+  save_to_gh(df = df, repo = "aux_test", filename = "data_example", ext = "csv")
 
   # Update an existing file on GitHub
   df <- data.frame(a = 6:10, b = letters[6:10])
-  save_to_gh(df = df, repo = "aux_test", filename = "data.csv", ext = "csv")
+  save_to_gh(df = df, repo = "aux_test", filename = "data_example", ext = "csv")
 }
 }

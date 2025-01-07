@@ -15,8 +15,7 @@
 #'   the file should be uploaded or updated. The default is `DEV` branch
 #' @param filename A character string specifying the name of the file to be created
 #'   or updated in the GitHub repository. If not provided, it defaults to repo name
-#' @param ext A character string representing the file extension (e.g., `.csv`, `.json`)
-#'   If `NULL`, it will be inferred from the data frame type or can be left unspecified.
+#' @param ext A character string representing the file extension (e.g., `.csv`). Default is `csv`
 #' @param metadata A list containing metadata for an existing file in the repository. Usually from [get_pip_releases]
 #'   It should contain `sha` (the SHA hash of the file) and `path` (the file
 #'   path in the repository). If `NULL`, the function will check whether the file exists
@@ -35,11 +34,11 @@
 #' \dontrun{
 #'   # Create a new file on GitHub
 #'   df <- data.frame(a = 1:5, b = letters[1:5])
-#'   save_to_gh(df = df, repo = "aux_test", filename = "data.csv", ext = "csv")
+#'   save_to_gh(df = df, repo = "aux_test", filename = "data_example", ext = "csv")
 #'
 #'   # Update an existing file on GitHub
 #'   df <- data.frame(a = 6:10, b = letters[6:10])
-#'   save_to_gh(df = df, repo = "aux_test", filename = "data.csv", ext = "csv")
+#'   save_to_gh(df = df, repo = "aux_test", filename = "data_example", ext = "csv")
 #' }
 #' @export
 #'
@@ -48,7 +47,7 @@ save_to_gh <- function(df,
                       owner    = getOption("pipfun.ghowner"),
                       branch   = "DEV",
                       filename = repo,
-                      ext      = NULL,
+                      ext      = "csv",
                       metadata = NULL,
                       verbose  = TRUE,
                       message  = paste("Updating data via R script on", Sys.time())) {
