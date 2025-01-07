@@ -103,20 +103,80 @@ To save data to GitHub using `{pipfun}`, you need to have appropriate permission
 
 The process of saving data with the `save_to_gh()` function differs from the traditional Git workflow of staging, committing, and pushing changes. Instead, `save_to_gh()` interacts directly with the GitHub API, allowing you to upload data without manually handling Git commands. This approach provides a convenient way to programmatically save or update files in a repository.
 
-Here's an example of how to use `save_to_gh()`:
+The `save_to_gh()` function provides a streamlined way to save or update files in a GitHub repository. If the file already exists, it will be updated with new content. If it does not exist, a new file will be created. 
+By default, `save_to_gh()` saves the data in CSV format, but you can choose any of the supported formats mentioned earlier.
+
+Below are examples demonstrating how to use it:
+
+### Example 1: create a new file 
+
+This will create a new file named data_example.csv in the DEV branch of the aux_test repository.
 
 ```{r}
-df <- data.frame(x = 1:5, 
-                 y = letters[1:5])
+#library(pipfun)
 
-# save_to_gh(df,
-#            repo = "pip_info",
-#            owner     = getOption("pipfun.ghowner"),
-#            branch    = "testing",
-#            filename  = "pipfun_vignette_example")
+# Example data frame
+df <- data.frame(a = 1:5, b = letters[1:5])
+
+# Save the data to a repository
+save_to_gh(
+  df       = df,
+  owner    = getOption("pipfun.ghowner"),
+  repo     = "aux_test", 
+  filename = "data_example", 
+  ext      = "csv"
+)
+
 ```
 
-By default, `save_to_gh()` saves the data in CSV format, but you can choose any of the supported formats mentioned earlier.
+### Example 2: updating an existing file 
+
+```{r}
+
+# Updated data frame
+df <- data.frame(a = 6:10, b = letters[6:10])
+
+# Update the file in the repository
+save_to_gh(
+  df       = df,
+  repo     = "aux_test", 
+  filename = "data_example", 
+  ext      = "csv"
+)
+
+```
+### Example 3: Saving the Same Data to the Same File (No Change)
+
+```{r}
+# Save the same data to the same file
+result_no_change <- save_to_gh(
+  df = df,
+  repo = "aux_test",
+  filename = "data_example",
+  ext = "csv"
+)
+
+# Check if the data was changed
+print(result_no_change$data_change)  # Should be FALSE as the content is identical
+
+```
+
+
+Additionally, recall that if you have metadata for an existing file, you can pass it directly to the function through the `metadata` argument.
+
+### Understanding its output
+
+The `save_to_gh()` function returns a list invisibly, containing information about the upload or update operation. The key elements of this output list are:
+
+- **`content`**: Metadata about the uploaded or updated file, including its SHA hash, path in the repository, and other details.
+- **`commit`**: Information about the commit associated with the upload or update operation, such as the commit SHA and message.
+- **`init`**: Metadata of the file before the operation. If the file did not exist, this will be `NULL`.
+- **`owner`**: The GitHub username or organization that owns the repository.
+- **`repo`**: The name of the GitHub repository where the file was uploaded or updated.
+- **`branch`**: The branch of the repository where the file was uploaded or updated.
+- **`data_change`**: A logical value indicating whether the file's content was updated (`TRUE`) or remained unchanged (`FALSE`).  
+  *Note*: If the file did not exist before the operation, `data_change` will be `TRUE` because creating a new file is considered a change to the repository's data state.
+
 
 
 # Delete from Github
