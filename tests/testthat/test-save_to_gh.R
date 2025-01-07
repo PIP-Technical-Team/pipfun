@@ -164,49 +164,6 @@ test_that("save_to_gh saves file correctly", {
 
 })
 
-test_that("save_to_gh verbose messages", {
-
-  # File successfully saved
-
-
-  # Data has changed
-
-  # Data has not changed
-
-
-
-})
-
-
-
-# check file exists:
-result <- tryCatch(
-  {
-    gh::gh(
-      "GET /repos/{owner}/{repo}/contents/{path}",
-      owner = owner,
-      repo = repo,
-      path = file_path,
-      .params = list(ref = branch),
-      .token = token
-    )
-  },
-  error = function(e) {
-    if (grepl("404", e$message)) {
-      "File does not exist."
-    } else {
-      stop(e) # Re-throw other errors
-    }
-  }
-)
-
-# Check the result
-print(result)
-
-
-
-
-
 # OLD VERSION ####
 
 # test_that("save_to_gh works correctly", {
