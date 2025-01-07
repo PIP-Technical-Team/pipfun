@@ -159,6 +159,12 @@ test_that("save_to_gh saves file correctly", {
   res$data_change |>
    expect_equal(FALSE)
 
+  # Output structure
+  names(res) |>
+    expect_equal(c("content", "commit",
+                   "init", "owner",
+                   "repo", "branch", "data_change"))
+
 
 })
 
@@ -223,45 +229,3 @@ test_that("convert_df_to_base64 works correctly for all supported file extension
   }
 
 })
-
-
-# --------------------------------
-# Tests for save_to_gh()
-# --------------------------------
-
-# test_that("save_to_gh works correctly with mocked functions", {
-#   # Skip on CI/CD environments like GitHub Actions
-#   testthat::skip_on_ci()
-#
-#   # Mock functions
-#   local_mocked_bindings(
-#     get_github_creds  = function() list(password = "dummy_token")
-#   )
-#   with_mocked_bindings(code = {
-#
-#     result <- save_to_gh(
-#       df = df_sample,
-#       repo = "dummy_repo",
-#       owner = "dummy_owner",
-#       branch = "main",
-#       filename = "dummy_file",
-#       ext = "csv"
-#     )
-#     # Expect that the function returns NULL
-#     expect_null(result)
-#   },
-#   gh = function(endpoint, ..., .token) {
-#     if (grepl("^GET", endpoint)) {
-#       # Simulate a file not found error (as when the file does not exist)
-#       stop(structure(list(message = "Not Found (404)", call = NULL),
-#                      class = c("http_error_404", "error", "condition")))
-#     } else if (grepl("^PUT", endpoint)) {
-#       # Simulate a successful file upload
-#       return(list(content = "dummy_response", sha = "dummy_sha"))
-#     }
-#   }, .package = "gh"
-#   )
-#
-#   # Expect that the function returns NULL
-#   expect_null(result)
-# })
