@@ -52,16 +52,6 @@ save_to_gh <- function(df,
                       verbose  = TRUE,
                       message  = paste("Updating data via R script on", Sys.time())) {
 
-  # Ensure the required packages are installed
-  if (!requireNamespace("gh", quietly = TRUE)) {
-    stop("Package 'gh' is required. Please install it using install.packages('gh').")
-  }
-
-  if (!requireNamespace("cli", quietly = TRUE)) {
-    install.packages("cli")
-    library(cli)
-  }
-
   # Get GitHub credentials
   creds <- get_github_creds()
 
