@@ -109,11 +109,8 @@ download_from_gh <- function(path, temp_file) {
       # Create a request object with authentication
       path |>
         httr2::request() |>
-        #note (RT) - to remove
-        httr2::req_auth_basic(username = "RossanaTat",
+        httr2::req_auth_basic(username = creds$username,
                               password = creds$password) |>
-        # httr2::req_auth_basic(username = creds$username,
-        #                       password = creds$password) |>
         httr2::req_perform() |>
         httr2::resp_body_raw() |>
         writeBin(temp_file)
@@ -174,7 +171,8 @@ load_from_disk <- function(temp_file, ...) {
                                         #...),
                  xls  = readxl::read_excel(temp_file, ...),
                  xlsx = readxl::read_excel(temp_file, ...),
-                 dta  = haven::read_dta(temp_file, ...),
+                 #dta  = haven::read_dta(temp_file, ...),
+                 dta  = haven::read_dta(temp_file, encoding = "UTF-8", ...),
                  qs   = qs::qread(temp_file, ...),
                  fst  = fst::read_fst(temp_file, ...),
                  yaml = yaml::read_yaml(temp_file, ...),

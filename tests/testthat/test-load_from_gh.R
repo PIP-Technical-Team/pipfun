@@ -179,16 +179,35 @@ test_that("load_from_disk loads Excel files correctly", {
 
 
 # Test loading Stata files (dta)
+
 test_that("load_from_disk loads Stata files correctly", {
   skip_if_not(requireNamespace("haven", quietly = TRUE))
+
   temp_file <- tempfile(fileext = ".dta")
-  # Assuming the presence of a function to write Stata files for testing
-  haven::write_dta(mtcars, temp_file)
-  result <- load_from_disk(temp_file, "dta")
-  # Assuming the Stata file has the same structure as mtcars for this test
-  expect_equal(dim(result), dim(mtcars))
+
+  # Write mtcars to a Stata file (explicitly specify version for compatibility)
+  haven::write_dta(mtcars,
+                   temp_file,
+                   version = 14)
+
+  # Ensure the file is written
+  expect_true(file.exists(temp_file))
+
+  # Load the data using the function
+  result <- load_from_disk(temp_file)
+
+  # Check dimensions, column names, and class
+  expect_equal(dim(result),
+               dim(mtcars))
+  expect_equal(colnames(result),
+               colnames(mtcars))
+  expect_s3_class(result,
+                  "data.frame")
+
+  # Clean up
   unlink(temp_file)
 })
+
 
 # Test loading QS files
 test_that("load_from_disk loads QS files correctly", {
