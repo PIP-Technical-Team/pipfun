@@ -214,7 +214,7 @@ test_that("load_from_disk loads QS files correctly", {
   skip_if_not(requireNamespace("qs", quietly = TRUE))
   temp_file <- tempfile(fileext = ".qs")
   qs::qsave(mtcars, temp_file)
-  result <- load_from_disk(temp_file, "qs")
+  result <- load_from_disk(temp_file)
   expect_equal(dim(result), dim(mtcars))
   unlink(temp_file)
 })
@@ -224,7 +224,7 @@ test_that("load_from_disk loads FST files correctly", {
   skip_if_not(requireNamespace("fst", quietly = TRUE))
   temp_file <- tempfile(fileext = ".fst")
   fst::write_fst(mtcars, temp_file)
-  result <- load_from_disk(temp_file, "fst")
+  result <- load_from_disk(temp_file)
   expect_equal(dim(result), dim(mtcars))
   unlink(temp_file)
 })
@@ -233,11 +233,19 @@ test_that("load_from_disk loads FST files correctly", {
 test_that("load_from_disk loads YAML files correctly", {
   skip_if_not(requireNamespace("yaml", quietly = TRUE))
   temp_file <- tempfile(fileext = ".yaml")
-  yaml::write_yaml(list(mtcars), temp_file)
-  result <- load_from_disk(temp_file, "yaml")
-  expect_true(is.list(result))
+  original_data <- mtcars
+  yaml::write_yaml(original_data, temp_file)
+
+  # Load the data using the function
+  result <- load_from_disk(temp_file)
+
+  # Check that the file was loaded as YAML (e.g., as a list or matching structure)
+  expect_true(is.list(result)) # YAML files are loaded as lists
+  expect_equal(names(result), names(as.list(original_data))) # Check structure
+  expect_equal(result, as.list(original_data)) # Check content
   unlink(temp_file)
 })
+
 
 # Test unsupported file extension
 test_that("load_from_disk handles unsupported extensions correctly", {
