@@ -160,20 +160,23 @@ test_that("load_from_disk loads CSV files correctly", {
 # Test loading Excel files (xls and xlsx)
 test_that("load_from_disk loads Excel files correctly", {
   skip_if_not(requireNamespace("writexl", quietly = TRUE))
-  # temp_file_xls <- tempfile(fileext = ".xls")
+
+  # Create a temporary .xlsx file
   temp_file_xlsx <- tempfile(fileext = ".xlsx")
-  # Assuming the presence of a function to write Excel files for testing
-  # writexl::write_xlsx(mtcars, temp_file_xls)
+
+  # Write mtcars to the .xlsx file
   writexl::write_xlsx(mtcars, temp_file_xlsx)
-  # result_xls <- load_from_disk(temp_file_xls, "xls")
-  result_xlsx <- load_from_disk(temp_file_xlsx, "xlsx")
-  # Assuming the Excel files have the same structure as mtcars for this test
-  # expect_equal(dim(result_xls), dim(mtcars))
+
+  # Load the .xlsx file using load_from_disk
+  result_xlsx <- load_from_disk(temp_file_xlsx)
+
+  # Test if dimensions match
   expect_equal(dim(result_xlsx), dim(mtcars))
-  # Cleanup
-  # unlink(temp_file_xls)
+
+  # Cleanup temporary file
   unlink(temp_file_xlsx)
 })
+
 
 # Test loading Stata files (dta)
 test_that("load_from_disk loads Stata files correctly", {
