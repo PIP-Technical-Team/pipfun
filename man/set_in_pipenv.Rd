@@ -2,13 +2,21 @@
 % Please edit documentation in R/pipenv.R
 \name{set_in_pipenv}
 \alias{set_in_pipenv}
-\title{Title}
+\title{Set a value in .pipenv}
 \usage{
 set_in_pipenv(key, value)
 }
 \arguments{
-\item{value}{}
+\item{key}{A character string representing the key}
+
+\item{value}{The value to store in .pipenv}
+}
+\value{
+The assigned value (invisibly)
 }
 \description{
-Title
+Set a value in .pipenv
+}
+\examples{
+set_in_pipenv("example_key", 42)
 }

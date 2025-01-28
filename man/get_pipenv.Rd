@@ -2,10 +2,16 @@
 % Please edit documentation in R/pipenv.R
 \name{get_pipenv}
 \alias{get_pipenv}
-\title{Title}
+\title{Get the entire .pipenv environment}
 \usage{
 get_pipenv()
 }
+\value{
+The .pipenv environment
+}
 \description{
-Title
+Get the entire .pipenv environment
+}
+\examples{
+env <- get_pipenv()
 }

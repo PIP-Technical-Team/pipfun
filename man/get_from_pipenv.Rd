@@ -2,13 +2,20 @@
 % Please edit documentation in R/pipenv.R
 \name{get_from_pipenv}
 \alias{get_from_pipenv}
-\title{Get from .pipenv}
+\title{Get a value from .pipenv}
 \usage{
 get_from_pipenv(key)
 }
 \arguments{
-\item{key}{}
+\item{key}{A character string representing the key}
+}
+\value{
+The value associated with the key in .pipenv
 }
 \description{
-Get from .pipenv
+Get a value from .pipenv
+}
+\examples{
+set_in_pipenv("example_key", 42)
+get_from_pipenv("example_key") # returns 42
 }
