@@ -14,7 +14,7 @@ creds <- get_github_creds()
 
 # Load packages
 library(base64enc)   # For base64 encoding/decoding
-library(mockery)
+
 
 # -------------------------------------------- #
 # Test save_to_gh()  ####
