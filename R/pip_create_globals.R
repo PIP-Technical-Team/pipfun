@@ -154,7 +154,7 @@ pip_create_globals <-
   #
   glbs$DLW_RAW_DIR          <- fs::path(root_dir,"DLW-RAW")
   if (isTRUE(create_dir)) {
-    create_dir(glbs)
+    create_directories(glbs)
   }
 
 
@@ -171,7 +171,9 @@ pip_create_globals <-
     glbs$OUT_DIR_PC   <- fs::path(out_dir, 'pip_ingestion_pipeline/pc_data/output-tfs-sync/ITSES-POVERTYSCORE-DATA/')
 
     if (isTRUE(create_dir)) {
-      create_dir(glbs)
+      create_directories(glbs)
+
+
     }
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -218,7 +220,7 @@ pip_create_globals <-
     glbs$OUT_DIR_TB   <- fs::path(out_dir,
                                   'pip_ingestion_pipeline/tb_data/output')
     if (isTRUE(create_dir)) {
-      create_dir(glbs)
+      create_directories(glbs)
     }
 
   } else { # end of vintage not null
@@ -287,7 +289,7 @@ pip_create_globals <-
 #'
 #' @param glbs list of object. Some of them are fs_paths
 #' @noRd
-create_dir <- function(glbs) {
+create_directories <- function(glbs) {
 
   is_fs_path <- which(purrr::map_lgl(glbs, inherits, "fs_path"))
 
