@@ -50,5 +50,4 @@ to document the merge.
 
   merge_branch_into(owner, repo, source_branch, target_branch)
 }
-
 }

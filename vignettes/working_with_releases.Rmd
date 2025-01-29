@@ -14,11 +14,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-#devtools::load_all(".")
-library(pipfun)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+devtools::load_all(".")  # Ensure the package is loaded
+library(pipfun) 
+if (!exists(".pipenv")) {
+  message("Initializing .pipenv environment")
+  setup_working_release(force = TRUE)  # Ensure .pipenv is set up during knitting
+}
 ```
-
 
 # Introduction
 

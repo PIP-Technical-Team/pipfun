@@ -29,12 +29,14 @@ remove_pip_release(
 
 \item{identity}{character: for PIP repos it must be one of \code{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
 
+\item{verbose}{A logical: whether to print detailed messages
+about the process. The default is \code{TRUE}}
+
 \item{...}{
   Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
   \describe{
     \item{\code{force}}{logical: whether to load releases from Github even if they
 already available in env .pipenv}
-    \item{\code{verbose}}{logical: whether to display additional information}
     \item{\code{owner}}{character: owner of repo}
     \item{\code{repo}}{character: repository name}
     \item{\code{file_path}}{character: file path}

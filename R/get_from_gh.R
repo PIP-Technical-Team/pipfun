@@ -279,6 +279,10 @@ get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
 #' @param owner character: owner of repo
 #' @param repo character: repository name
 #' @param branch character: branch name (default is "main")
+#' @param gh_func function: function used to call the GitHub API (default is `gh::gh`)
+#' @param creds_func function: function used to retrieve GitHub credentials (default is `get_github_creds`)
+#' @param url_func function: function used to extract additional information from the protection URL (default is `info_from_url`)
+#'
 #'
 #' @return Complete response from GET method of GitHub API
 #' @export

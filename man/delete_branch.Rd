@@ -24,6 +24,9 @@ delete_branch(
 \item{repo}{character: name of the repo}
 
 \item{ask}{logical: whether to ask the user to confirm. Default is \code{\link[=interactive]{interactive()}}}
+
+\item{verbose}{A logical: whether to print detailed messages
+about the process. The default is \code{TRUE}}
 }
 \value{
 logical, whether or not branch was deleted

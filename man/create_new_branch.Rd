@@ -32,6 +32,9 @@ created.}
 
 \item{new_branch}{character: name of new branch. Default is
 [paste0(release, "_", identity\link{1})]}
+
+\item{verbose}{A logical: whether to print detailed messages
+about the process. The default is \code{TRUE}}
 }
 \value{
 TRUE if \link{new_branch} already exists or if it was created
