@@ -107,7 +107,7 @@ new_pip_release <-
   }
 
   names(lreturn) <- ret_obj_names
-  return(lreturn)
+  return(invisible(lreturn))
 
 }
 
@@ -194,6 +194,8 @@ create_dir <- function(wdir, dirs,
 #'
 #' CAUTION: Use this functions with care.
 #' @rdname new_pip_release
+#'
+#' @return invisible
 #' @export
 remove_pip_release <-
   function(release,
@@ -308,7 +310,7 @@ remove_pip_release <-
   }
 
   names(lreturn) <- ret_obj_names
-  return(lreturn)
+  return(invisible(lreturn))
 
 }
 
