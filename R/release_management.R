@@ -377,7 +377,10 @@ new_aux_release <- function(measure     = NULL,
 
 #' Get PIP releases
 #'
-#' All the releases available in PIP in any of the servers.
+#' All the releases available in PIP in any of the servers. These are the
+#' releases available in the `releases` branch of the `pip_info` repo. If you
+#' need to load the `releases` available in the `.pipenv` environment, you may
+#' use `get_from_pipenv("releases")`
 #'
 #' @inheritParams get_file_info_from_gh
 #' @param force logical: whether to load releases from Github even if they
@@ -393,23 +396,10 @@ get_pip_releases <- function(owner     = getOption("pipfun.ghowner"),
                              repo      = "pip_info",
                              file_path = "releases.csv",
                              branch    = "releases",
-                             verbose   = getOption("pipfun.verbose"),
-                             force     = FALSE) {
+                             verbose   = getOption("pipfun.verbose")) {
 
 
   # Check if releases available in .pipenv
-  if (force == FALSE) {
-    if (rlang::env_has(.pipenv, "releases")) {
-      if (verbose) {
-        cli::cli_alert("{.field releases} is already available in env
-                        {.code .pipenv}. Use option {.code force} to
-                        load them again from gh",
-                        wrap = TRUE)
-      }
-      return(rlang::env_get(.pipenv, "releases"))
-    }
-  }
-
   pr <- get_file_from_gh(owner = owner,
                          repo = repo,
                          branch =  branch,
