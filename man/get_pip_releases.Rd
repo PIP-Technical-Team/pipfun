@@ -9,8 +9,7 @@ get_pip_releases(
   repo = "pip_info",
   file_path = "releases.csv",
   branch = "releases",
-  verbose = getOption("pipfun.verbose"),
-  force = FALSE
+  verbose = getOption("pipfun.verbose")
 )
 }
 \arguments{
@@ -31,7 +30,10 @@ already available in env .pipenv}
 data.table with releases table
 }
 \description{
-All the releases available in PIP in any of the servers.
+All the releases available in PIP in any of the servers. These are the
+releases available in the \code{releases} branch of the \code{pip_info} repo. If you
+need to load the \code{releases} available in the \code{.pipenv} environment, you may
+use \code{get_from_pipenv("releases")}
 }
 \examples{
 get_pip_releases()
