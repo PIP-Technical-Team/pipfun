@@ -9,6 +9,9 @@ get_ppp_versions()
 
 get_latest_ppp_versions(ppps = getOption("pipfun.ppps"))
 }
+\arguments{
+\item{ppps}{numeric: vector of PPP years.}
+}
 \value{
 data frame with all PPP years and versions available
 

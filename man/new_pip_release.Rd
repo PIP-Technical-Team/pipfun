@@ -32,6 +32,12 @@ remove_pip_release(
 \item{verbose}{A logical: whether to print detailed messages
 about the process. The default is \code{TRUE}}
 
+\item{root_dir}{character: Root directory for PIP data, defaults to \code{Sys.getenv("PIP_ROOT_DIR")}}
+
+\item{working_dir}{character: Working directory where files will be created. Defaults to a subdirectory of \code{root_dir}}
+
+\item{ppps}{numeric: vector of PPP years.}
+
 \item{...}{
   Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
   \describe{
@@ -41,8 +47,6 @@ about the process. The default is \code{TRUE}}
     \item{\code{file_path}}{character: file path}
     \item{\code{branch}}{character: branch where the file is}
   }}
-
-\item{ppp}{numeric: vector of PPP years.}
 }
 \value{
 invisible TRUE if everything went fine

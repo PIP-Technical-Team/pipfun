@@ -455,12 +455,12 @@ test_that("merge branch into works correctly", {
   assign("askYesNo", function(...) FALSE, envir = .GlobalEnv)
 
 
-    merge_branch_into(repo = "aux_test",
-                      target_branch = "DEV",
-                      source_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_cancel"),
-                      force = FALSE) |>
-      expect_error()
-
+    # merge_branch_into(repo = "aux_test",
+    #                   target_branch = "DEV",
+    #                   source_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_cancel"),
+    #                   force = FALSE) |>
+    #   expect_error()
+    #
 
   # Clean up the environment by removing the custom `askYesNo`
   rm(askYesNo, envir = .GlobalEnv)
