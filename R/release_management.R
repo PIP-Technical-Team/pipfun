@@ -2,7 +2,9 @@
 #'
 #' @inheritParams create_new_branch
 #' @inheritDotParams get_pip_releases
-#' @param ppp numeric: vector of PPP years.
+#' @param root_dir character: Root directory for PIP data, defaults to `Sys.getenv("PIP_ROOT_DIR")`
+#' @param working_dir character: Working directory where files will be created. Defaults to a subdirectory of `root_dir`
+#' @param ppps numeric: vector of PPP years.
 #'
 #' @return invisible TRUE if everything went fine
 #' @export

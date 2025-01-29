@@ -291,25 +291,6 @@ get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
 #' get_branch_info_from_gh(owner     = getOption("pipfun.ghowner"),
 #'                         repo      = "pip_info",
 #'                         branch    = "releases")
-# get_branch_info_from_gh <- function(owner  = getOption("pipfun.ghowner"),
-#                                     repo,
-#                                     branch = "main") {
-#   # Get GitHub credentials
-#   creds <- get_github_creds()
-#
-#   # Fetch branch metadata using GitHub API
-#   mt <- gh::gh(
-#     "GET /repos/{owner}/{repo}/branches/{branch}",
-#     owner  = owner,
-#     repo   = repo,
-#     branch = branch,
-#     .token = creds$token  # Use your token for authentication
-#   )
-#
-#   # Append additional information extracted from the URL
-#   append(mt,
-#          info_from_url(mt$protection_url))
-# }
 get_branch_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
                                     repo,
                                     branch = "main",

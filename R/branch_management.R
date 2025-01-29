@@ -440,7 +440,7 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 
   if (force == FALSE) {
 
-    Ask <- askYesNo(msg     = "Do you want to proceed with the update? Type your answer",
+    Ask <- utils::askYesNo(msg     = "Do you want to proceed with the update? Type your answer",
                     default = TRUE,
                     prompts = c("Yes", "No", "Cancel"))
 
@@ -530,7 +530,7 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 
   if (force == FALSE) {
 
-    Ask <- askYesNo(msg     = "Do you want to proceed with merging? Type your answer",
+    Ask <- utils::askYesNo(msg     = "Do you want to proceed with merging? Type your answer",
                     default = TRUE,
                     prompts = c("Yes", "No", "Cancel"))
 
