@@ -109,11 +109,8 @@ download_from_gh <- function(path, temp_file) {
       # Create a request object with authentication
       path |>
         httr2::request() |>
-        #note (RT) - to remove
-        httr2::req_auth_basic(username = "RossanaTat",
+        httr2::req_auth_basic(username = creds$username,
                               password = creds$password) |>
-        # httr2::req_auth_basic(username = creds$username,
-        #                       password = creds$password) |>
         httr2::req_perform() |>
         httr2::resp_body_raw() |>
         writeBin(temp_file)
@@ -170,10 +167,12 @@ load_from_disk <- function(temp_file, ...) {
   data <- switch(ext,
                  csv  = readr::read_csv(temp_file,
                                         show_col_types = FALSE,
-                                        ...),
+                                        col_names = TRUE),
+                                        #...),
                  xls  = readxl::read_excel(temp_file, ...),
                  xlsx = readxl::read_excel(temp_file, ...),
-                 dta  = haven::read_dta(temp_file, ...),
+                 #dta  = haven::read_dta(temp_file, ...),
+                 dta  = haven::read_dta(temp_file, encoding = "UTF-8", ...),
                  qs   = qs::qread(temp_file, ...),
                  fst  = fst::read_fst(temp_file, ...),
                  yaml = yaml::read_yaml(temp_file, ...),
@@ -280,6 +279,10 @@ get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
 #' @param owner character: owner of repo
 #' @param repo character: repository name
 #' @param branch character: branch name (default is "main")
+#' @param gh_func function: function used to call the GitHub API (default is `gh::gh`)
+#' @param creds_func function: function used to retrieve GitHub credentials (default is `get_github_creds`)
+#' @param url_func function: function used to extract additional information from the protection URL (default is `info_from_url`)
+#'
 #'
 #' @return Complete response from GET method of GitHub API
 #' @export

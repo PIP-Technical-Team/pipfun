@@ -29,6 +29,9 @@ remove_pip_release(
 
 \item{identity}{character: for PIP repos it must be one of \code{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
 
+\item{verbose}{A logical: whether to print detailed messages
+about the process. The default is \code{TRUE}}
+
 \item{...}{
   Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
   \describe{

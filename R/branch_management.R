@@ -11,6 +11,8 @@
 #'   created.
 #' @param new_branch character: name of new branch. Default is
 #'   [paste0(release, "_", identity[1])]
+#' @param verbose A logical: whether to print detailed messages
+#'   about the process. The default is `TRUE`
 #'
 #' @return TRUE if [new_branch] already exists or if it was created
 #' @export
@@ -124,6 +126,8 @@ create_new_branch <- function(measure     = NULL,
 #' @param branch_to_delete character: branch to delete
 #' @inheritParams create_new_branch
 #' @param ask logical: whether to ask the user to confirm. Default is [interactive()]
+#' @param verbose A logical: whether to print detailed messages
+#'   about the process. The default is `TRUE`
 #'
 #' @return logical, whether or not branch was deleted
 #' @export
@@ -486,6 +490,8 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 #' @return Logical. Returns `TRUE` if the merge was successful or the branches
 #'   already had the same content. Returns `FALSE` if the merge failed.
 #'
+#' @export
+#'
 #' @details The function first checks whether the branches already have the
 #'   same content by comparing their latest commit tree SHAs. If the branches
 #'   are identical, no action is taken. Otherwise, the function performs a
@@ -502,8 +508,6 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 #'
 #'   merge_branch_into(owner, repo, source_branch, target_branch)
 #' }
-#'
-#' @export
 merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
                               repo,
                               source_branch,

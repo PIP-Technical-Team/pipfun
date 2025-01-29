@@ -19,6 +19,12 @@ get_branch_info_from_gh(
 \item{repo}{character: repository name}
 
 \item{branch}{character: branch name (default is "main")}
+
+\item{gh_func}{function: function used to call the GitHub API (default is \code{gh::gh})}
+
+\item{creds_func}{function: function used to retrieve GitHub credentials (default is \code{get_github_creds})}
+
+\item{url_func}{function: function used to extract additional information from the protection URL (default is \code{info_from_url})}
 }
 \value{
 Complete response from GET method of GitHub API

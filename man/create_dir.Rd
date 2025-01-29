@@ -35,6 +35,9 @@ adaptation  version of the PPPs, and  \code{identify} stands for one of
 
 \item{dirs}{chracter: directories to be created inside or removed from
 \code{wdir}}
+
+\item{verbose}{A logical: whether to print detailed messages
+about the process. The default is \code{TRUE}}
 }
 \value{
 logical vector. the names of the elements correspond to the directory
