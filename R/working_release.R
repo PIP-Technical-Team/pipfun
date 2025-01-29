@@ -53,8 +53,7 @@ setup_working_release <- function(release  = NULL,
                              repo      = repo,
                              file_path = file_path,
                              branch    = branch,
-                             verbose   = verbose,
-                             force     = force)
+                             verbose   = verbose)
     } else {
       get_pip_releases(owner     = owner,
                        repo      = repo,

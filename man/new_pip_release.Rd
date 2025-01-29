@@ -41,7 +41,6 @@ about the process. The default is \code{TRUE}}
 \item{...}{
   Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
   \describe{
-    \item{\code{verbose}}{logical: whether to display additional information}
     \item{\code{owner}}{character: owner of repo}
     \item{\code{repo}}{character: repository name}
     \item{\code{file_path}}{character: file path}
