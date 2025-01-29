@@ -87,11 +87,11 @@ npr$pc_dir |>
 ## Checking for New Releases
 
 ```{r new-release}
-release <- get_pip_releases(force = TRUE)
+release <- get_pip_releases()
 release
 ```
 
-Here, `force = TRUE` refreshes the release data by calling the GitHub API directly, bypassing the cached data in `.pipenv`. This is useful when you need the latest information. (Note: To disable this function permanently, you may use  option for `{pipfun}`.... (add this option) )
+The release data is obtained from the GitHub API directly. This guarantees that you always get the latest information. If you need the "releases" available in the  cached data of `.pipenv`, you may use `get_from_pipenv("releases")`. 
 
 # Removing a PIP Release
 
@@ -104,7 +104,7 @@ removed_release <-
                      working_dir = tmp_dir)
 
 # Check that "20241105-TEST" has been removed
-(get_pip_releases(force = TRUE))
+(get_pip_releases())
 ```
 
 # Underlying Functions

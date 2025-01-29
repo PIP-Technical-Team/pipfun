@@ -29,7 +29,7 @@ new_pip_release <-
 
   # add new release to pool --------
   ## get current releases ---------
-  pr <- get_pip_releases(force = TRUE, ...)
+  pr <- get_pip_releases(...)
   # pr <- get_pip_releases(force = TRUE)
   mt <- attr(pr, "metadata") # get metadata from GH
 
@@ -235,7 +235,7 @@ remove_pip_release <-
 
   # add new release to pool --------
   ## get current releases ---------
-  pr <- get_pip_releases(force = TRUE, ...)
+  pr <- get_pip_releases(...)
   # pr <- get_pip_releases(force = TRUE)
   mt <- attr(pr, "metadata") # get metadata from GH
 
