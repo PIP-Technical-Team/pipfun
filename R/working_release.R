@@ -60,8 +60,7 @@ setup_working_release <- function(release  = NULL,
                        repo      = repo,
                        file_path = file_path,
                        branch    = branch,
-                       verbose   = verbose,
-                       force     = force) |>
+                       verbose   = verbose) |>
         find_release(release = release,
                      identity = identity)
     }
