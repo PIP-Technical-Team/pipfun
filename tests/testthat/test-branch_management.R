@@ -9,6 +9,31 @@ repo <- paste0("aux_", measure)
 creds <- get_github_creds()
 
 # create branches for testing purposes
+
+to_keep <- c("DEV", "DEV_v2", "main", "test_main", "20241121")
+branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
+                   owner = owner,
+                   repo = repo,
+                   .limit = Inf)
+
+branch_names <- sapply(branches,
+                       function(branch) branch$name)
+
+
+to_delete <- branch_names[!branch_names %in% to_keep]
+
+if (length(to_delete) > 0) {
+  deleted <-
+    sapply(to_delete, \(x) {
+    delete_branch(repo = repo,
+                  branch_to_delete = x,
+                  ask = FALSE)
+  })
+}
+
+deleted
+
+
 create_new_branch(measure    = "test",
                   ref_branch = "main",
                   new_branch = "test_main")
@@ -16,14 +41,12 @@ create_new_branch(measure    = "test",
 create_new_branch(repo = "aux_test",
                   new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"),
                   ref_branch = "main",
-                  identity = "TEST"
-)
+                  identity = "TEST")
 
 create_new_branch(repo = "aux_test",
                   new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"),
                   ref_branch = "main",
-                  identity = "TEST"
-)
+                  identity = "TEST")
 
 create_new_branch(repo = repo, owner = owner,
                   new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"),
@@ -50,7 +73,8 @@ test_that("get repo branches works as expected", {
 
   branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
                      owner = owner,
-                     repo = repo)
+                     repo = repo,
+                     .limit = Inf)
 
   branch_names <- sapply(branches,
                          function(branch) branch$name)

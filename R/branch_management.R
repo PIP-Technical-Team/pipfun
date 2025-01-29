@@ -371,7 +371,8 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
   branches_info <- gh::gh(
     "GET /repos/:owner/:repo/branches",
     owner = owner,
-    repo = repo
+    repo = repo,
+    .limit = Inf
   )
 
   # Extract and return branch names
