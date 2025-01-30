@@ -7,7 +7,7 @@
 \usage{
 new_pip_release(
   release = format(Sys.Date(), "\%Y\%m\%d"),
-  identity = c("PROD", "INT", "TEST"),
+  identity = getOption("pipfun.identities"),
   verbose = getOption("pipfun.verbose"),
   root_dir = Sys.getenv("PIP_ROOT_DIR"),
   working_dir = fs::path(root_dir, getOption("pipfun.working_dir")),
@@ -17,7 +17,7 @@ new_pip_release(
 
 remove_pip_release(
   release,
-  identity = c("PROD", "INT", "TEST"),
+  identity = getOption("pipfun.identities"),
   verbose = getOption("pipfun.verbose"),
   working_dir = NULL,
   ppps = getOption("pipfun.ppps"),

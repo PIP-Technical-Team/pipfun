@@ -6,7 +6,7 @@
 \usage{
 setup_working_release(
   release = NULL,
-  identity = c("PROD", "INT", "TEST"),
+  identity = getOption("pipfun.identities"),
   force = FALSE,
   owner = getOption("pipfun.ghowner"),
   repo = "pip_info",
@@ -22,9 +22,6 @@ setup_working_release(
 
 \item{identity}{character: one of "PROD", "INT", or "TEST"}
 
-\item{force}{logical: whether to load releases from Github even if they
-already available in env .pipenv}
-
 \item{owner}{character: owner of repo}
 
 \item{repo}{character: repository name}
@@ -34,6 +31,8 @@ already available in env .pipenv}
 \item{branch}{character: branch where the file is}
 
 \item{verbose}{logical: whether to display additional information}
+
+\item{ppp}{numeric: PPP year to use.}
 
 \item{...}{
   Arguments passed on to \code{\link[=pip_create_globals]{pip_create_globals}}

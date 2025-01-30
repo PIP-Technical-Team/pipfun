@@ -15,7 +15,7 @@
 #' }
 new_pip_release <-
   function(release     = format(Sys.Date(), "%Y%m%d"),
-           identity    = c("PROD", "INT", "TEST"),
+           identity    = getOption("pipfun.identities"),
            verbose     = getOption("pipfun.verbose"),
            root_dir    = Sys.getenv("PIP_ROOT_DIR"),
            working_dir = fs::path(root_dir,
@@ -201,7 +201,7 @@ create_dir <- function(wdir, dirs,
 #' @export
 remove_pip_release <-
   function(release,
-           identity    = c("PROD", "INT", "TEST"),
+           identity    = getOption("pipfun.identities"),
            verbose     = getOption("pipfun.verbose"),
            working_dir = NULL,
            ppps        = getOption("pipfun.ppps"),
@@ -385,8 +385,6 @@ new_aux_release <- function(measure     = NULL,
 #' use `get_from_pipenv("releases")`
 #'
 #' @inheritParams get_file_info_from_gh
-#' @param force logical: whether to load releases from Github even if they
-#'   already available in env .pipenv
 #' @param verbose logical: whether to display additional information
 #'
 #' @return data.table with releases table
@@ -426,7 +424,7 @@ get_pip_releases <- function(owner     = getOption("pipfun.ghowner"),
 #'
 #' @examples
 #' get_latest_pip_release()
-get_latest_pip_release <- function(identity = c("PROD", "INT", "TEST"),
+get_latest_pip_release <- function(identity = getOption("pipfun.identities"),
                                    ...) {
 
   iden <- match.arg(identity)
@@ -466,15 +464,6 @@ check_pip_release_inputs <- function(call_args) {
 
 
 }
-
-
-# release = format(Sys.Date(), "%Y%m%d"),
-# identity    = c("PROD", "INT", "TEST"),
-# verbose     = getOption("pipfun.verbose"),
-# root_dir    = Sys.getenv("PIP_ROOT_DIR"),
-# working_dir = fs::path(root_dir,
-#                        getOption("pipfun.working_dir"))
-
 
 
 

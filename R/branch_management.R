@@ -10,7 +10,7 @@
 #' @param ref_branch Character: reference branch from which the new branch will be
 #'   created.
 #' @param new_branch character: name of new branch. Default is
-#'   [paste0(release, "_", identity[1])]
+#'   `paste0(release, "_", identity)`
 #' @param verbose A logical: whether to print detailed messages
 #'   about the process. The default is `TRUE`
 #'
@@ -36,12 +36,13 @@ create_new_branch <- function(measure     = NULL,
                              repo        = ifelse(is.null(measure), NA,
                                                   paste0("aux_", measure)) ,
                              release     = format(Sys.Date(), "%Y%m%d"),
-                             identity    = c("PROD", "INT", "TEST"),
+                             identity    = getOption("pipfun.identities"),
                              ref_branch  = "DEV",
-                             new_branch  = paste0(release, "_", identity[1]),
+                             new_branch  = NULL,
                              verbose     = getOption("pipfun.verbose")) {
 
   identity <- match.arg(identity)
+  new_branch <- paste0(release, "_", identity)
 
   # defenses ----------
   stopifnot(exprs = {

@@ -9,9 +9,9 @@ create_new_branch(
   owner = getOption("pipfun.ghowner"),
   repo = ifelse(is.null(measure), NA, paste0("aux_", measure)),
   release = format(Sys.Date(), "\%Y\%m\%d"),
-  identity = c("PROD", "INT", "TEST"),
+  identity = getOption("pipfun.identities"),
   ref_branch = "DEV",
-  new_branch = paste0(release, "_", identity[1]),
+  new_branch = NULL,
   verbose = getOption("pipfun.verbose")
 )
 }
@@ -31,7 +31,7 @@ create_new_branch(
 created.}
 
 \item{new_branch}{character: name of new branch. Default is
-[paste0(release, "_", identity\link{1})]}
+\code{paste0(release, "_", identity)}}
 
 \item{verbose}{A logical: whether to print detailed messages
 about the process. The default is \code{TRUE}}

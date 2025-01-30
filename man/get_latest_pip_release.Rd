@@ -4,7 +4,7 @@
 \alias{get_latest_pip_release}
 \title{Get latest PIP release}
 \usage{
-get_latest_pip_release(identity = c("PROD", "INT", "TEST"), ...)
+get_latest_pip_release(identity = getOption("pipfun.identities"), ...)
 }
 \arguments{
 \item{identity}{character: one of "PROD", "INT", or "TEST"}

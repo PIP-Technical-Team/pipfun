@@ -22,9 +22,6 @@ get_pip_releases(
 \item{branch}{character: branch where the file is}
 
 \item{verbose}{logical: whether to display additional information}
-
-\item{force}{logical: whether to load releases from Github even if they
-already available in env .pipenv}
 }
 \value{
 data.table with releases table

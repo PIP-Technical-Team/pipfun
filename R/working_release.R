@@ -6,6 +6,7 @@
 #' @inheritParams find_release
 #' @inheritParams get_pip_releases
 #' @inheritDotParams pip_create_globals -vintage -create_dir
+#' @param ppp numeric: PPP year to use.
 #'
 #' @return invisible table with release information and list object in the
 #'   `.pipenv` environment
@@ -18,7 +19,7 @@
 #' # error if set up again
 #' try(setup_working_release())
 setup_working_release <- function(release  = NULL,
-                                 identity = c("PROD", "INT", "TEST"),
+                                 identity = getOption("pipfun.identities"),
                                  force    = FALSE,
                                  owner     = getOption("pipfun.ghowner"),
                                  repo      = "pip_info",
@@ -34,17 +35,6 @@ setup_working_release <- function(release  = NULL,
                      i = "PPP values must be {.or {getOption(\"pipfun.ppps\")}}"))
   }
 
-
-  if (rlang::env_has(.pipenv, "working_release") && force == FALSE) {
-
-    wr <- rlang::env_get(.pipenv, "working_release")
-    cli::cli_abort(c(
-      "There is a working release already setup in env {.env .pipenv}.",
-      "i" = "{.field Tip}: Use argument {.code force} to setup a different release",
-      "x" = "{.field Current working release}: {wr$release}-{wr$identity}"
-      ),
-      wrap = TRUE)
-  }
 
   pr <-
     if (is.null(release)) {
