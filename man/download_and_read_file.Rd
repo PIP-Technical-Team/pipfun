@@ -4,13 +4,11 @@
 \alias{download_and_read_file}
 \title{Download and read file}
 \usage{
-download_and_read_file(path)
+download_and_read_file(url)
 }
 \arguments{
 \item{url}{character: url of file. usually it comes
-\link{get_file_info_from_gh()$download_url}}
-
-\item{type}{character: file format}
+\code{get_file_info_from_gh()$download_url}}
 }
 \value{
 data in data.table format

@@ -76,16 +76,15 @@ get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
 #' Helper function to handle file downloads and reading
 #'
 #' @param url character: url of file. usually it comes
-#'   [get_file_info_from_gh()$download_url]
-#' @param type character: file format
+#'   `get_file_info_from_gh()$download_url`
 #'
 #' @return data in data.table format
 #' @keywords internal
-download_and_read_file <- function(path) {
-  type      <- fs::path_ext(path)
+download_and_read_file <- function(url) {
+  type      <- fs::path_ext(url)
   temp_file <- tempfile(fileext = paste0(".", type))
   on.exit(unlink(temp_file))
-  temp_file <- download_from_gh(path, temp_file)
+  temp_file <- download_from_gh(url, temp_file)
 
   load_from_disk(temp_file) |>
     setDT()
@@ -93,12 +92,12 @@ download_and_read_file <- function(path) {
 
 #' Download file from Github
 #'
-#' @param path character: URL of file
+#' @param url character: URL of file
 #' @param temp_file [tempfile()] where new file will be saved
 #'
 #' @return file of extension in [path]
 #' @keywords internal
-download_from_gh <- function(path, temp_file) {
+download_from_gh <- function(url, temp_file) {
 
   creds = get_github_creds()
 
@@ -107,7 +106,7 @@ download_from_gh <- function(path, temp_file) {
     expr = {
       # using httr2 to download the file
       # Create a request object with authentication
-      path |>
+      url |>
         httr2::request() |>
         httr2::req_auth_basic(username = creds$username,
                               password = creds$password) |>
@@ -119,10 +118,10 @@ download_from_gh <- function(path, temp_file) {
     # end of expr section
 
     error = function(e) {
-      # extract owner and repo name from path of the form
+      # extract owner and repo name from url of the form
       # root <- "https://raw.githubusercontent.com"
-      # path  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
-      path_parts <- gsub("https://raw.githubusercontent.com/", "", path) |>
+      # url  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
+      path_parts <- gsub("https://raw.githubusercontent.com/", "", url) |>
         strsplit("/") |>
         unlist()
       owner    <- path_parts[1]
