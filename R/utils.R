@@ -15,15 +15,17 @@
 #' foo(x = 1, a = TRUE)
 all_args <- function() {
   # Capture the call of the calling function
-  call <- match.call(definition = sys.function(-1), # gets the function that called all_args
-                     call = sys.call(-1), #  gets the call to the function that called all_args
-                     expand.dots = FALSE) #ensures that ... is not expanded
+  call <- match.call(definition = sys.function(-1),
+                     call = sys.call(-1),
+                     expand.dots = FALSE)
 
   # Convert the call to a list of arguments
-  call_args <- as.list(call)[-1] # [-1] removes the function name from the list, leaving only the arguments
+  call_args <- as.list(call)[-1]  # Remove function name
 
+  # Evaluate each argument in the parent frame to resolve variable references
+  call_args <- lapply(call_args, eval, envir = parent.frame())
 
-  # Evaluate the ... arguments and merge them into the call_args list
+  # Evaluate `...` separately and merge into the list
   if ("..." %in% names(call_args)) {
     dots <- eval(call_args[["..."]], envir = parent.frame())
     call_args <- c(call_args[setdiff(names(call_args), "...")], dots)
@@ -31,6 +33,7 @@ all_args <- function() {
 
   return(call_args)
 }
+
 
 
 # all_args <- function() {

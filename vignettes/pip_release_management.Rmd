@@ -63,9 +63,9 @@ npr <- new_pip_release(release = release_date,
                        root_dir = tmp_dir)
 
 
-npr <- remove_pip_release(release = release_date,
-                       identity = identity,
-                       root_dir = tmp_dir)
+# npr <- remove_pip_release(release = release_date,
+#                        identity = identity,
+#                        root_dir = tmp_dir)
 
 ```
 
