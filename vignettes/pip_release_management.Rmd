@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 ```{r setup}
@@ -60,6 +61,12 @@ identity     <-  "TEST"
 npr <- new_pip_release(release = release_date,
                        identity = identity,
                        root_dir = tmp_dir)
+
+
+npr <- remove_pip_release(release = release_date,
+                       identity = identity,
+                       root_dir = tmp_dir)
+
 ```
 
 When a new release is created, several steps are performed, all stored in the `new_pip_release()` function's returned object. You can view auxiliary directories set up in the directory specified by the `root_dir` argument. If no directory is specified, `{pipfun}` defaults to an official directory path, provided you have the necessary permissions.

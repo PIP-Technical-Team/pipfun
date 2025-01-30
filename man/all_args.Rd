@@ -10,7 +10,7 @@ all_args()
 arguments of calling function as a list
 }
 \description{
-Caling function is \link{parent.frame}
+Calling function is \link{parent.frame}
 }
 \examples{
 foo <- function(x, y = 2, ...) {
