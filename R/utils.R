@@ -1,6 +1,6 @@
 #' Get all arguments of calling function
 #'
-#' Caling function is [parent.frame]
+#' Calling function is [parent.frame]
 #'
 #' @return arguments of calling function as a list
 #' @export
@@ -14,15 +14,17 @@
 #' foo(x = 1, z = "valid")
 #' foo(x = 1, a = TRUE)
 all_args <- function() {
-  # Capture the function call with all arguments
-  call_args <- as.list(parent.frame())
+  # Capture the call of the calling function
+  call <- match.call(definition = sys.function(-1),
+                     call = sys.call(-1),
+                     expand.dots = FALSE)
 
-  # Add ... arguments, if they exist
-  dots <- evalq(list(...), envir = parent.frame())
-  call_args <- c(call_args, dots)
+  # Convert the call to a list of arguments
+  call_args <- as.list(call)[-1]
 
   return(call_args)
 }
+
 
 # all_args <- function() {
 #   # Capture the full function call, with defaults evaluated
