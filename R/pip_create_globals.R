@@ -559,7 +559,7 @@ add_gls_to_env <- function(root_dir = NULL,
                                       out_dir  = out_dir,
                                       vintage  = vintage,
                                       clean    = clean)
-    assign('gls', gls, envir = globalenv())
+    # assign('gls', gls, envir = globalenv())
 
   } else {
 

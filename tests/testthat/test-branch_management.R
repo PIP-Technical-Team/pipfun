@@ -10,7 +10,7 @@ creds <- get_github_creds()
 
 # create branches for testing purposes
 
-to_keep <- c("DEV", "DEV_v2", "main", "test_main", "20241121")
+to_keep <- c("DEV", "DEV_v2", "main", "PROD", "test_main", "20241121")
 branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
                    owner = owner,
                    repo = repo,
