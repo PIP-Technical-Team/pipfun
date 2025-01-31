@@ -45,6 +45,7 @@ about the process. The default is \code{TRUE}}
     \item{\code{repo}}{character: repository name}
     \item{\code{file_path}}{character: file path}
     \item{\code{branch}}{character: branch where the file is}
+    \item{\code{creds}}{list. Basically, it is \code{get_github_creds()}}
   }}
 }
 \value{

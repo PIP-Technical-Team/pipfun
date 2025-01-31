@@ -1,3 +1,9 @@
+# pipfun (development version)
+
+* add get_wrk_release()
+
+* add GH_PASS to Renviron non-interactive session
+
 # pipfun 0.2.0
 
 From 0.2.0 onward the development is the new PIP pipeline and should be merged into DEV_v2 
