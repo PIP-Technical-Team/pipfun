@@ -76,16 +76,15 @@ get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
 #' Helper function to handle file downloads and reading
 #'
 #' @param url character: url of file. usually it comes
-#'   [get_file_info_from_gh()$download_url]
-#' @param type character: file format
+#'   `get_file_info_from_gh()$download_url`
 #'
 #' @return data in data.table format
 #' @keywords internal
-download_and_read_file <- function(path) {
-  type      <- fs::path_ext(path)
+download_and_read_file <- function(url) {
+  type      <- fs::path_ext(url)
   temp_file <- tempfile(fileext = paste0(".", type))
   on.exit(unlink(temp_file))
-  temp_file <- download_from_gh(path, temp_file)
+  temp_file <- download_from_gh(url, temp_file)
 
   load_from_disk(temp_file) |>
     setDT()
@@ -93,12 +92,12 @@ download_and_read_file <- function(path) {
 
 #' Download file from Github
 #'
-#' @param path character: URL of file
+#' @param url character: URL of file
 #' @param temp_file [tempfile()] where new file will be saved
 #'
 #' @return file of extension in [path]
 #' @keywords internal
-download_from_gh <- function(path, temp_file) {
+download_from_gh <- function(url, temp_file) {
 
   creds = get_github_creds()
 
@@ -107,13 +106,10 @@ download_from_gh <- function(path, temp_file) {
     expr = {
       # using httr2 to download the file
       # Create a request object with authentication
-      path |>
+      url |>
         httr2::request() |>
-        #note (RT) - to remove
-        httr2::req_auth_basic(username = "RossanaTat",
+        httr2::req_auth_basic(username = creds$username,
                               password = creds$password) |>
-        # httr2::req_auth_basic(username = creds$username,
-        #                       password = creds$password) |>
         httr2::req_perform() |>
         httr2::resp_body_raw() |>
         writeBin(temp_file)
@@ -122,10 +118,10 @@ download_from_gh <- function(path, temp_file) {
     # end of expr section
 
     error = function(e) {
-      # extract owner and repo name from path of the form
+      # extract owner and repo name from url of the form
       # root <- "https://raw.githubusercontent.com"
-      # path  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
-      path_parts <- gsub("https://raw.githubusercontent.com/", "", path) |>
+      # url  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
+      path_parts <- gsub("https://raw.githubusercontent.com/", "", url) |>
         strsplit("/") |>
         unlist()
       owner    <- path_parts[1]
@@ -170,10 +166,12 @@ load_from_disk <- function(temp_file, ...) {
   data <- switch(ext,
                  csv  = readr::read_csv(temp_file,
                                         show_col_types = FALSE,
-                                        ...),
+                                        col_names = TRUE),
+                                        #...),
                  xls  = readxl::read_excel(temp_file, ...),
                  xlsx = readxl::read_excel(temp_file, ...),
-                 dta  = haven::read_dta(temp_file, ...),
+                 #dta  = haven::read_dta(temp_file, ...),
+                 dta  = haven::read_dta(temp_file, encoding = "UTF-8", ...),
                  qs   = qs::qread(temp_file, ...),
                  fst  = fst::read_fst(temp_file, ...),
                  yaml = yaml::read_yaml(temp_file, ...),
@@ -280,6 +278,10 @@ get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
 #' @param owner character: owner of repo
 #' @param repo character: repository name
 #' @param branch character: branch name (default is "main")
+#' @param gh_func function: function used to call the GitHub API (default is `gh::gh`)
+#' @param creds_func function: function used to retrieve GitHub credentials (default is `get_github_creds`)
+#' @param url_func function: function used to extract additional information from the protection URL (default is `info_from_url`)
+#'
 #'
 #' @return Complete response from GET method of GitHub API
 #' @export
@@ -288,25 +290,6 @@ get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
 #' get_branch_info_from_gh(owner     = getOption("pipfun.ghowner"),
 #'                         repo      = "pip_info",
 #'                         branch    = "releases")
-# get_branch_info_from_gh <- function(owner  = getOption("pipfun.ghowner"),
-#                                     repo,
-#                                     branch = "main") {
-#   # Get GitHub credentials
-#   creds <- get_github_creds()
-#
-#   # Fetch branch metadata using GitHub API
-#   mt <- gh::gh(
-#     "GET /repos/{owner}/{repo}/branches/{branch}",
-#     owner  = owner,
-#     repo   = repo,
-#     branch = branch,
-#     .token = creds$token  # Use your token for authentication
-#   )
-#
-#   # Append additional information extracted from the URL
-#   append(mt,
-#          info_from_url(mt$protection_url))
-# }
 get_branch_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
                                     repo,
                                     branch = "main",

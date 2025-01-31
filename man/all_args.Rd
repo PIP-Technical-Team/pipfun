@@ -2,29 +2,17 @@
 % Please edit documentation in R/utils.R
 \name{all_args}
 \alias{all_args}
-\title{convert a dataframe into base64 object. This is mostly used to write data to GitHub}
+\title{Get all arguments of calling function}
 \usage{
 all_args()
 }
-\arguments{
-\item{df}{Dataframe}
-}
 \value{
-base64 string of the dataframe passed
-
 arguments of calling function as a list
 }
 \description{
-convert a dataframe into base64 object. This is mostly used to write data to GitHub
+Calling function is \link{parent.frame}
 }
 \examples{
-\dontrun{
-convert_df_to_base64(mtcars)
-}
-Get all arguments of calling function
-
-Caling function is [parent.frame]
-
 foo <- function(x, y = 2, ...) {
   all_args()
 }

@@ -9,13 +9,16 @@ get_ppp_versions()
 
 get_latest_ppp_versions(ppps = getOption("pipfun.ppps"))
 }
+\arguments{
+\item{ppps}{numeric: vector of PPP years.}
+}
 \value{
 data frame with all PPP years and versions available
 
-data frame with most recent versions for \link{ppps} selected
+data frame with most recent versions for \code{ppps} selected
 }
 \description{
-get most recent version of PPP
+THis data is extracted from the \code{aux_ppp} repo in branch DEV_V2
 }
 \examples{
 get_ppp_versions()

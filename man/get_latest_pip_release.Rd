@@ -4,7 +4,7 @@
 \alias{get_latest_pip_release}
 \title{Get latest PIP release}
 \usage{
-get_latest_pip_release(identity = c("PROD", "INT", "TEST"), ...)
+get_latest_pip_release(identity = getOption("pipfun.identities"), ...)
 }
 \arguments{
 \item{identity}{character: one of "PROD", "INT", or "TEST"}
@@ -12,8 +12,6 @@ get_latest_pip_release(identity = c("PROD", "INT", "TEST"), ...)
 \item{...}{
   Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
   \describe{
-    \item{\code{force}}{logical: whether to load releases from Github even if they
-already available in env .pipenv}
     \item{\code{verbose}}{logical: whether to display additional information}
     \item{\code{owner}}{character: owner of repo}
     \item{\code{repo}}{character: repository name}

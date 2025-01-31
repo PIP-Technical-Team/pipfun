@@ -9,6 +9,7 @@
 #' @name pipfun
 #' @import data.table
 #' @importFrom glue glue
+#' @importFrom utils menu
 
 # Make sure data.table knows we know we're using it
 #' @noRd
@@ -31,7 +32,12 @@ if (getRversion() >= "2.15.1") {
       "ppp_default_by_year",
       "ppp_rv",
       "ppp_year",
-      "cpi"
+      "cpi",
+      "aux_ver",
+      "n",
+      "pc_ver",
+      "release",
+      "working_dir"
     ),
     package = utils::packageName()
   )

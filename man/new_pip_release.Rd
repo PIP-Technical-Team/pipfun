@@ -7,7 +7,7 @@
 \usage{
 new_pip_release(
   release = format(Sys.Date(), "\%Y\%m\%d"),
-  identity = c("PROD", "INT", "TEST"),
+  identity = getOption("pipfun.identities"),
   verbose = getOption("pipfun.verbose"),
   root_dir = Sys.getenv("PIP_ROOT_DIR"),
   working_dir = fs::path(root_dir, getOption("pipfun.working_dir")),
@@ -17,7 +17,7 @@ new_pip_release(
 
 remove_pip_release(
   release,
-  identity = c("PROD", "INT", "TEST"),
+  identity = getOption("pipfun.identities"),
   verbose = getOption("pipfun.verbose"),
   working_dir = NULL,
   ppps = getOption("pipfun.ppps"),
@@ -29,22 +29,28 @@ remove_pip_release(
 
 \item{identity}{character: for PIP repos it must be one of \code{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
 
+\item{verbose}{A logical: whether to print detailed messages
+about the process. The default is \code{TRUE}}
+
+\item{root_dir}{character: Root directory for PIP data, defaults to \code{Sys.getenv("PIP_ROOT_DIR")}}
+
+\item{working_dir}{character: Working directory where files will be created. Defaults to a subdirectory of \code{root_dir}}
+
+\item{ppps}{numeric: vector of PPP years.}
+
 \item{...}{
   Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
   \describe{
-    \item{\code{force}}{logical: whether to load releases from Github even if they
-already available in env .pipenv}
-    \item{\code{verbose}}{logical: whether to display additional information}
     \item{\code{owner}}{character: owner of repo}
     \item{\code{repo}}{character: repository name}
     \item{\code{file_path}}{character: file path}
     \item{\code{branch}}{character: branch where the file is}
   }}
-
-\item{ppp}{numeric: vector of PPP years.}
 }
 \value{
 invisible TRUE if everything went fine
+
+invisible
 }
 \description{
 CAUTION: Use this functions with care.

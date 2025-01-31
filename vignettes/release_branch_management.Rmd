@@ -12,11 +12,12 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 ```{r setup}
-#library(pipfun)
-devtools::load_all()
+library(pipfun)
+#devtools::load_all()
 ```
 
 The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions are a starting point to enable vintage control of auxiliary data, so we can track which version of aux data was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
@@ -117,7 +118,7 @@ In both cases, you can set the `force` option to `FALSE` to make the function as
 
 To delete a branch, you can use the `delete_branch()` function. Here's an example that demonstrates creating and subsequently deleting a branch:
 
-```{r}
+```{r create-delete, error=TRUE}
 
 # Create a new branch named "to_delete"
 create_new_branch(repo = "aux_test",

@@ -4,10 +4,10 @@
 \alias{download_from_gh}
 \title{Download file from Github}
 \usage{
-download_from_gh(path, temp_file)
+download_from_gh(url, temp_file)
 }
 \arguments{
-\item{path}{character: URL of file}
+\item{url}{character: URL of file}
 
 \item{temp_file}{\code{\link[=tempfile]{tempfile()}} where new file will be saved}
 }

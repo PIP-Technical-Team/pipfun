@@ -29,14 +29,16 @@ Imports:
     remotes,
     yaml,
     base64enc,
-    collapse,
-    rlang
+    rlang,
+    jsonlite
 Suggests: 
     covr,
     knitr,
     rmarkdown,
+    janitor,
     testthat (>= 3.0.0),
-    writexl
+    writexl,
+    collapse
 Config/testthat/edition: 3
 URL: https://pip-technical-team.github.io/pipfun
 VignetteBuilder: knitr

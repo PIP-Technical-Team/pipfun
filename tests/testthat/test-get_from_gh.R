@@ -123,7 +123,8 @@ test_that("get_file_info_from_gh extract right info", {
   info <- get_file_info_from_gh(owner,
                                      repo,
                                      branch = branch,
-                                     "data/iris.csv")
+                                     "data/iris.csv")|>
+    expect_no_error()
 })
 
 

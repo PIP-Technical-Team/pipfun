@@ -4,16 +4,11 @@ pipfun_default_options <- list(
   pipfun.verbose     = TRUE,
   pipfun.ghowner     = "PIP-Technical-Team",
   pipfun.ppps        = c(2017, 2011), # must be descending order
-  pipfun.working_dir = "PIP_ingestion_pipeline_v2"
+  pipfun.working_dir = "PIP_ingestion_pipeline_v2",
+  pipfun.identities  = c("TEST", "PROD", "INT")
 )
 
 .onLoad <- function(libname, pkgname) {
-
-  # make sure .pipenv is exported properly-----
-
-  if (!exists(".pipenv", envir = asNamespace(pkgname))) {
-    assign(".pipenv", new.env(parent = emptyenv()), envir = asNamespace(pkgname))
-  }
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Options --------

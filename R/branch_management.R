@@ -10,7 +10,9 @@
 #' @param ref_branch Character: reference branch from which the new branch will be
 #'   created.
 #' @param new_branch character: name of new branch. Default is
-#'   [paste0(release, "_", identity[1])]
+#'   `paste0(release, "_", identity)`
+#' @param verbose A logical: whether to print detailed messages
+#'   about the process. The default is `TRUE`
 #'
 #' @return TRUE if [new_branch] already exists or if it was created
 #' @export
@@ -34,12 +36,16 @@ create_new_branch <- function(measure     = NULL,
                              repo        = ifelse(is.null(measure), NA,
                                                   paste0("aux_", measure)) ,
                              release     = format(Sys.Date(), "%Y%m%d"),
-                             identity    = c("PROD", "INT", "TEST"),
+                             identity    = getOption("pipfun.identities"),
                              ref_branch  = "DEV",
-                             new_branch  = paste0(release, "_", identity[1]),
+                             new_branch  = NULL,
                              verbose     = getOption("pipfun.verbose")) {
 
   identity <- match.arg(identity)
+
+  if (is.null(new_branch)) {
+    new_branch <- paste0(release, "_", identity)
+  }
 
   # defenses ----------
   stopifnot(exprs = {
@@ -124,6 +130,8 @@ create_new_branch <- function(measure     = NULL,
 #' @param branch_to_delete character: branch to delete
 #' @inheritParams create_new_branch
 #' @param ask logical: whether to ask the user to confirm. Default is [interactive()]
+#' @param verbose A logical: whether to print detailed messages
+#'   about the process. The default is `TRUE`
 #'
 #' @return logical, whether or not branch was deleted
 #' @export
@@ -367,7 +375,8 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
   branches_info <- gh::gh(
     "GET /repos/:owner/:repo/branches",
     owner = owner,
-    repo = repo
+    repo = repo,
+    .limit = Inf
   )
 
   # Extract and return branch names
@@ -436,7 +445,7 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 
   if (force == FALSE) {
 
-    Ask <- askYesNo(msg     = "Do you want to proceed with the update? Type your answer",
+    Ask <- utils::askYesNo(msg     = "Do you want to proceed with the update? Type your answer",
                     default = TRUE,
                     prompts = c("Yes", "No", "Cancel"))
 
@@ -486,6 +495,8 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 #' @return Logical. Returns `TRUE` if the merge was successful or the branches
 #'   already had the same content. Returns `FALSE` if the merge failed.
 #'
+#' @export
+#'
 #' @details The function first checks whether the branches already have the
 #'   same content by comparing their latest commit tree SHAs. If the branches
 #'   are identical, no action is taken. Otherwise, the function performs a
@@ -502,8 +513,6 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 #'
 #'   merge_branch_into(owner, repo, source_branch, target_branch)
 #' }
-#'
-#' @export
 merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
                               repo,
                               source_branch,
@@ -526,7 +535,7 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 
   if (force == FALSE) {
 
-    Ask <- askYesNo(msg     = "Do you want to proceed with merging? Type your answer",
+    Ask <- utils::askYesNo(msg     = "Do you want to proceed with merging? Type your answer",
                     default = TRUE,
                     prompts = c("Yes", "No", "Cancel"))
 
