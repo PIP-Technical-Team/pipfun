@@ -1,5 +1,7 @@
 # pipfun 0.2.0
 
+From 0.2.0 onward the development is the new PIP pipeline and should be merged into DEV_v2 
+
 # pipfun 0.1.0
 * add new suit of function to interact with GitHub.
 
