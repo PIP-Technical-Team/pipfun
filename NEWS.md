@@ -1,4 +1,4 @@
-# pipfun (development version)
+# pipfun 0.2.1
 
 * add get_wrk_release()
 
