@@ -76,3 +76,38 @@ setup_working_release <- function(release  = NULL,
 
   invisible(wr)
 }
+
+
+
+#' get working release in PIP functions
+#'
+#' You can place this function at the beginning of any of your PIP function to
+#' work with the working release
+#'
+#' @param name character: Name of the working release object. default is
+#'   "wrk_release" and you should leave it like that
+#'
+#' @return assign `name` object to `parent.frame()` which is the function it is
+#'   being called from
+#' @export
+#'
+#' @examples
+#' hello <- function() {
+#' get_wrk_release()
+#' invisible(wrk_release)
+#' }
+#' setup_working_release()
+#' print(hell())
+get_wrk_release <- function(name = "wrk_release") {
+  wrk_release <- pipfun::get_from_pipenv("working_release")
+  if (is.null(wrk_release)) {
+    cli::cli_abort(
+      c(x = "Working release has not been set up",
+        i = "You need to set a working release with {.code pipfun::setup_working_release()}"))
+  } else {
+    cli::cli_alert_info("Your working release is {.field {wrk_release$release}}")
+  }
+
+  # Assign to hello()'s environment
+  assign(name, wrk_release, envir = parent.frame())
+}
