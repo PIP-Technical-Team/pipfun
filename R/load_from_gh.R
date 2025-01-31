@@ -172,7 +172,7 @@ get_github_creds <- function() {
     creds <- list(protocol = "https",
                   host = "github.com",
                   username = "PersonalAccessToken",
-                  password = NULL)
+                  password = Sys.getenv("GH_PASS", unset = NA_character_))
   }
 
   invisible(creds)

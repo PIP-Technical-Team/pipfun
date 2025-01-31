@@ -385,6 +385,7 @@ new_aux_release <- function(measure     = NULL,
 #' use `get_from_pipenv("releases")`
 #'
 #' @inheritParams get_file_info_from_gh
+#' @inheritParams download_and_read_file
 #' @param verbose logical: whether to display additional information
 #'
 #' @return data.table with releases table
@@ -396,14 +397,16 @@ get_pip_releases <- function(owner     = getOption("pipfun.ghowner"),
                              repo      = "pip_info",
                              file_path = "releases.csv",
                              branch    = "releases",
-                             verbose   = getOption("pipfun.verbose")) {
+                             verbose   = getOption("pipfun.verbose"),
+                             creds     = NULL) {
 
 
   # Check if releases available in .pipenv
   pr <- get_file_from_gh(owner = owner,
                          repo = repo,
                          branch =  branch,
-                         file_path = file_path)
+                         file_path = file_path,
+                         creds = creds)
 
   rlang::env_poke(.pipenv, "releases", pr)
   pr

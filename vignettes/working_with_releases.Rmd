@@ -27,14 +27,15 @@ Creating releases goes beyond organization, information, and vintage control. Th
 
 
 ```{r setup-release}
-(wr <- setup_working_release())
+creds <- get_github_creds()
+(wr <- setup_working_release(creds = creds))
 
 ```
 
 Notice that, by default, the working release will correspond to the latest release of the most recent PPP round. In this case `r wr$release` and `r wr$ppp`, respectively. Also, if you try to setup the release again, you'll get an error because there is release already in the `.pipenv` environment.
 
 ```{r setup-error, error=TRUE}
-(wr <- setup_working_release())
+(wr <- setup_working_release(creds = creds))
 
 ```
 

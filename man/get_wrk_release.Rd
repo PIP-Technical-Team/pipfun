@@ -19,10 +19,12 @@ You can place this function at the beginning of any of your PIP function to
 work with the working release
 }
 \examples{
+\dontrun{
 hello <- function() {
 get_wrk_release()
 invisible(wrk_release)
 }
 setup_working_release()
 print(hell())
+}
 }

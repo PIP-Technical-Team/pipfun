@@ -9,7 +9,8 @@ get_pip_releases(
   repo = "pip_info",
   file_path = "releases.csv",
   branch = "releases",
-  verbose = getOption("pipfun.verbose")
+  verbose = getOption("pipfun.verbose"),
+  creds = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ get_pip_releases(
 \item{branch}{character: branch where the file is}
 
 \item{verbose}{logical: whether to display additional information}
+
+\item{creds}{list. Basically, it is \code{get_github_creds()}}
 }
 \value{
 data.table with releases table

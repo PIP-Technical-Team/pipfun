@@ -6,6 +6,7 @@
 #' Get file from Github
 #'
 #' @inheritParams get_file_info_from_gh
+#' @inheritParams download_and_read_file
 #' @return a file in a data.table class
 #' @export
 #'
@@ -17,7 +18,8 @@
 get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
                              repo,
                              branch = "main",
-                             file_path) {
+                             file_path,
+                             creds = NULL) {
 
 
   # Fetch the content metadata using gh, with authentication
@@ -62,7 +64,7 @@ get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
           rawToChar() |>
           fread()
       },
-      download_and_read_file(metadata$download_url)
+      download_and_read_file(metadata$download_url, creds = creds)
 
     ) |>
     setDT()
@@ -77,14 +79,17 @@ get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
 #'
 #' @param url character: url of file. usually it comes
 #'   `get_file_info_from_gh()$download_url`
+#' @param creds  list. Basically, it is `get_github_creds()`
 #'
 #' @return data in data.table format
 #' @keywords internal
-download_and_read_file <- function(url) {
+download_and_read_file <- function(url, creds = NULL) {
   type      <- fs::path_ext(url)
   temp_file <- tempfile(fileext = paste0(".", type))
   on.exit(unlink(temp_file))
-  temp_file <- download_from_gh(url, temp_file)
+  temp_file <- download_from_gh(url = url,
+                                temp_file = temp_file,
+                                creds = creds)
 
   load_from_disk(temp_file) |>
     setDT()
@@ -92,14 +97,18 @@ download_and_read_file <- function(url) {
 
 #' Download file from Github
 #'
-#' @param url character: URL of file
+#' @inheritParams download_and_read_file
 #' @param temp_file [tempfile()] where new file will be saved
 #'
 #' @return file of extension in [path]
 #' @keywords internal
-download_from_gh <- function(url, temp_file) {
+download_from_gh <- function(url,
+                             temp_file,
+                             creds = NULL) {
 
-  creds = get_github_creds()
+  if (is.null(creds)) {
+    creds = get_github_creds()
+  }
 
   # load temporal file from disk
   tryCatch(
