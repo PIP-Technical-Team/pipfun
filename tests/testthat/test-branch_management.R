@@ -91,8 +91,7 @@ test_that("get repo branches works as expected", {
   create_new_branch(owner = owner,
                     repo  = repo,
                     new_branch = new_branch,
-                    ref_branch = "main"
-  )
+                    ref_branch = "main")
 
   get_repo_branches(owner = owner,
                     repo = repo)$has_release_branch |>

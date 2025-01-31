@@ -42,7 +42,10 @@ create_new_branch <- function(measure     = NULL,
                              verbose     = getOption("pipfun.verbose")) {
 
   identity <- match.arg(identity)
-  new_branch <- paste0(release, "_", identity)
+
+  if (is.null(new_branch)) {
+    new_branch <- paste0(release, "_", identity)
+  }
 
   # defenses ----------
   stopifnot(exprs = {
