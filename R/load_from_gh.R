@@ -156,9 +156,25 @@ get_github_creds <- function() {
 
   creds <- tryCatch(
     invisible(gitcreds::gitcreds_get()),
-    gitcreds_nogit_error = function(e) cli::cli_abort("{gitcreds_msg(\"no_git\")}"),
-    gitcreds_no_credentials = function(e) cli::cli_abort("{gitcreds_msg(\"no_creds\")}")
-  )
+    gitcreds_nogit_error = \(e) {
+      cli::cli_abort("{gitcreds_msg(\"no_git\")}")
+      },
+    gitcreds_no_credentials = \(e) {
+      cli::cli_abort("{gitcreds_msg(\"no_creds\")}")
+    },
+    error = function(e) {
+      NULL  # Return NULL on error
+    })
+
+  # Ensure credentials are valid
+  if (is.null(creds) || is.na(creds$username) || is.na(creds$password)) {
+    message("Git credentials are missing or invalid in non-interactive mode.")
+    creds <- list(protocol = "https",
+                  host = "github.com",
+                  username = "PersonalAccessToken",
+                  password = Sys.getenv("GH_PASS", unset = NA_character_))
+  }
+
   invisible(creds)
 
   # if (Sys.getenv("GITHUB_PAT") == "")

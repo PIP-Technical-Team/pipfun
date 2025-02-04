@@ -10,7 +10,7 @@ get_pip_releases(
   file_path = "releases.csv",
   branch = "releases",
   verbose = getOption("pipfun.verbose"),
-  force = FALSE
+  creds = NULL
 )
 }
 \arguments{
@@ -24,14 +24,16 @@ get_pip_releases(
 
 \item{verbose}{logical: whether to display additional information}
 
-\item{force}{logical: whether to load releases from Github even if they
-already available in env .pipenv}
+\item{creds}{list. Basically, it is \code{get_github_creds()}}
 }
 \value{
 data.table with releases table
 }
 \description{
-All the releases available in PIP in any of the servers.
+All the releases available in PIP in any of the servers. These are the
+releases available in the \code{releases} branch of the \code{pip_info} repo. If you
+need to load the \code{releases} available in the \code{.pipenv} environment, you may
+use \code{get_from_pipenv("releases")}
 }
 \examples{
 get_pip_releases()

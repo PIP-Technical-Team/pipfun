@@ -6,7 +6,7 @@
 \usage{
 setup_working_release(
   release = NULL,
-  identity = c("PROD", "INT", "TEST"),
+  identity = getOption("pipfun.identities"),
   force = FALSE,
   owner = getOption("pipfun.ghowner"),
   repo = "pip_info",
@@ -14,6 +14,7 @@ setup_working_release(
   branch = "releases",
   verbose = getOption("pipfun.verbose"),
   ppp = getOption("pipfun.ppps"),
+  creds = NULL,
   ...
 )
 }
@@ -21,9 +22,6 @@ setup_working_release(
 \item{release}{character: date in the form "\%Y\%m\%d"}
 
 \item{identity}{character: one of "PROD", "INT", or "TEST"}
-
-\item{force}{logical: whether to load releases from Github even if they
-already available in env .pipenv}
 
 \item{owner}{character: owner of repo}
 
@@ -34,6 +32,10 @@ already available in env .pipenv}
 \item{branch}{character: branch where the file is}
 
 \item{verbose}{logical: whether to display additional information}
+
+\item{ppp}{numeric: PPP year to use.}
+
+\item{creds}{list. Basically, it is \code{get_github_creds()}}
 
 \item{...}{
   Arguments passed on to \code{\link[=pip_create_globals]{pip_create_globals}}
@@ -59,9 +61,11 @@ This functions sets all the necessary information into the \code{.pipenv}
 environment to be used by other PIP packages. It does not create releases.
 }
 \examples{
+\dontrun{
 # latest PROD release
 setup_working_release()
 
 # error if set up again
 try(setup_working_release())
+}
 }

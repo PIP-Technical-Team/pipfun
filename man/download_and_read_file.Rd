@@ -4,13 +4,13 @@
 \alias{download_and_read_file}
 \title{Download and read file}
 \usage{
-download_and_read_file(path)
+download_and_read_file(url, creds = NULL)
 }
 \arguments{
 \item{url}{character: url of file. usually it comes
-\link{get_file_info_from_gh()$download_url}}
+\code{get_file_info_from_gh()$download_url}}
 
-\item{type}{character: file format}
+\item{creds}{list. Basically, it is \code{get_github_creds()}}
 }
 \value{
 data in data.table format

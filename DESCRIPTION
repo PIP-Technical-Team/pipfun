@@ -1,6 +1,6 @@
 Package: pipfun
 Title: What the Package Does (One Line, Title Case)
-Version: 0.1.0.9008
+Version: 0.2.1.9000
 Authors@R: person("R.Andres", 
                   "Castaneda",
                   email = "acastanedaa@worldbank.org",
@@ -29,15 +29,16 @@ Imports:
     remotes,
     yaml,
     base64enc,
-    collapse,
-    rlang
+    rlang,
+    jsonlite
 Suggests: 
     covr,
     knitr,
     rmarkdown,
     janitor,
     testthat (>= 3.0.0),
-    writexl
+    writexl,
+    collapse
 Config/testthat/edition: 3
 URL: https://pip-technical-team.github.io/pipfun
 VignetteBuilder: knitr

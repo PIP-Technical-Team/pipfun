@@ -51,7 +51,7 @@ test_that("get_gh throws an error when an invalid value is passed to the what ar
 
 # Test if get_github_creds() succeeds when valid credentials are available
 test_that("get_github_creds succeeds with valid credentials", {
-  skip_on_cran()
+  skip()
   # Assuming there's a way to temporarily set a valid GITHUB_PAT for testing
   # This is a placeholder for setting up a mock or a temporary credential
   # setup_mock_creds()

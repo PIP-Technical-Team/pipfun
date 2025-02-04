@@ -7,7 +7,7 @@
 \usage{
 new_pip_release(
   release = format(Sys.Date(), "\%Y\%m\%d"),
-  identity = c("PROD", "INT", "TEST"),
+  identity = getOption("pipfun.identities"),
   verbose = getOption("pipfun.verbose"),
   root_dir = Sys.getenv("PIP_ROOT_DIR"),
   working_dir = fs::path(root_dir, getOption("pipfun.working_dir")),
@@ -17,7 +17,7 @@ new_pip_release(
 
 remove_pip_release(
   release,
-  identity = c("PROD", "INT", "TEST"),
+  identity = getOption("pipfun.identities"),
   verbose = getOption("pipfun.verbose"),
   working_dir = NULL,
   ppps = getOption("pipfun.ppps"),
@@ -41,16 +41,17 @@ about the process. The default is \code{TRUE}}
 \item{...}{
   Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
   \describe{
-    \item{\code{force}}{logical: whether to load releases from Github even if they
-already available in env .pipenv}
     \item{\code{owner}}{character: owner of repo}
     \item{\code{repo}}{character: repository name}
     \item{\code{file_path}}{character: file path}
     \item{\code{branch}}{character: branch where the file is}
+    \item{\code{creds}}{list. Basically, it is \code{get_github_creds()}}
   }}
 }
 \value{
 invisible TRUE if everything went fine
+
+invisible
 }
 \description{
 CAUTION: Use this functions with care.

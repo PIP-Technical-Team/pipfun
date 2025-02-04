@@ -347,7 +347,7 @@ pip_create_vintage <- function(vintage = list(),
       vintage$identity <- toupper(vintage$identity)
 
       # correct identity
-      ident_opt <- c("PROD", "INT", "TEST")
+      ident_opt <- getOption("pipfun.identities")
 
       if (!(vintage$identity %in% ident_opt)) {
         msg     <- c(
