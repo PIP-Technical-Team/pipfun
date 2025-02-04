@@ -383,8 +383,7 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
   branch_names <- sapply(branches_info,
                          function(branch) branch$name)
   # Check if any branch matches the release pattern (8 digits)
-  #release_pattern <- "^\\d{8}$"
-  release_pattern <- "^\\d{8}_.+"
+  release_pattern <- "^\\d{8}"
   release_branches <- grep(release_pattern,
                            branch_names,
                            value = TRUE)
