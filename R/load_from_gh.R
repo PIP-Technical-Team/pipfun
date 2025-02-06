@@ -90,15 +90,25 @@ load_from_gh <- function(measure,
       file_path = filename
     )$sha
 
-    # Assign list of attrbutes
-    attr(df, "gh") <- list(
+    # # Assign list of attrbutes
+    # attr(df, "gh") <- list(
+    #   file_path = filename,
+    #   ext = ext,
+    #   owner = owner,
+    #   repo = repo,
+    #   branch = branch,
+    #   gh_raw_sha = gh_raw_sha
+    # )
+
+    data.table::setattr(df, "gh", list(
       file_path = filename,
-      ext = ext,
-      owner = owner,
-      repo = repo,
-      branch = branch,
-      gh_raw_sha = gh_raw_sha
-    )
+        ext = ext,
+        owner = owner,
+        repo = repo,
+        branch = branch,
+        gh_raw_sha = gh_raw_sha
+
+    ))
   }
 
   #   __________________________________________________
