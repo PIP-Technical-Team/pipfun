@@ -574,6 +574,7 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 #' @param owner Character. The GitHub owner or organization name. Defaults to `getOption("pipfun.ghowner")`
 #' @param repo Character. The name of the repository.
 #' @param ref_branch Character. The branch from which the release branch should be created or updated. Defaults to `"DEV"`
+#' @param release TBC
 #' @param identity Character. The identity used for naming the new branch if created. One of `getOption("pipfun.identities")`
 #'
 #' @return Invisible `TRUE` if the process succeeds, otherwise an error message is displayed
@@ -586,6 +587,7 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 sync_release_branch <- function(owner      = getOption("pipfun.ghowner"),
                                 repo,
                                 ref_branch = "DEV",
+                                release     = NULL,
                                 identity   = getOption("pipfun.identities")) {
 
   identity <- match.arg(identity)
@@ -609,7 +611,11 @@ sync_release_branch <- function(owner      = getOption("pipfun.ghowner"),
 
     # If no release branch exists, create one
     cli::cli_alert_info("No release branch found. Creating a new one.")
-    create_new_branch(owner = owner, repo = repo, ref_branch = ref_branch, identity = identity)
+    create_new_branch(owner      = owner,
+                      repo       = repo,
+                      ref_branch = ref_branch,
+                      release    = release,
+                      identity   = identity)
   }
 }
 
