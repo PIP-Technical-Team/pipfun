@@ -32,14 +32,14 @@
 #'   try()
 #' }
 create_new_branch <- function(measure     = NULL,
-                             owner       = getOption("pipfun.ghowner"),
-                             repo        = ifelse(is.null(measure), NA,
-                                                  paste0("aux_", measure)) ,
-                             release     = format(Sys.Date(), "%Y%m%d"),
-                             identity    = getOption("pipfun.identities"),
-                             ref_branch  = "DEV",
-                             new_branch  = NULL,
-                             verbose     = getOption("pipfun.verbose")) {
+                              owner       = getOption("pipfun.ghowner"),
+                              repo        = ifelse(is.null(measure), NA,
+                                                    paste0("aux_", measure)) ,
+                              release     = format(Sys.Date(), "%Y%m%d"),
+                              identity    = getOption("pipfun.identities"),
+                              ref_branch  = "DEV",
+                              new_branch  = NULL,
+                              verbose     = getOption("pipfun.verbose")) {
 
   identity <- match.arg(identity)
 
@@ -565,3 +565,51 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 
   return(result)
 }
+
+#' Create or Update release branch of a GH repo
+#'
+#' This function checks if a GitHub repository has a release branch. If a release branch exists, it updates it with the latest `DEV` branch.
+#' If no release branch exists, it creates a new one from `DEV`
+#'
+#' @param owner Character. The GitHub owner or organization name. Defaults to `getOption("pipfun.ghowner")`
+#' @param repo Character. The name of the repository.
+#' @param ref_branch Character. The branch from which the release branch should be created or updated. Defaults to `"DEV"`
+#' @param identity Character. The identity used for naming the new branch if created. One of `getOption("pipfun.identities")`
+#'
+#' @return Invisible `TRUE` if the process succeeds, otherwise an error message is displayed
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")
+#' }
+sync_release_branch <- function(owner      = getOption("pipfun.ghowner"),
+                                repo,
+                                ref_branch = "DEV",
+                                identity   = getOption("pipfun.identities")) {
+
+  identity <- match.arg(identity)
+
+  # Get repository branches
+  branches_info <- get_repo_branches(owner = owner,
+                                     repo  = repo)
+
+  if (branches_info$has_release_branch) {
+
+    # If a release branch exists, update it with DEV
+    release_branch <- branches_info$release_branches[1]  # Assuming the first one is the latest
+
+    cli::cli_alert_info("Updating existing release branch: {.field {release_branch}}")
+
+    update_branches(owner   = owner,
+                    repo    = repo,
+                    branch1 = ref_branch,
+                    branch2 = release_branch)
+  } else {
+
+    # If no release branch exists, create one
+    cli::cli_alert_info("No release branch found. Creating a new one.")
+    create_new_branch(owner = owner, repo = repo, ref_branch = ref_branch, identity = identity)
+  }
+}
+
