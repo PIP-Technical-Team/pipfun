@@ -584,23 +584,22 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 #' \dontrun{
 #' sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")
 #' }
-sync_release_branch <- function(owner      = getOption("pipfun.ghowner"),
+sync_release_branch <- function(owner       = getOption("pipfun.ghowner"),
                                 repo,
-                                ref_branch = "DEV",
+                                ref_branch  = "DEV",
                                 release     = NULL,
-                                identity   = getOption("pipfun.identities")) {
+                                identity    = getOption("pipfun.identities")) {
 
-  identity <- match.arg(identity)
+  identity       <- match.arg(identity)
+  release_branch <- paste0(release, "_", identity)
 
   # Get repository branches
   branches_info <- get_repo_branches(owner = owner,
                                      repo  = repo)
 
-  if (branches_info$has_release_branch) {
+  if (release_branch %in% branches_info$release_branches) {
 
-    # If a release branch exists, update it with DEV
-    release_branch <- branches_info$release_branches[1]  # Assuming the first one is the latest
-
+    # If a release branch exists, update it with most recent version of DEV
     cli::cli_alert_info("Updating existing release branch: {.field {release_branch}}")
 
     update_branches(owner   = owner,
@@ -609,7 +608,7 @@ sync_release_branch <- function(owner      = getOption("pipfun.ghowner"),
                     branch2 = release_branch)
   } else {
 
-    # If no release branch exists, create one
+    # If release branch does not exist, create it
     cli::cli_alert_info("No release branch found. Creating a new one.")
     create_new_branch(owner      = owner,
                       repo       = repo,
