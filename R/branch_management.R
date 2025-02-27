@@ -587,11 +587,12 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 sync_release_branch <- function(owner       = getOption("pipfun.ghowner"),
                                 repo,
                                 ref_branch  = "DEV",
-                                release     = NULL,
-                                identity    = getOption("pipfun.identities")) {
+                                #release     = NULL,
+                                #identity    = c("TEST", "PROD", "INT"),
+                                target_branch) {
 
-  identity       <- match.arg(identity)
-  release_branch <- paste0(release, "_", identity)
+  #identity       <- match.arg(identity)
+  #release_branch <- paste0(release, "_", identity)
 
   # Get repository branches
   branches_info <- get_repo_branches(owner = owner,
@@ -600,16 +601,16 @@ sync_release_branch <- function(owner       = getOption("pipfun.ghowner"),
   if (release_branch %in% branches_info$release_branches) {
 
     # If a release branch exists, update it with most recent version of DEV
-    cli::cli_alert_info("Updating existing release branch: {.field {release_branch}}")
+    cli::cli_alert_info("Updating existing target branch: {.field {target_branch}}")
 
     update_branches(owner   = owner,
                     repo    = repo,
                     branch1 = ref_branch,
-                    branch2 = release_branch)
+                    branch2 = target_branch)
   } else {
 
     # If release branch does not exist, create it
-    cli::cli_alert_info("No release branch found. Creating a new one.")
+    cli::cli_alert_info("Target branch not found. Creating a new one.")
     create_new_branch(owner      = owner,
                       repo       = repo,
                       ref_branch = ref_branch,
