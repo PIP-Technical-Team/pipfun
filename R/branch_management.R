@@ -4,9 +4,6 @@
 #' new branch in repo
 #'
 #' @inheritParams load_from_gh
-#' @param release character: date in the form "%Y%m%d"
-#' @param identity character: for PIP repos it must be one of `c("PROD", "INT",
-#'   "TEST")`. For other repos, just leave de default, which is 'PROD'.
 #' @param ref_branch Character: reference branch from which the new branch will be
 #'   created.
 #' @param new_branch character: name of new branch. Default is
@@ -340,7 +337,8 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
 compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
                                    repo,
                                    branch1 = "main",
-                                   branch2 = "dev") {
+                                   branch2 = "dev",
+                                   verbose = TRUE) {
   same_content <- FALSE
 
   # Get commit info for both branches
@@ -359,9 +357,9 @@ compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
   # Compare the tree SHAs
   if (tree_sha1 == tree_sha2) {
     same_content <- TRUE
-    cli::cli_alert_success("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have the same content at their latest commits.")
+    if (verbose) cli::cli_alert_success("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have the same content at their latest commits.")
   } else {
-    cli::cli_alert_warning("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have different content at their latest commits.")
+    if (verbose) cli::cli_alert_warning("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have different content at their latest commits.")
   }
 
   return(list(
