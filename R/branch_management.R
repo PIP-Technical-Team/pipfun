@@ -621,9 +621,7 @@ sync_release_branch <- function(owner       = getOption("pipfun.ghowner"),
     cli::cli_alert_info("Target branch not found. Creating a new one.")
     create_new_branch(owner      = owner,
                       repo       = repo,
-                      ref_branch = ref_branch,
-                      release    = release,
-                      identity   = identity)
+                      ref_branch = ref_branch)
   }
 }
 
