@@ -591,12 +591,16 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 sync_release_branch <- function(owner       = getOption("pipfun.ghowner"),
                                 repo,
                                 ref_branch  = "DEV",
-                                #release     = NULL,
-                                #identity    = c("TEST", "PROD", "INT"),
-                                target_branch) {
+                                target_branch = paste0(wrk_release$release,
+                                                       "_",
+                                                       wrk_release$identity)) {
 
   #identity       <- match.arg(identity)
   #release_branch <- paste0(release, "_", identity)
+
+  release        <- wrk_release$release
+  identity       <- wrk_release$identity
+  release_branch <- paste0(release, "_", identity)
 
   # Get repository branches
   branches_info <- get_repo_branches(owner = owner,
