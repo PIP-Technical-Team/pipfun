@@ -7,12 +7,20 @@
 #' @param overwrite Whether to overwrite an existing log with the same name.
 #'
 #' @return Invisibly returns the initialized log name.
+#' \dontrun{
+#' log_init("testlog")
+#' # This basically checks whther it already exists
+#' log_init("testlog", overwrite = FALSE)
+#' }
 #' @export
-log_init <- function(name = "default", overwrite = TRUE) {
+log_init <- function(name = getOption("pipfun.log.default"),
+                     overwrite = getOption("pipfun.log_init.ow")) {
 
-  if (exists(name, envir = .piplogenv) && !overwrite) {
-    cli::cli_alert_warning("Log {.field {name}} already exists. Use `overwrite = TRUE` to reset.")
-    return(invisible(NULL))
+  if (exists(name, envir = .piplogenv)) {
+    if (!overwrite) {
+      cli::cli_abort("Log {.field {name}} already exists.
+                     Use {.code overwrite = TRUE} to replace it.")
+    }
   }
 
   log <- data.table::data.table(

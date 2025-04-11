@@ -1,4 +1,6 @@
 
+withr::local_options(list(pipfun.log_ini.ow = TRUE))
+
 # log_init ------------
 test_that("log_init creates an empty log", {
   log_init("testlog", overwrite = TRUE)
@@ -6,6 +8,13 @@ test_that("log_init creates an empty log", {
   expect_s3_class(log, "piplog")
   expect_equal(nrow(log), 0)
 })
+
+test_that("log_init fails if log already exists", {
+  log_init("testlog", overwrite = TRUE)
+  log_init("testlog") |>
+    expect_error()
+})
+
 
 # log_add ------------
 test_that("log_add appends a new entry", {

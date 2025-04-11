@@ -1,13 +1,14 @@
 
 
 pipfun_default_options <- list(
-  pipfun.verbose     = TRUE,
-  pipfun.ghowner     = "PIP-Technical-Team",
-  pipfun.ppps        = c(2017, 2011), # must be descending order
-  pipfun.working_dir = "PIP_ingestion_pipeline_v2",
-  pipfun.identities  = c("TEST", "PROD", "INT"),
-  pipfun.log.auto    = TRUE,
-  pipfun.log.default = "default"
+  pipfun.verbose        = TRUE,
+  pipfun.ghowner        = "PIP-Technical-Team",
+  pipfun.ppps           = c(2017, 2011), # must be descending order
+  pipfun.working_dir    = "PIP_ingestion_pipeline_v2",
+  pipfun.identities     = c("TEST", "PROD", "INT"),
+  pipfun.log.auto       = TRUE,
+  pipfun.log.default    = "default",
+  pipfun.log_init.ow    = FALSE
 )
 
 .onLoad <- function(libname, pkgname) {
