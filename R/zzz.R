@@ -24,7 +24,7 @@ pipfun_default_options <- list(
   # Initialize default log silently
   if (isTRUE(getOption("pipfun.log.auto", default = FALSE))) {
     if (!exists("default", envir = .piplogenv)) {
-      pipfun::log_init(name = getOption("pipfun.log.default"))
+      log_init(name = getOption("pipfun.log.default"))
     }
   }
 
