@@ -96,3 +96,47 @@ print.piplog <- function(x, ...) {
 log_names <- function() {
   rlang::env_names(.piplogenv)
 }
+
+
+#' Check whether a log contains any errors
+#'
+#' @param name Name of the log (default: `pipfun.log.default`)
+#' @param show Logical: whether to return the filtered error log (default: FALSE).
+#'
+#' @return Logical if `show = FALSE`; a filtered `piplog` object if `show = TRUE`.
+#' @export
+log_has_errors <- function(name = getOption("pipfun.log.default"),
+                           show = FALSE) {
+  log <- log_filter(name = name, event = "error")
+  if (!isTRUE(show)) {
+    return(nrow(log) > 0)
+  } else {
+    return(log)
+  }
+}
+
+
+
+
+
+#' Summarize a log by event type
+#'
+#' @param name Name of the log (default: `pipfun.log.default`)
+#'
+#' @return A data.table with counts per event.
+#' @export
+log_summary <- function(name = getOption("pipfun.log.default")) {
+  if (!rlang::env_has(.piplogenv, name)) {
+    cli::cli_abort("Log {.field {name}} does not exist.")
+  }
+
+  log <- rlang::env_get(.piplogenv, name)
+
+  if (!inherits(log, "piplog")) {
+    cli::cli_abort("Object {.field {name}} is not a valid piplog.")
+  }
+
+  summary <- log[, .N, by = .(event)]
+  setnames(summary, "N", "count")
+  summary[]
+}
