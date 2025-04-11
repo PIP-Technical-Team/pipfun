@@ -190,3 +190,23 @@ log_load <- function(path,
   invisible(name)
 }
 
+#' Reset or delete a log from memory
+#'
+#' Clears a log from the internal environment. Use this to start over or free
+#' memory.
+#'
+#' @param name Name of the log to remove (default:
+#'   `getOption("pipfun.log.default")`).
+#'
+#' @return Invisibly returns TRUE if the log was removed.
+#' @export
+log_reset <- function(name = getOption("pipfun.log.default", "default")) {
+  if (!rlang::env_has(.piplogenv, name)) {
+    cli::cli_alert_info("Log {.field {name}} is not present.")
+    return(invisible(FALSE))
+  }
+
+  rlang::env_unbind(.piplogenv, name)
+  cli::cli_alert_success("Log {.field {name}} has been reset.")
+  invisible(TRUE)
+}
