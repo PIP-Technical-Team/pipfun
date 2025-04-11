@@ -8,6 +8,7 @@ log_add(
   event,
   message,
   name = getOption("pipfun.log.default"),
+  args = NULL,
   output = NULL,
   .trace = NULL,
   .env = parent.frame()
@@ -24,7 +25,8 @@ log_add(
 
 \item{.trace}{Optional trace object or call stack.}
 
-\item{.env}{Environment from which to capture arguments (default: parent.frame()).}
+\item{.env}{Environment from which to capture arguments (default:
+parent.frame()).}
 }
 \value{
 Invisibly returns the updated log.

@@ -4,7 +4,10 @@
 \alias{log_init}
 \title{Initialize a new log}
 \usage{
-log_init(name = getOption("pipfun.log.default"), overwrite = TRUE)
+log_init(
+  name = getOption("pipfun.log.default"),
+  overwrite = getOption("pipfun.log_init.ow")
+)
 }
 \arguments{
 \item{name}{Name of the log to create (default: "default").}
@@ -20,6 +23,6 @@ log_init("testlog", overwrite = FALSE)
 }
 }
 \description{
-Creates a new named log as a list to store log entries. If the log already exists,
-it will be reset (unless \code{overwrite = FALSE}).
+Creates a new named log as a list to store log entries. If the log already
+exists, it will be reset (unless \code{overwrite = FALSE}).
 }

@@ -60,7 +60,9 @@ log_add <- function(event,
                     message,
                     name   = getOption("pipfun.log.default"),
                     args   = NULL,
-                    output = NULL) {
+                    output = NULL,
+                    .trace = NULL,
+                    .env   = parent.frame()) {
 
   if (!rlang::env_has(.piplogenv, name)) {
     log_init(name)
@@ -71,12 +73,11 @@ log_add <- function(event,
   call_stack <- sys.calls()
   calling_fn <- if (length(call_stack) > 1) {
     deparse(call_stack[[length(call_stack) - 1]])
-    } else {
-      "unknown"
-    }
+  } else {
+    "unknown"
+  }
 
-  calling_pkg <- parent.frame() |>
-    environmentName()
+  calling_pkg <- rlang::env_name(.env)
 
   new_row <- data.table(
     time     = Sys.time(),
@@ -86,18 +87,18 @@ log_add <- function(event,
     message  = as.character(message),
     args     = list(args),
     output   = list(output),
-    trace    = list(sys.call(-1))
+    trace    = list(if (!is.null(.trace)) .trace else sys.call(-1))
   )
 
   log <- rbindlist(list(log, new_row),
                    use.names = TRUE,
                    fill = TRUE)
-
   class(log) <- c("piplog", class(log))
   rlang::env_poke(.piplogenv, name, log)
 
   invisible(TRUE)
 }
+
 
 
 #' Save a log to disk
