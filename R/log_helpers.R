@@ -85,3 +85,14 @@ print.piplog <- function(x, ...) {
 
   invisible(x)
 }
+
+
+#' List all active logs
+#'
+#' Returns the names of all logs currently stored in `.piplogenv`.
+#'
+#' @return Character vector of log names.
+#' @export
+log_names <- function() {
+  rlang::env_names(.piplogenv)
+}

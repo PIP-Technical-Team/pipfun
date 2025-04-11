@@ -50,3 +50,41 @@ test_that("print.piplog produces output without error", {
   log <- get("testlog", envir = .piplogenv)
   expect_output(print(log), msg, fixed = FALSE)
 })
+
+
+# Save and load --------
+
+test_that("log_save() and log_load() work as expected", {
+  skip_on_ci()  # Skip on GitHub Actions or CI environments
+  skip_if_not_installed("qs")
+  skip_if_not_installed("fs")
+
+  name <- "persist_test"
+  path <- fs::file_temp(ext = "qs")
+
+  # Create and populate log
+  log_init(name, overwrite = TRUE)
+  log_info("Saving this log", name = name)
+
+  # Save to file
+  expect_true(log_save(name = name, path = path))
+  expect_true(fs::file_exists(path))
+
+  # Clear from memory
+  log_reset(name)
+  expect_false(name %in% log_names())
+
+  # Load back
+  log_load(path = path, name = name)
+  expect_true(name %in% log_names())
+
+  # Check contents
+  log <- rlang::env_get(.piplogenv, name)
+  expect_s3_class(log, "piplog")
+  expect_equal(nrow(log), 1)
+  expect_match(log$message[1], "Saving this log")
+
+  # Clean up
+  fs::file_delete(path)
+  log_reset(name)
+})
