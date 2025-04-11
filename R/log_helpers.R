@@ -10,19 +10,28 @@
 #'
 #' @return Invisibly returns the updated log.
 #' @export
-log_error <- function(message, ..., name = "default", output = NULL, .trace = NULL) {
+log_error <- function(message, ...,
+                      name = getOption("pipfun.log.default"),
+                      output = NULL,
+                      .trace = NULL) {
   log_add("error", message, name = name, output = output, .trace = .trace, .env = parent.frame())
 }
 
 #' @rdname log_error
 #' @export
-log_info <- function(message, ..., name = "default", output = NULL, .trace = NULL) {
+log_info <- function(message, ...,
+                     name = getOption("pipfun.log.default"),
+                     output = NULL,
+                     .trace = NULL) {
   log_add("info", message, name = name, output = output, .trace = .trace, .env = parent.frame())
 }
 
 #' @rdname log_error
 #' @export
-log_warn <- function(message, ..., name = "default", output = NULL, .trace = NULL) {
+log_warn <- function(message, ...,
+                     name = getOption("pipfun.log.default"),
+                     output = NULL,
+                     .trace = NULL) {
   log_add("warning", message, name = name, output = output, .trace = .trace, .env = parent.frame())
 }
 

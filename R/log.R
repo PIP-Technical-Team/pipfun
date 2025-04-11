@@ -48,7 +48,7 @@ log_init <- function(name = "default", overwrite = TRUE) {
 #' @export
 log_add <- function(event,
                     message,
-                    name   = "default",
+                    name   = getOption("pipfun.log.default"),
                     output = NULL,
                     .trace = NULL,
                     .env   = parent.frame()) {
