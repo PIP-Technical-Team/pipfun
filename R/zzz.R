@@ -6,7 +6,8 @@ pipfun_default_options <- list(
   pipfun.ppps        = c(2017, 2011), # must be descending order
   pipfun.working_dir = "PIP_ingestion_pipeline_v2",
   pipfun.identities  = c("TEST", "PROD", "INT"),
-  pipfun.log.auto    = TRUE
+  pipfun.log.auto    = TRUE,
+  pipfun.log.default = "default"
 )
 
 .onLoad <- function(libname, pkgname) {
@@ -23,7 +24,7 @@ pipfun_default_options <- list(
   # Initialize default log silently
   if (isTRUE(getOption("pipfun.log.auto", default = FALSE))) {
     if (!exists("default", envir = .piplogenv)) {
-      pipfun::log_init(name = "default")
+      pipfun::log_init(name = getOption("pipfun.log.auto"))
     }
   }
 
