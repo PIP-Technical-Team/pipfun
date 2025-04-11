@@ -210,3 +210,39 @@ log_reset <- function(name = getOption("pipfun.log.default", "default")) {
   cli::cli_alert_success("Log {.field {name}} has been reset.")
   invisible(TRUE)
 }
+
+
+#' Filter log entries
+#'
+#' @param name Name of the log (default: `pipfun.log.default`)
+#' @param event Type of event to filter ("info", "warning", "error", etc.)
+#' @param fun Optional: function name(s) to filter
+#' @param after Optional: filter entries after this datetime
+#' @param before Optional: filter entries before this datetime
+#'
+#' @return A filtered `piplog` object.
+#' @export
+log_filter <- function(name    = getOption("pipfun.log.default"),
+                       event   = NULL,
+                       fun     = NULL,
+                       after   = NULL,
+                       before  = NULL) {
+
+  if (!rlang::env_has(.piplogenv, name)) {
+    cli::cli_abort("Log {.field {name}} does not exist.")
+  }
+
+  log <- rlang::env_get(.piplogenv, name)
+
+  if (!inherits(log, "piplog")) {
+    cli::cli_abort("Object {.field {name}} is not a valid piplog.")
+  }
+
+  if (!is.null(event))  log <- log[event %in% event]
+  if (!is.null(fun))    log <- log[fun %in% fun]
+  if (!is.null(after))  log <- log[time >= as.POSIXct(after)]
+  if (!is.null(before)) log <- log[time <= as.POSIXct(before)]
+
+  class(log) <- c("piplog", class(log))
+  return(log)
+}
