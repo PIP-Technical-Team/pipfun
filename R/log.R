@@ -9,6 +9,7 @@
 #' @return Invisibly returns the initialized log name.
 #' @export
 log_init <- function(name = "default", overwrite = TRUE) {
+
   if (exists(name, envir = .piplogenv) && !overwrite) {
     cli::cli_alert_warning("Log {.field {name}} already exists. Use `overwrite = TRUE` to reset.")
     return(invisible(NULL))
@@ -17,7 +18,7 @@ log_init <- function(name = "default", overwrite = TRUE) {
   log <- data.table::data.table(
     time     = as.POSIXct(character()),
     package  = character(),
-    function = character(),
+    fun      = character(),
     event    = character(),
     message  = character(),
     args     = list(),
@@ -68,7 +69,7 @@ log_add <- function(event,
   new_row <- data.table(
     time     = Sys.time(),
     package  = pkg,
-    function = fun,
+    fun      = fun,
     event    = event,
     message  = message,
     args     = list(args),

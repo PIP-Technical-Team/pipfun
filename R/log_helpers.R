@@ -25,3 +25,5 @@ log_info <- function(message, ..., name = "default", output = NULL, .trace = NUL
 log_warn <- function(message, ..., name = "default", output = NULL, .trace = NULL) {
   log_add("warning", message, name = name, output = output, .trace = .trace, .env = parent.frame())
 }
+
+
