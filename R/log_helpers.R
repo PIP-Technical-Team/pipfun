@@ -36,3 +36,18 @@ log_warn <- function(message, ...,
 }
 
 
+#' @export
+print.piplog <- function(x, ...) {
+  cli::cli_h2("Log entries:")
+  if (nrow(x) == 0) {
+    cli::cli_alert_info("The log is empty.")
+    return(invisible(x))
+  }
+  for (i in seq_len(nrow(x))) {
+    cli::cli_alert("{.strong [{x$time[i]}]} {.emph {toupper(x$event[i])}} — {.code {x$message[i]}}")
+    cli::cli_text("Function: {.code {x$fun[i]}} (from {x$package[i]})")
+    if (!is.null(x$trace[[i]])) cli::cli_text("• Trace: {deparse(x$trace[[i]])}")
+    cli::cli_text("")
+  }
+  invisible(x)
+}
