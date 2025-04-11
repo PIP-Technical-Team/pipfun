@@ -34,8 +34,9 @@ test_that("log_warn and log_info behave correctly", {
 })
 
 test_that("print.piplog produces output without error", {
+  msg <- "Printing test"
   log_init("testlog", overwrite = TRUE)
-  log_info("Printing test", name = "testlog")
+  log_info(msg, name = "testlog")
   log <- get("testlog", envir = .piplogenv)
-  expect_output(print(log), "LOG", fixed = FALSE)
+  expect_output(print(log), msg, fixed = FALSE)
 })

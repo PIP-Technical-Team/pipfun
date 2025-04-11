@@ -7,7 +7,7 @@
 log_add(
   event,
   message,
-  name = "default",
+  name = getOption("pipfun.log.default"),
   output = NULL,
   .trace = NULL,
   .env = parent.frame()

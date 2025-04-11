@@ -5,7 +5,7 @@
 \alias{.piplogenv}
 \title{Logging environment}
 \format{
-An object of class \code{environment} of length 0.
+An object of class \code{environment} of length 1.
 }
 \usage{
 .piplogenv

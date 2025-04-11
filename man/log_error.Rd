@@ -6,11 +6,29 @@
 \alias{log_warn}
 \title{Log an error/info/warning}
 \usage{
-log_error(message, ..., name = "default", output = NULL, .trace = NULL)
+log_error(
+  message,
+  ...,
+  name = getOption("pipfun.log.default"),
+  output = NULL,
+  .trace = NULL
+)
 
-log_info(message, ..., name = "default", output = NULL, .trace = NULL)
+log_info(
+  message,
+  ...,
+  name = getOption("pipfun.log.default"),
+  output = NULL,
+  .trace = NULL
+)
 
-log_warn(message, ..., name = "default", output = NULL, .trace = NULL)
+log_warn(
+  message,
+  ...,
+  name = getOption("pipfun.log.default"),
+  output = NULL,
+  .trace = NULL
+)
 }
 \arguments{
 \item{message}{The log message.}
