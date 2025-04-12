@@ -45,15 +45,23 @@ log_add <- function(event,
                     .trace  = NULL,
                     .env    = parent.frame()) {
 
-  # Auto-capture args from caller if not supplied
-  if (is.null(args)) {
-    args <- as.list(.env)
-    args$name <- NULL
+  # if (is.null(args)) {
+  #   args <- as.list(.env)
+  #   args$name <- NULL
+  #
+  #   # Attempt to capture `...` from caller environment
+  #   dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+  #   args <- c(args, dots)
+  # }
 
-    # Attempt to capture `...` from caller environment
-    dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
-    args <- c(args, dots)
+  # # Auto-capture args from caller if not supplied
+  if (is.null(args)) {
+    args <- tryCatch({
+      out <- inspect_args(.env)
+      lapply(out, `[[`, "value")  # Extract values only, drop source info
+    }, error = function(e) list())  # fallback to empty list
   }
+
 
   # Merge additional metadata if provided
   if (!is.null(logmeta)) {
