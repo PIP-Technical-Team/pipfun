@@ -1,0 +1,332 @@
+#' Add a log entry
+#'
+#' Adds a structured entry to a named log, capturing metadata such as timestamp,
+#' calling function, event type, message, arguments used, optional output, and
+#' more.
+#'
+#' This function automatically captures all arguments from the calling function,
+#' including `...`. You can also manually add custom metadata using the
+#' `logmeta` argument.
+#'
+#' @param event Type of event (e.g. `"error"`, `"info"`, `"warning"`).
+#' @param message Description of the log entry.
+#' @param name Name of the log (default: `options("pipfun.log.default")`).
+#' @param args Optional list of captured arguments (default: auto-captured).
+#' @param logmeta Optional named list of metadata to attach (merged with args).
+#' @param output Optional result or return value.
+#' @param .trace Optional call stack or trace override.
+#' @param .env Internal use. Calling environment (default:
+#'   `rlang::caller_env()`).
+#'
+#' @return Invisibly returns `TRUE` on success.
+#'
+#' @examples
+#' log_init("demo_log", overwrite = TRUE)
+#'
+#' # Automatically captures arguments from the caller:
+#' my_fun <- function(x, y = 1, ...) {
+#'   result <- x + y
+#'   log_info("Ran my_fun", name = "demo_log", output = result)
+#'   return(result)
+#' }
+#' my_fun(3, z = 9)
+#'
+#' # Add custom metadata manually:
+#' log_info("Logging manually", name = "demo_log",
+#'          logmeta = list(stage = "processing", user = "analyst"))
+log_add <- function(event,
+                    message,
+                    name    = getOption("pipfun.log.default"),
+                    args    = NULL,
+                    logmeta = NULL,
+                    output  = NULL,
+                    .trace  = NULL,
+                    .env    = rlang::caller_env()) {
+
+  # if (is.null(args)) {
+  #   args <- as.list(.env)
+  #   args$name <- NULL
+  #
+  #   # Attempt to capture `...` from caller environment
+  #   dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+  #   args <- c(args, dots)
+  # }
+
+  # # Auto-capture args from caller if not supplied
+  # Auto-capture args from caller if not supplied
+  if (is.null(args)) {
+    # Try rlang::call_args() if in a proper call frame
+    args <- tryCatch(rlang::call_args(.env), error = function(e) NULL)
+
+    # Fallback: manually grab all symbols in environment
+    if (is.null(args) || identical(names(args), "")) {
+      vars <- setdiff(ls(envir = .env), c("name", "event", "message"))
+      args <- rlang::env_get_list(.env, vars)
+    }
+
+    # Try to add dots (optional)
+    dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+    if (!is.null(dots)) args <- c(args, dots)
+
+  }
+
+  # Always merge logmeta if provided
+  if (!is.null(logmeta)) {
+    args <- c(args, logmeta)
+  }
+
+
+  log <- rlang::env_get(.piplogenv, name)
+
+  # Extract calling function
+  call_stack <- sys.calls()
+  calling_fn <- if (length(call_stack) > 1) {
+    deparse(call_stack[[length(call_stack) - 1]])
+  } else {
+    "unknown"
+  }
+
+  new_row <- data.table(
+    time    = Sys.time(),
+    package = rlang::env_name(.env),
+    fun     = calling_fn,
+    event   = tolower(event),
+    message = as.character(message),
+    args    = list(args),
+    output  = list(output),
+    trace   = list(if (!is.null(.trace)) .trace else sys.call(-1))
+  )
+
+  log <- rbindlist(list(log, new_row),
+                   use.names = TRUE,
+                   fill = TRUE)
+  setattr(log, "class", c("piplog", class(log)))
+  rlang::env_poke(.piplogenv, name, log)
+
+  # future = list(level = "debug", module = "foo")
+
+  invisible(TRUE)
+}
+
+
+#' Initialize a new log
+#'
+#' Creates a new named log as a list to store log entries. If the log already
+#' exists, it will be reset (unless `overwrite = FALSE`).
+#'
+#' @param name Name of the log to create (default: "default").
+#' @param overwrite Whether to overwrite an existing log with the same name.
+#'
+#' @return Invisibly returns the initialized log name.
+#' \dontrun{
+#' log_init("testlog")
+#' # This basically checks whther it already exists
+#' log_init("testlog", overwrite = FALSE)
+#' }
+#' @export
+log_init <- function(name = getOption("pipfun.log.default"),
+                     overwrite = getOption("pipfun.log_init.ow")) {
+
+  if (rlang::env_has(.piplogenv, name)) {
+    if (!isTRUE(overwrite)) {
+      cli::cli_abort("Log {.field {name}} already exists.
+                     Use {.code overwrite = TRUE} to replace it.")
+    }
+  }
+
+  log <- data.table(
+    time     = as.POSIXct(character()),
+    package  = character(),
+    fun      = character(),
+    event    = character(),
+    message  = character(),
+    args     = list(),
+    output   = list(),
+    trace    = list()
+  )
+
+  class(log) <- c("piplog", class(log))
+  rlang::env_poke(.piplogenv, name, log)
+
+  invisible(name)
+}
+
+
+#' Save a log to disk
+#'
+#' Saves a log stored in `.piplogenv` to a `.qs` file for persistence.
+#'
+#' @param name Name of the log in memory (default:
+#'   `getOption("pipfun.log.default")`).
+#' @param path File path to save the log to. If missing, defaults to
+#'   `{name}.qs`.
+#' @param compress Whether to compress the file (default: TRUE).
+#'
+#' @return Invisible `TRUE` if successful.
+#' @export
+log_save <- function(name     = getOption("pipfun.log.default", "default"),
+                     path     = NULL,
+                     compress = TRUE) {
+
+  if (!requireNamespace("qs", quietly = TRUE)) {
+    cli::cli_abort("Package {.pkg qs} is required to save logs.")
+  }
+
+  if (!exists(name, envir = .piplogenv)) {
+    cli::cli_abort("Log {.field {name}} does not exist in memory.")
+  }
+
+  log <- get(name, envir = .piplogenv)
+
+  if (!inherits(log, "piplog")) {
+    cli::cli_abort("Object {.field {name}} is not a valid piplog.")
+  }
+
+  if (is.null(path)) {
+    path <- fs::path(name, ext = "qs")
+  }
+  if (fs::path_ext(path) != "qs") {
+    path <- fs::path(path, ext = "qs")
+  }
+
+  qs::qsave(log, file = path, preset = if (compress) "high" else "fast")
+  cli::cli_alert_success("Log {.field {name}} saved to {.path {path}}")
+  invisible(TRUE)
+}
+
+
+#' Load a log from a .qs file
+#'
+#' Loads a previously saved log into `.piplogenv`, optionally under a different
+#' name.
+#'
+#' @param path Path to the `.qs` file to load.
+#' @param name Name to assign to the log in memory (default: inferred from
+#'   filename).
+#' @param overwrite Whether to overwrite an existing log of the same name
+#'   (default: FALSE).
+#'
+#' @return Invisibly returns the name of the loaded log.
+#' @export
+log_load <- function(path,
+                     name      = NULL,
+                     overwrite = FALSE) {
+
+  if (!requireNamespace("qs", quietly = TRUE)) {
+    cli::cli_abort("Package {.pkg qs} is required to load logs.")
+  }
+
+  if (!fs::file_exists(path)) {
+    cli::cli_abort("File {.file {path}} does not exist.")
+  }
+
+  log <- qs::qread(path)
+
+  if (!inherits(log, "piplog")) {
+    cli::cli_abort("File does not contain a valid {.cls piplog} object.")
+  }
+
+  if (is.null(name)) {
+    name <- path |>
+      fs::path_ext_remove() |>
+      fs::path_file()
+  }
+
+  if (rlang::env_has(.piplogenv, name) && !overwrite) {
+    cli::cli_abort("A log named {.field {name}} already exists in memory. Use {.code overwrite = TRUE} to replace it.")
+  }
+
+  rlang::env_poke(.piplogenv, name, log)
+  cli::cli_alert_success("Log {.field {name}} loaded from {.file {path}}")
+  invisible(name)
+}
+
+#' Reset or delete a log from memory
+#'
+#' Clears a log from the internal environment. Use this to start over or free
+#' memory.
+#'
+#' @param name Name of the log to remove (default:
+#'   `getOption("pipfun.log.default")`).
+#'
+#' @return Invisibly returns TRUE if the log was removed.
+#' @export
+log_reset <- function(name = getOption("pipfun.log.default", "default")) {
+  if (!rlang::env_has(.piplogenv, name)) {
+    cli::cli_alert_info("Log {.field {name}} is not present.")
+    return(invisible(FALSE))
+  }
+
+  rlang::env_unbind(.piplogenv, name)
+  cli::cli_alert_success("Log {.field {name}} has been reset.")
+  invisible(TRUE)
+}
+
+
+#' Filter log entries
+#'
+#' @param name Name of the log (default: `pipfun.log.default`)
+#' @param event Type of event to filter ("info", "warning", "error", etc.)
+#' @param fun Optional: function name(s) to filter
+#' @param after Optional: filter entries after this datetime
+#' @param before Optional: filter entries before this datetime
+#'
+#' @return A filtered `piplog` object.
+#' @export
+log_filter <- function(name    = getOption("pipfun.log.default"),
+                       event   = NULL,
+                       fun     = NULL,
+                       after   = NULL,
+                       before  = NULL) {
+
+  log <- name |>
+    log_get() |>
+    copy()
+
+  setDT(log)
+
+  # not elegant but works
+  e <- event
+  f <- fun
+
+  if (!is.null(event))  {
+    log <- log[event %in% e]
+  }
+  if (!is.null(fun)) {
+    log <- log[fun %in% f]
+  }
+  if (!is.null(after))  {
+    log <- log[time >= as.POSIXct(after)]
+  }
+  if (!is.null(before)) {
+    log <- log[time <= as.POSIXct(before)]
+  }
+  setattr(log, "class", c("piplog", class(log)))
+  return(log)
+}
+
+
+#' Get a particular log entries
+#'
+#' @param name Name of the log (default: `pipfun.log.default`)
+#'
+#' @return A raw `piplog` object.
+#' @export
+log_get <- function(name    = getOption("pipfun.log.default")) {
+  if (!rlang::env_has(.piplogenv, name)) {
+    cli::cli_abort("Log {.field {name}} does not exist.")
+  }
+
+  log <- rlang::env_get(.piplogenv, name)
+
+  if (!inherits(log, "piplog")) {
+    # Restore class silently if it's just been dropped by DT ops
+    if (is.data.table(log)) {
+      setattr(log, "class", unique(c("piplog", class(log))))
+    } else {
+      cli::cli_abort(c(x = "Object {.field {name}} is not a valid piplog.",
+                       i = "{.field {name}}'s class is {class(log)}"))
+    }
+  }
+  invisible(log)
+}

@@ -1,11 +1,14 @@
 
 
 pipfun_default_options <- list(
-  pipfun.verbose     = TRUE,
-  pipfun.ghowner     = "PIP-Technical-Team",
-  pipfun.ppps        = c(2017, 2011), # must be descending order
-  pipfun.working_dir = "PIP_ingestion_pipeline_v2",
-  pipfun.identities  = c("TEST", "PROD", "INT")
+  pipfun.verbose        = TRUE,
+  pipfun.ghowner        = "PIP-Technical-Team",
+  pipfun.ppps           = c(2017, 2011), # must be descending order
+  pipfun.working_dir    = "PIP_ingestion_pipeline_v2",
+  pipfun.identities     = c("TEST", "PROD", "INT"),
+  pipfun.log.auto       = TRUE,
+  pipfun.log.default    = "default",
+  pipfun.log_init.ow    = FALSE
 )
 
 .onLoad <- function(libname, pkgname) {
@@ -19,6 +22,13 @@ pipfun_default_options <- list(
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## defined values --------
+  # Initialize default log silently
+  if (isTRUE(getOption("pipfun.log.auto", default = FALSE))) {
+    if (!exists("default", envir = .piplogenv)) {
+      log_init(name = getOption("pipfun.log.default"))
+    }
+  }
+
 
   invisible()
 }
