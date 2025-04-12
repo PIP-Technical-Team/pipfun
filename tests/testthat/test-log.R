@@ -86,9 +86,18 @@ test_that("log_add fallback to sys.call when .trace is NULL", {
 # helpers ------------
 test_that("log_error adds an error entry", {
   log_init("testlog", overwrite = TRUE)
-  log_error("An error occurred", name = "testlog")
-  log <- rlang::env_get(.piplogenv, "testlog")
+
+  dummy_error <- function() {
+    x <- 123
+    log_error("An error occurred", name = "testlog")
+  }
+
+  dummy_error()
+  log <- log_get("testlog")
+
   expect_true("error" %in% log$event)
+  expect_true("x" %in% names(log$args[[1]]))  # Check captured argument
+  expect_equal(log$args[[1]]$x, 123)
 })
 
 test_that("log_warn and log_info behave correctly", {

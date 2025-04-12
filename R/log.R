@@ -69,12 +69,11 @@ log_add <- function(event,
   # Auto-capture arguments if not supplied
   if (is.null(args)) {
     args <- as.list(.env)
-    # (Optional) Remove internal names like `name` if causing
-    # recursion — otherwise skip
     args[["name"]] <- NULL
 
-    # Optional: force evaluation of lazy dots (see below)
-    if ("..." %in% names(formals(sys.function(-1)))) {
+    # Only add ... if it's really there
+    calling_fun <- sys.function(sys.parent())
+    if ("..." %in% names(formals(calling_fun))) {
       args <- c(args, evalq(list(...), envir = .env))
     }
   }
