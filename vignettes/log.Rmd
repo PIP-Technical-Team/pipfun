@@ -375,50 +375,20 @@ You only need to use this if you're capturing from a different environment on pu
 
 **Example:**
 
-```r
+```{r}
 caller <- function(x, y) {
   inner()
 }
 inner <- function() {
-  log_add("info", "From caller", .env = parent.frame())
+  log_add("caller", "From caller", .env = parent.frame())
 }
 caller(1, 2)
+log_get()[event == "caller"][.N][, args]
 ```
 
 Without `.env = parent.frame()`, `inner()` would log nothing useful — this makes it possible to step one level up and get what we need.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Understanding `.env` in `log_add()`
-
-The `.env` argument in `log_add()` lets you control **which environment's arguments are captured** when recording a log entry. In most simple cases, you don’t need to specify `.env` manually — it defaults to `parent.frame()` and captures the caller's arguments. But in more advanced scenarios, especially when logging from **wrapper functions**, **nested calls**, or **custom logging infrastructure**, setting `.env` explicitly ensures correctness.
-
-Let’s look at some examples.
 
 ### Basic use — no `.env` needed
 
@@ -433,7 +403,7 @@ myfun(5, 10)
 log_get("mylog")$args[[1]]
 ```
 
-> This works perfectly: `x` and `y` are captured automatically. No need to set `.env`.
+This works perfectly: `x` and `y` are captured automatically. No need to set `.env`.
 
 ###  Problem: wrapped function logs its own frame
 
@@ -452,7 +422,7 @@ outer()
 log_get("mylog")$args[[1]]
 ```
 
-> Oops! The logged arguments come from `wrapped()`, not `outer()` — the values may be defaulted or wrong.
+Oops! The logged arguments come from `wrapped()`, not `outer()` — the values may be defaulted or wrong.
 
 
 ### Solution: pass `.env = parent.frame()`
@@ -472,7 +442,7 @@ outer()
 log_get("mylog")$args[[1]]
 ```
 
-> ✅ Now the arguments from `outer()` are logged correctly — including `a = 42`.
+> Now the arguments from `outer()` are logged correctly — including `a = 42`.
 
 ### Best Practices
 
@@ -487,46 +457,6 @@ Using `.env` might look like a technical detail, but it makes your logs **predic
 
 This creates a log entry with detailed context that you control entirely.
 
-
-### Example 3: Adding logmeta
-
-Use `logmeta` when you want to *augment* the captured arguments:
-
-```r
-log_add("warning", "Missing values found",
-        name = "mylog",
-        logmeta = list(n_missing = 14, variable = "income"))
-```
-
-This keeps your logs semantically rich without cluttering the function's local environment.
-
----
-
-### Example 4: Logging results
-
-```r
-model <- lm(mpg ~ wt, data = mtcars)
-log_add("info", "Model fit", name = "mylog", output = model)
-```
-
-Later, you can inspect or extract the stored model from the log.
-
----
-
-### Example 5: Logging inside a wrapper
-
-```r
-wrapped_call <- function(data, id) {
-  log_add("info", "Running wrapped_call", name = "mylog", .env = environment())
-  result <- mean(data)
-  log_add("info", "Result computed", name = "mylog", output = result)
-  result
-}
-```
-
-This pattern ensures your logs are informative and traceable.
-
----
 
 ### Key Takeaways
 
