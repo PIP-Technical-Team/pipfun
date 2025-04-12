@@ -4,69 +4,66 @@
 \alias{log_info}
 \alias{log_warn}
 \alias{log_error}
-\title{Log an error, warning, or informational message}
+\title{Log an error, warning, or info event}
 \usage{
 log_info(
   message,
-  ...,
   name = getOption("pipfun.log.default"),
   output = NULL,
-  logmeta = NULL,
-  .trace = NULL
+  .trace = NULL,
+  .env = parent.frame(),
+  logmeta = NULL
 )
 
 log_warn(
   message,
-  ...,
   name = getOption("pipfun.log.default"),
   output = NULL,
-  logmeta = NULL,
-  .trace = NULL
+  .trace = NULL,
+  .env = parent.frame(),
+  logmeta = NULL
 )
 
 log_error(
   message,
-  ...,
   name = getOption("pipfun.log.default"),
   output = NULL,
-  logmeta = NULL,
-  .trace = NULL
+  .trace = NULL,
+  .env = parent.frame(),
+  logmeta = NULL
 )
 }
 \arguments{
 \item{message}{The log message.}
 
-\item{...}{Additional arguments from the caller to be captured.}
-
-\item{name}{Name of the log (default: \code{getOption("pipfun.log.default")}).}
+\item{name}{Name of the log (default: \code{pipfun.log.default}).}
 
 \item{output}{Optional result or return value to include in the log.}
 
-\item{logmeta}{Optional named list of additional metadata.}
-
 \item{.trace}{Optional trace object or call stack override.}
+
+\item{.env}{Environment from which to capture arguments (default: \code{parent.frame()}).}
+
+\item{logmeta}{Optional named list of metadata to include (tags, user info, etc.).}
 }
 \value{
-Invisibly returns \code{TRUE} if the log was updated successfully.
+Invisibly returns TRUE after updating the log.
 }
 \description{
-These are wrapper functions around \code{log_add()} with predefined event types:
-\code{"error"}, \code{"warning"}, or \code{"info"}. They automatically capture arguments
-from the calling function, including \code{...}, and allow optional metadata
-using \code{logmeta}.
+These are wrapper functions for \code{log_add()} to log events of type "error", "warning", or "info".
+They automatically capture arguments from the parent function and include them in the log.
 }
 \examples{
-log_init("example", overwrite = TRUE)
-log_info("Starting process", name = "example", user = "analyst", stage = "init")
+log_init("mylog", overwrite = TRUE)
 
-my_function <- function(x, ...) {
-  result <- x^2
-  log_info("Squared a value", x = x, output = result, name = "example")
-  result
+# Simulate calling context
+my_function <- function(a = 1, b = 2, ...) {
+  log_info("This is an info message", name = "mylog")
 }
-my_function(4)
+my_function(x = 42)
 
-# With additional metadata
-log_error("Failure to connect", name = "example", logmeta = list(server = "db01", status = 500))
+log_get("mylog")
+
+log_reset("mylog")
 
 }

@@ -1,81 +1,111 @@
-#' Log an error, warning, or informational message
+#' Log an error, warning, or info event
 #'
-#' These are wrapper functions around `log_add()` with predefined event types:
-#' `"error"`, `"warning"`, or `"info"`. They automatically capture arguments
-#' from the calling function, including `...`, and allow optional metadata
-#' using `logmeta`.
+#' These are wrapper functions for `log_add()` to log events of type "error", "warning", or "info".
+#' They automatically capture arguments from the parent function and include them in the log.
 #'
 #' @param message The log message.
-#' @param ... Additional arguments from the caller to be captured.
-#' @param name Name of the log (default: `getOption("pipfun.log.default")`).
+#' @param name Name of the log (default: `pipfun.log.default`).
 #' @param output Optional result or return value to include in the log.
-#' @param logmeta Optional named list of additional metadata.
 #' @param .trace Optional trace object or call stack override.
+#' @param .env Environment from which to capture arguments (default: `parent.frame()`).
+#' @param logmeta Optional named list of metadata to include (tags, user info, etc.).
 #'
-#' @return Invisibly returns `TRUE` if the log was updated successfully.
+#' @return Invisibly returns TRUE after updating the log.
 #'
 #' @examples
-#' log_init("example", overwrite = TRUE)
-#' log_info("Starting process", name = "example", user = "analyst", stage = "init")
+#' log_init("mylog", overwrite = TRUE)
 #'
-#' my_function <- function(x, ...) {
-#'   result <- x^2
-#'   log_info("Squared a value", x = x, output = result, name = "example")
-#'   result
+#' # Simulate calling context
+#' my_function <- function(a = 1, b = 2, ...) {
+#'   log_info("This is an info message", name = "mylog")
 #' }
-#' my_function(4)
+#' my_function(x = 42)
 #'
-#' # With additional metadata
-#' log_error("Failure to connect", name = "example", logmeta = list(server = "db01", status = 500))
+#' log_get("mylog")
+#'
+#' log_reset("mylog")
 #'
 #' @export
-log_info <- function(message, ...,
-                     name = getOption("pipfun.log.default"),
-                     output = NULL,
-                     logmeta = NULL,
-                     .trace = NULL) {
-  log_add(event = "info",
+log_info <- function(message,
+                     name    = getOption("pipfun.log.default"),
+                     output  = NULL,
+                     .trace  = NULL,
+                     .env    = parent.frame(),
+                     logmeta = NULL) {
+
+  args <- as.list(.env)
+  args$name   <- NULL
+  args$output <- NULL
+  args$.trace <- NULL
+
+  # Optionally capture calling dots
+  dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+  args <- c(args, dots)
+
+  log_add(event   = "info",
           message = message,
           name    = name,
+          args    = args,
           output  = output,
-          logmeta = logmeta,
           .trace  = .trace,
-          .env    = parent.frame(),
-          ...)
+          logmeta = logmeta,
+          .env    = .env)
 }
+
 
 #' @rdname log_info
 #' @export
-log_warn <- function(message, ...,
-                     name = getOption("pipfun.log.default"),
-                     output = NULL,
-                     logmeta = NULL,
-                     .trace = NULL) {
-  log_add(event = "warning",
+log_warn <- function(message,
+                     name    = getOption("pipfun.log.default"),
+                     output  = NULL,
+                     .trace  = NULL,
+                     .env    = parent.frame(),
+                     logmeta = NULL) {
+
+  args <- as.list(.env)
+  args$name   <- NULL
+  args$output <- NULL
+  args$.trace <- NULL
+
+  dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+  args <- c(args, dots)
+
+  log_add(event   = "warning",
           message = message,
           name    = name,
+          args    = args,
           output  = output,
-          logmeta = logmeta,
           .trace  = .trace,
-          .env    = parent.frame(),
-          ...)
+          logmeta = logmeta,
+          .env    = .env)
 }
+
 
 #' @rdname log_info
 #' @export
-log_error <- function(message, ...,
-                      name = getOption("pipfun.log.default"),
-                      output = NULL,
-                      logmeta = NULL,
-                      .trace = NULL) {
-  log_add(event = "error",
+log_error <- function(message,
+                      name    = getOption("pipfun.log.default"),
+                      output  = NULL,
+                      .trace  = NULL,
+                      .env    = parent.frame(),
+                      logmeta = NULL) {
+
+  args <- as.list(.env)
+  args$name   <- NULL
+  args$output <- NULL
+  args$.trace <- NULL
+
+  dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+  args <- c(args, dots)
+
+  log_add(event   = "error",
           message = message,
           name    = name,
+          args    = args,
           output  = output,
-          logmeta = logmeta,
           .trace  = .trace,
-          .env    = parent.frame(),
-          ...)
+          logmeta = logmeta,
+          .env    = .env)
 }
 
 
