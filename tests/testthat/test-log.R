@@ -201,18 +201,19 @@ test_that("log_filter() returns filtered entries", {
   expect_equal(warnings$event, "warning")
 })
 
-test_that("log_summary() returns event counts", {
+test_that("log_summary returns correct counts", {
   log_init("testlog", overwrite = TRUE)
 
-  log_info("info again", name = "testlog")
-  log_error("error again", name = "testlog")
+  log_info("Info msg", name = "testlog")
+  log_warn("Warn msg", name = "testlog")
+  log_error("Error msg", name = "testlog")
 
-  summary <- log_summary("testlog")
-  expect_s3_class(summary, "data.table")
-  expect_true(all(c("event", "count") %in% names(summary)))
-  expect_true("info" %in% summary$event)
-  expect_true("error" %in% summary$event)
+  s <- log_summary("testlog")
+  expect_s3_class(s, "log_summary")
+  expect_equal(sum(s$count), 3)
+  expect_true(all(s$event %in% c("info", "warning", "error")))
 })
+
 
 # log_has_errors ----------------------------------------------------------
 
