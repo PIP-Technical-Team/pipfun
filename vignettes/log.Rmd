@@ -30,3 +30,75 @@ Use this system to:
 - Log errors, warnings, and info messages
 - Store outputs and traces
 - Filter, inspect, and summarize logs
+
+
+
+##  Quick Start
+
+```{r}
+log_init("mylog")
+
+log_info("This is an info message", a = 1:5)
+log_warn("Something looks odd", issue = "formatting")
+log_error("An error occurred", critical = TRUE)
+```
+
+```{r}
+log_has_errors("mylog")
+log_summary("mylog")
+log_filter("mylog", event = "error")
+```
+
+## Logging Concepts
+
+Each log entry is a structured row in a `data.table` with:
+- `time`: timestamp
+- `event`: "info", "warning", or "error"
+- `message`: your custom text
+- `fun`, `package`: where it was called
+- `args`, `output`, `trace`: full context
+
+
+## Creating and Managing Logs
+
+### Initialize a new log
+
+```{r}
+log_init("devlog")
+```
+
+This creates a log stored in `.piplogenv`, and ready to accept entries.
+
+### Add log entries
+
+Use helper functions:
+
+```{r}
+log_info("Everything looks fine", id = 123)
+log_warn("Something seems off", reason = "missing value")
+log_error("Calculation failed", data_id = "XYZ")
+```
+
+Each captures arguments and context automatically.
+
+
+##  Query and Filter Logs
+
+### Show all logs with errors:
+
+```{r}
+log_filter(event = "error")
+```
+
+### Show logs for a specific function:
+
+```{r}
+log_filter(fun = "some_function")
+```
+
+### Show logs after a given date:
+
+```{r}
+log_filter(after = Sys.Date() - 1)
+```
+
