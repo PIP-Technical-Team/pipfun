@@ -15,36 +15,30 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-# Load the package (dev version during development)
 devtools::load_all(".")
-#library(pipfun)
 ```
-
 
 ## Overview
 
-The `pipfun` logging system provides a powerful way to track events, diagnostics, and metadata **across functions and packages**. Logs are stored in memory and can be saved to disk as compressed `.qs` files.
+The `pipfun` logging system provides a powerful, flexible way to track messages, metadata, function arguments, and error traces across your R codebase — especially when building packages.
+
+Logs are stored in memory and can be written to disk as `.qs` files for persistence.
 
 Use this system to:
-- Track function calls and arguments
-- Log errors, warnings, and info messages
-- Store outputs and traces
-- Filter, inspect, and summarize logs
 
+- Log errors, warnings, and informative messages
+- Capture arguments, return values, and internal states
+- Filter, summarize, and debug across modules or packages
+- Persist logs between sessions or across users
 
-
-##  Quick Start
+## Quick Start
 
 ```{r}
-
-log_name <- "mylog" 
+log_name <- "mylog"
 log_init(log_name)
 
-# log_info("This is an info message", a = 1:5)
 log_info("This is an info message", name = log_name)
-# log_warn("Something looks odd", issue = "formatting")
 log_warn("Something looks odd", name = log_name)
-# log_error("An error occurred", critical = TRUE)
 log_error("An error occurred", name = log_name)
 ```
 
@@ -56,173 +50,171 @@ log_filter(log_name, event = "error")
 
 ## Logging Concepts
 
-Each log entry is a structured row in a `data.table` with:
-- `time`: timestamp
-- `event`: "info", "warning", or "error"
-- `message`: your custom text
-- `fun`, `package`: where it was called
-- `args`, `output`, `trace`: full context
+Each log entry is a row in a `data.table`, with fields such as:
 
+- `time`: timestamp
+- `event`: one of "info", "warning", or "error"
+- `message`: custom message
+- `fun`, `package`: where it was logged from
+- `args`: captured arguments
+- `output`: result (optional)
+- `trace`: traceback object
 
 ## Creating and Managing Logs
 
-### Initialize a new log
+### Initialize a log
 
 ```{r}
 log_init("devlog")
 ```
 
-This creates a log stored in `.piplogenv`, and ready to accept entries.
+### Add entries
 
-### Add log entries
-
-Use helper functions:
+Use the helpers for most use cases:
 
 ```{r}
-log_info("Everything looks fine", id = 123)
-log_warn("Something seems off", reason = "missing value")
-log_error("Calculation failed", data_id = "XYZ")
+log_info("Process started", name = "devlog", logmeta = list(step = 1))
+log_warn("Unexpected format", name = "devlog", logmeta = list(column = "status"))
+log_error("Failed to compute results", name = "devlog", logmeta = list(file = "input.csv"))
 ```
 
-Each captures arguments and context automatically.
-
-
-##  Query and Filter Logs
-
-### Show all logs with errors:
+## Filter and Query
 
 ```{r}
-log_filter(event = "error")
+log_filter(name = "devlog", event = "error")
+log_filter(name = "devlog", fun = "my_function")
+log_filter(name = "devlog", after = Sys.Date() - 1)
 ```
 
-### Show logs for a specific function:
+## Using Logs in Package Development
 
-```{r}
-log_filter(fun = "some_function")
-```
+`pipfun` is especially helpful when building packages.
 
-### Show logs after a given date:
+### 1. Initialize at load
 
-```{r}
-log_filter(after = Sys.Date() - 1)
-```
+In your package’s `zzz.R`:
 
-
-## How to Use Logging Inside Other Packages
-
-You can use `pipfun` logging functions directly in any function of another package you’re developing. Here's a recommended pattern:
-
-### 1. Initialize the log at package load (optional)
-
-In your other package’s `zzz.R`:
-
-```{r , eval=FALSE}
+```r
 .onLoad <- function(libname, pkgname) {
   pipfun::log_init("pipapi_log")
 }
 ```
 
-### 2. Add logging to individual functions
+### 2. Use in functions
 
 ```{r}
-# Inside your pip package function
+log_init("pipapi_log", overwrite = TRUE)
+
 get_data <- function(path, clean = TRUE) {
-  log_info("Starting data load", name = "pipapi_log", path = path, clean = clean)
-  
+  log_info("Starting data load", name = "pipapi_log",
+           logmeta = list(path = path, clean = clean))
+
   data <- tryCatch({
     read.csv(path)
   }, error = function(e) {
-    log_error("Failed to read CSV", name = "pipapi_log", error = e$message)
+    log_error("Failed to read CSV", name = "pipapi_log",
+              logmeta = list(error = e$message))
     stop(e)
   })
 
-  log_info("Successfully loaded data", name = "pipapi_log", n_rows = nrow(data))
+  log_info("Data loaded", name = "pipapi_log",
+           logmeta = list(n = nrow(data)))
   return(data)
 }
 ```
 
-### 3. Check logs after execution
+### 3. Use with tryCatch for robust pipelines
 
 ```{r}
-# In your diagnostics script or shiny app
+run_step <- function(step_name, expr) {
+  tryCatch({
+    result <- expr()
+    log_info("Step completed", name = "pipeline_log", logmeta = list(step = step_name))
+    result
+  }, error = function(e) {
+    log_error("Step failed", name = "pipeline_log", logmeta = list(step = step_name, error = e$message))
+    NULL
+  })
+}
+```
+
+### 4. Enable or Disable Logging Dynamically
+
+You can design your functions to respect a `log = TRUE` argument:
+
+```r
+foo <- function(x, y, log = TRUE) {
+  if (log) log_info("Starting foo()", logmeta = list(x = x, y = y))
+  result <- x + y
+  if (log) log_info("Finished foo()", logmeta = list(result = result))
+  result
+}
+```
+
+This makes it easy to disable logging in tests or benchmarks:
+
+```r
+foo(3, 4, log = FALSE)
+```
+
+### 5. Check logs programmatically
+
+```{r}
 if (log_has_errors("pipapi_log")) {
-  cli::cli_alert_danger("Errors detected in pipapi!")
+  cli::cli_alert_danger("Errors detected!")
   print(log_has_errors("pipapi_log", show = TRUE))
 }
 ```
 
-### 4. Save logs between sessions
+### 6. Save and Reload Logs
 
 ```{r}
 tf <- tempfile(fileext = ".qs")
 log_save("pipapi_log", path = tf)
+log_reset("pipapi_log")
+log_load(path = tf, name = "pipapi_log", overwrite = TRUE)
 ```
 
-### 5. Restore logs later
+## Best Practices for Developers
+
+- Initialize logs early (e.g., in `.onLoad()` or on first use)
+- Use structured helpers instead of raw messages or warnings
+- Prefer named `logmeta` fields to store arguments or flags
+- Inspect logs interactively or export them for review
+- Add `log = TRUE` in your APIs for user control
+
+## Summarizing Logs
 
 ```{r}
-log_load(path = tf, name = "pipapi_log")
+log_summary("mylog")
+log_summary("mylog", by = c("fun", "event"))
 ```
 
-
-### 6. Notes for Package Developers
-
-- Each log is just a `data.table` stored in memory (`.piplogenv`) — cheap to use and fast to update.
-- Use `log_info()`, `log_warn()`, `log_error()` instead of ad hoc `message()` or `warning()` calls.
-- You can use the same log across many functions, or different logs per module/function if you prefer.
-
-
-## Misc 
-
-### Summarize Logs
-
-```{r}
-log_summary()
-log_summary(by = c("fun", "event"))
-```
-
-This gives a quick count of messages per function or type.
-
-### Save and Reload Logs
+## Saving and Reloading
 
 ```{r}
 log_save("mylog", path = "mylog.qs")
 log_reset("mylog")
-
 log_load(path = "mylog.qs", name = "mylog")
 ```
 
-You can also load logs from other packages and continue appending to them.
-
-
-### Check for Errors
+## Checking for Errors
 
 ```{r}
 if (log_has_errors("mylog")) {
-  cli::cli_alert_danger("Please fix logged errors before proceeding.")
+  cli::cli_alert_danger("Errors found")
 }
-```
 
-You can also view them:
-
-```{r}
 log_has_errors("mylog", show = TRUE)
 ```
 
+## What’s Next?
 
-### Tips
+Planned improvements to the logging framework include:
 
-- Logs are invisible by default.
-- Use `print(log_get("mylog"))` or future `print.piplog()` to inspect them.
-- Store logs in `.qs` format for speed and compactness.
-- Use in `tryCatch()` blocks to log recoverable errors.
-
-
-
-## 📚 What’s Next?
-
-Coming soon:
-- Print methods with color-coded formatting
-- Log levels and thresholds
-- Debugging exports (JSON / Markdown / CSV)
-- Visual summaries (e.g., timeline charts)
+- Color-coded `print.piplog()` for interactive sessions
+- Log levels (debug, info, warning, error, critical)
+- Export to JSON, Markdown, or CSV for diagnostics
+- Timeline visualizations of log activity
+- `log_args()` and `log_with()` helpers to simplify metadata
+- Integration with `rlang::caller_args()` and `current_env()` for richer introspection

@@ -295,3 +295,18 @@ test_that("log_has_errors() returns correct logical or filtered log", {
   expect_s3_class(log, "piplog")
   expect_equal(log$event, "error")
 })
+
+
+## log get ------
+test_that("log_get restores class if dropped", {
+  log_init("reclass_test", overwrite = TRUE)
+  log_info("Test", name = "reclass_test")
+
+  # simulate class drop
+  log <- rlang::env_get(.piplogenv, "reclass_test")
+  setattr(log, "class", "data.table")
+  rlang::env_poke(.piplogenv, "reclass_test", log)
+
+  restored <- log_get("reclass_test")
+  expect_s3_class(restored, "piplog")
+})

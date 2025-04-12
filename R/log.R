@@ -305,8 +305,13 @@ log_get <- function(name    = getOption("pipfun.log.default")) {
   log <- rlang::env_get(.piplogenv, name)
 
   if (!inherits(log, "piplog")) {
-    cli::cli_abort(c(x = "Object {.field {name}} is not a valid piplog.",
-                     i = "{.field {name}}'s class is {class(log)}"))
+    # Restore class silently if it's just been dropped by DT ops
+    if (is.data.table(log)) {
+      setattr(log, "class", unique(c("piplog", class(log))))
+    } else {
+      cli::cli_abort(c(x = "Object {.field {name}} is not a valid piplog.",
+                       i = "{.field {name}}'s class is {class(log)}"))
+    }
   }
-  log
+  invisible(log)
 }
