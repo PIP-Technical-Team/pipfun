@@ -1,3 +1,99 @@
+#' Add a log entry
+#'
+#' Adds a structured entry to a named log, capturing metadata such as timestamp,
+#' calling function, event type, message, arguments used, optional output, and more.
+#'
+#' This function automatically captures all arguments from the calling function,
+#' including `...`. You can also manually add custom metadata to the log entry
+#' using the `logmeta` argument.
+#'
+#' @param event Type of event. Usually one of `"error"`, `"info"`, or `"warning"`.
+#' @param message Description of the event to log.
+#' @param name Name of the log to write to (default: from `options("pipfun.log.default")`).
+#' @param args Optional named list of arguments to record. If `NULL` (default),
+#'   all arguments from the calling environment are captured, including `...`.
+#' @param logmeta Optional named list of extra metadata to include in the log entry.
+#'   This is useful for tracking additional context (e.g., `source = "user"`).
+#' @param output Optional return value or result to attach to the log.
+#' @param .trace Optional trace object or call stack override (default: `sys.call(-1)`).
+#' @param .env Environment to capture arguments from (default: `parent.frame()`).
+#'
+#' @return Invisibly returns `TRUE` if the log was updated successfully.
+#'
+#' @export
+#'
+#' @examples
+#' log_init("demo_log", overwrite = TRUE)
+#'
+#' # Automatically captures arguments from the caller:
+#' my_fun <- function(x, y = 1, ...) {
+#'   result <- x + y
+#'   log_info("Ran my_fun", name = "demo_log", output = result)
+#'   return(result)
+#' }
+#' my_fun(3, z = 9)
+#'
+#' # Add custom metadata manually:
+#' log_info("Logging manually", name = "demo_log",
+#'          logmeta = list(stage = "processing", user = "analyst"))
+log_add <- function(event,
+                    message,
+                    name    = getOption("pipfun.log.default"),
+                    args    = NULL,
+                    logmeta = NULL,
+                    output  = NULL,
+                    .trace  = NULL,
+                    .env    = parent.frame()) {
+
+  # Auto-capture args from caller if not supplied
+  if (is.null(args)) {
+    args <- as.list(.env)
+    args$name <- NULL
+
+    # Attempt to capture `...` from caller environment
+    dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+    args <- c(args, dots)
+  }
+
+  # Merge additional metadata if provided
+  if (!is.null(logmeta)) {
+    args <- c(args, logmeta)
+  }
+
+  # Create log if it doesn't exist
+  if (!rlang::env_has(.piplogenv, name)) {
+    log_init(name)
+  }
+
+  log <- rlang::env_get(.piplogenv, name)
+
+  # Extract calling function
+  call_stack <- sys.calls()
+  calling_fn <- if (length(call_stack) > 1) {
+    deparse(call_stack[[length(call_stack) - 1]])
+  } else {
+    "unknown"
+  }
+
+  new_row <- data.table::data.table(
+    time    = Sys.time(),
+    package = rlang::env_name(.env),
+    fun     = calling_fn,
+    event   = tolower(event),
+    message = as.character(message),
+    args    = list(args),
+    output  = list(output),
+    trace   = list(if (!is.null(.trace)) .trace else sys.call(-1))
+  )
+
+  log <- data.table::rbindlist(list(log, new_row), use.names = TRUE, fill = TRUE)
+  data.table::setattr(log, "class", c("piplog", class(log)))
+  rlang::env_poke(.piplogenv, name, log)
+
+  invisible(TRUE)
+}
+
+
 #' Initialize a new log
 #'
 #' Creates a new named log as a list to store log entries. If the log already
@@ -39,87 +135,6 @@ log_init <- function(name = getOption("pipfun.log.default"),
 
   invisible(name)
 }
-
-
-#' Add a log entry
-#'
-#' Adds a structured entry to a named log, including timestamp, caller info,
-#' event type, message, and optional trace and data.
-#'
-#' @param event Type of event (e.g., "error", "info", "warning").
-#' @param message A descriptive message.
-#' @param name Name of the log to write to (default: "default").
-#' @param args Optional named list of arguments (default: auto-captured).
-#' @param output Optional output to capture.
-#' @param .trace Optional trace object or call stack.
-#' @param .env The environment from which to capture args (default:
-#'   parent.frame()).
-#' @param ... Additional arguments to include manually.
-#'
-#' @return Invisibly returns TRUE if successful.
-#' @export
-log_add <- function(event,
-                    message,
-                    name   = getOption("pipfun.log.default"),
-                    args   = NULL,
-                    output = NULL,
-                    .trace = NULL,
-                    .env   = parent.frame(),
-                    ...) {
-
-  # Merge arguments: auto-capture from .env + ... explicitly
-  if (is.null(args)) {
-    args <- as.list(.env)
-    args[["name"]] <- NULL
-
-    dots <- tryCatch(
-      evalq(list(...), envir = .env),
-      error = function(e) NULL
-    )
-
-    # Add ... passed directly to this function too
-    direct_dots <- list(...)
-    args <- c(args, dots, direct_dots)
-  }
-
-  # Ensure log exists
-  if (!rlang::env_has(.piplogenv, name)) {
-    log_init(name)
-  }
-
-  log <- rlang::env_get(.piplogenv, name)
-
-  # Get caller information
-  call_stack <- sys.calls()
-  calling_fn <- if (length(call_stack) > 1) {
-    deparse(call_stack[[length(call_stack) - 1]])
-  } else {
-    "unknown"
-  }
-
-  calling_pkg <- rlang::env_name(.env)
-
-  # Create log entry
-  new_row <- data.table(
-    time     = Sys.time(),
-    package  = calling_pkg,
-    fun      = calling_fn,
-    event    = tolower(event),
-    message  = as.character(message),
-    args     = list(args),
-    output   = list(output),
-    trace    = list(if (!is.null(.trace)) .trace else sys.call(-1))
-  )
-
-  # Append and update
-  log <- rbindlist(list(log, new_row), use.names = TRUE, fill = TRUE)
-  setattr(log, "class", c("piplog", class(log)))
-  rlang::env_poke(.piplogenv, name, log)
-
-  invisible(TRUE)
-}
-
-
 
 
 #' Save a log to disk

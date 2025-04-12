@@ -18,7 +18,8 @@ log_error <- function(message, ...,
           name = name,
           output = output,
           .trace = .trace,
-          .env = parent.frame())
+          .env = parent.frame(),
+          ...)
 }
 
 #' @rdname log_error
@@ -31,7 +32,8 @@ log_warn <- function(message, ...,
           name = name,
           output = output,
           .trace = .trace,
-          .env = parent.frame())
+          .env = parent.frame(),
+          ...)
 }
 
 #' @rdname log_error
@@ -44,7 +46,8 @@ log_info <- function(message, ...,
           name = name,
           output = output,
           .trace = .trace,
-          .env = parent.frame())
+          .env = parent.frame(),
+          ...)
 }
 
 
@@ -87,12 +90,26 @@ log_names <- function() {
 }
 
 
+#' Check whether a log exists
+#'
+#' @param name Name of the log (default: `pipfun.log.default`)
+#'
+#' @return Logical. `TRUE` if log exists in env .piplogenv
+#' @export
+log_exists <- function(name = getOption("pipfun.log.default")) {
+  rlang::env_has(.piplogenv, name)
+}
+
+
+
 #' Check whether a log contains any errors
 #'
 #' @param name Name of the log (default: `pipfun.log.default`)
-#' @param show Logical: whether to return the filtered error log (default: FALSE).
+#' @param show Logical: whether to return the filtered error log (default:
+#'   FALSE).
 #'
-#' @return Logical if `show = FALSE`; a filtered `piplog` object if `show = TRUE`.
+#' @return Logical if `show = FALSE`; a filtered `piplog` object if `show =
+#'   TRUE`.
 #' @export
 log_has_errors <- function(name = getOption("pipfun.log.default"),
                            show = FALSE) {

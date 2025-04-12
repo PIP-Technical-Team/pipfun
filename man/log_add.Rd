@@ -9,32 +9,55 @@ log_add(
   message,
   name = getOption("pipfun.log.default"),
   args = NULL,
+  logmeta = NULL,
   output = NULL,
   .trace = NULL,
   .env = parent.frame()
 )
 }
 \arguments{
-\item{event}{Type of event (e.g., "error", "info", "warning").}
+\item{event}{Type of event. Usually one of \code{"error"}, \code{"info"}, or \code{"warning"}.}
 
-\item{message}{A descriptive message.}
+\item{message}{Description of the event to log.}
 
-\item{name}{Name of the log to write to (default: "default").}
+\item{name}{Name of the log to write to (default: from \code{options("pipfun.log.default")}).}
 
-\item{args}{Optional named list of arguments to include in the log.
-If NULL, arguments will be captured automatically from \code{.env}.}
+\item{args}{Optional named list of arguments to record. If \code{NULL} (default),
+all arguments from the calling environment are captured, including \code{...}.}
 
-\item{output}{Optional output to capture.}
+\item{logmeta}{Optional named list of extra metadata to include in the log entry.
+This is useful for tracking additional context (e.g., \code{source = "user"}).}
 
-\item{.trace}{Optional trace object or call stack.}
+\item{output}{Optional return value or result to attach to the log.}
 
-\item{.env}{Environment from which to capture arguments (default:
-parent.frame()).}
+\item{.trace}{Optional trace object or call stack override (default: \code{sys.call(-1)}).}
+
+\item{.env}{Environment to capture arguments from (default: \code{parent.frame()}).}
 }
 \value{
-Invisibly returns TRUE after updating the log.
+Invisibly returns \code{TRUE} if the log was updated successfully.
 }
 \description{
-Adds a structured entry to a named log, including timestamp, caller info,
-event type, message, and optional trace and data.
+Adds a structured entry to a named log, capturing metadata such as timestamp,
+calling function, event type, message, arguments used, optional output, and more.
+}
+\details{
+This function automatically captures all arguments from the calling function,
+including \code{...}. You can also manually add custom metadata to the log entry
+using the \code{logmeta} argument.
+}
+\examples{
+log_init("demo_log", overwrite = TRUE)
+
+# Automatically captures arguments from the caller:
+my_fun <- function(x, y = 1, ...) {
+  result <- x + y
+  log_info("Ran my_fun", name = "demo_log", output = result)
+  return(result)
+}
+my_fun(3, z = 9)
+
+# Add custom metadata manually:
+log_info("Logging manually", name = "demo_log",
+         logmeta = list(stage = "processing", user = "analyst"))
 }

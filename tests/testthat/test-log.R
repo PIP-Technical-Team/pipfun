@@ -83,6 +83,62 @@ test_that("log_add fallback to sys.call when .trace is NULL", {
 })
 
 
+### capturing dots -----------
+test_that("log_add() captures dots passed to log_info()", {
+  log_init("dotstest", overwrite = TRUE)
+
+  log_info("Testing dots", name = "dotstest", a = 1:3, b = "hello")
+  log <- log_get("dotstest")
+  args <- log$args[[1]]
+
+  expect_true("a" %in% names(args))
+  expect_equal(args$b, "hello")
+})
+
+test_that("log_add() captures dots passed directly", {
+  log_init("directdots", overwrite = TRUE)
+
+  log_add("info", "Direct dots test", name = "directdots", x = 99, y = "yay")
+  log <- log_get("directdots")
+  args <- log$args[[1]]
+
+  expect_equal(args$x, 99)
+  expect_equal(args$y, "yay")
+})
+
+test_that("log_add() respects args override", {
+  log_init("explicitargs", overwrite = TRUE)
+
+  log_add("info", "Explicit args test", name = "explicitargs", args = list(z = "onlythis"))
+  log <- log_get("explicitargs")
+  args <- log$args[[1]]
+
+  expect_equal(names(args), "z")
+  expect_equal(args$z, "onlythis")
+})
+
+test_that("log_add() merges all captured arguments correctly", {
+  log_init("mergeargs", overwrite = TRUE)
+
+  test_fun <- function(a = 1, b = 2, ...) {
+    log_info("Merged", name = "mergeargs", ...)
+  }
+
+  test_fun(x = "hello", y = TRUE)
+
+  log <- log_get("mergeargs")
+  args <- log$args[[1]]
+
+  expect_true(all(c("a", "b", "x", "y") %in% names(args)))
+  expect_equal(args$x, "hello")
+  expect_true(args$y)
+})
+
+
+
+
+
+
 # helpers ------------
 test_that("log_error captures message and calling arguments", {
   log_init("testlog", overwrite = TRUE)
@@ -143,6 +199,15 @@ test_that("print.piplog produces output without error", {
   log <- rlang::env_get(.piplogenv, "testlog")
   expect_output(print(log), msg, fixed = FALSE)
 })
+
+test_that("log_exists() works as expected", {
+  log_init("existtest", overwrite = TRUE)
+  expect_true(log_exists("existtest"))
+
+  log_reset("existtest")
+  expect_false(log_exists("existtest"))
+})
+
 
 
 # Save and load --------
