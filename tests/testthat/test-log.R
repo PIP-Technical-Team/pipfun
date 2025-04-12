@@ -31,7 +31,9 @@ test_that("log_add captures arguments when args is NULL", {
 
   # Simulate a caller function
   simulate_caller <- function(a = 1, b = "text") {
-    log_add("info", "capturing args", name = "test_capture", .env = environment())
+    log_add("info", "capturing args",
+            name = "test_capture",
+            .env = parent.frame())
   }
 
   simulate_caller()
