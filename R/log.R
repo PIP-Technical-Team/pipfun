@@ -71,11 +71,9 @@ log_add <- function(event,
     args <- as.list(.env)
     args[["name"]] <- NULL
 
-    # Only add ... if it's really there
-    calling_fun <- sys.function(sys.parent())
-    if ("..." %in% names(formals(calling_fun))) {
-      args <- c(args, evalq(list(...), envir = .env))
-    }
+    # Capture dots if they exist (safely)
+    dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+    args <- c(args, dots)
   }
 
   # Ensure log exists
