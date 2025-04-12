@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 devtools::load_all(".")
 ```
 
-## Overview
+## Intro
 
 The `pipfun` logging system provides a powerful, flexible way to track messages, metadata, function arguments, and error traces across your R codebase — especially when building packages.
 
@@ -103,6 +103,8 @@ In your package’s `zzz.R`:
 ### 2. Use in functions
 
 ```{r}
+
+# I init the log here, but you can do it in zzz.R, or somewhere else.
 log_init("pipapi_log", overwrite = TRUE)
 
 get_data <- function(path, clean = TRUE) {
@@ -129,10 +131,14 @@ get_data <- function(path, clean = TRUE) {
 run_step <- function(step_name, expr) {
   tryCatch({
     result <- expr()
-    log_info("Step completed", name = "pipeline_log", logmeta = list(step = step_name))
+    log_info("Step completed", 
+             name = "pipeline_log", 
+             logmeta = list(step = step_name))
     result
   }, error = function(e) {
-    log_error("Step failed", name = "pipeline_log", logmeta = list(step = step_name, error = e$message))
+    log_error("Step failed", 
+              name = "pipeline_log", 
+              logmeta = list(step = step_name, error = e$message))
     NULL
   })
 }
@@ -142,18 +148,24 @@ run_step <- function(step_name, expr) {
 
 You can design your functions to respect a `log = TRUE` argument:
 
-```r
+```{r}
 foo <- function(x, y, log = TRUE) {
-  if (log) log_info("Starting foo()", logmeta = list(x = x, y = y))
+  if (log) {
+    log_info("Starting foo()",
+             logmeta = list(x = x, y = y))
+  }
   result <- x + y
-  if (log) log_info("Finished foo()", logmeta = list(result = result))
+  if (log) {
+    log_info("Finished foo()",
+             logmeta = list(result = result))
+  }
   result
 }
 ```
 
 This makes it easy to disable logging in tests or benchmarks:
 
-```r
+```{r}
 foo(3, 4, log = FALSE)
 ```
 
@@ -175,38 +187,137 @@ log_reset("pipapi_log")
 log_load(path = tf, name = "pipapi_log", overwrite = TRUE)
 ```
 
+
+## Mastering `log_add()`: The Workhorse of the Logging System
+
+While `log_info()`, `log_warn()`, and `log_error()` are convenient, `log_add()` is the engine behind them. Understanding `log_add()` gives you full control over logging and allows you to write more customized, powerful diagnostics.
+
+### the structure
+
+```{r, eval=FALSE}
+log_add(
+  event,        # required: "info", "warning", "error"
+  message,      # required: string
+  name    = getOption("pipfun.log.default"),
+  args    = NULL,
+  logmeta = NULL,
+  output  = NULL,
+  .trace  = NULL,
+  .env    = parent.frame()
+)
+```
+
+### Overview of Arguments
+
+| Argument   | Purpose |
+|------------|---------|
+| `event`    | The type of log entry. Must be `"info"`, `"warning"`, or `"error"`. |
+| `message`  | A brief, descriptive message. This is what will appear first when reading the log. |
+| `name`     | The name of the log object (defaults to `"default"` or the global option `pipfun.log.default`). |
+| `args`     | A named list of arguments to store. If `NULL`, the function automatically captures all local variables from `.env`, including `...`. |
+| `logmeta`  | A named list of *additional metadata*. This is merged with `args` and can be used to include tags, flags, file names, IDs, etc. |
+| `output`   | An object to attach as the result of the operation. Useful to store the return value, model object, parsed data, etc. |
+| `.trace`   | A captured call or stack trace. If `NULL`, defaults to `sys.call(-1)` automatically. |
+| `.env`     | The environment from which to capture arguments. Defaults to the calling environment. |
+
+
+### Example 1: Full manual logging
+
+```{r}
+log_init(name = "mylog", overwrite = TRUE)
+log_add(
+  event   = "info",
+  message = "Imported user data",
+  name    = "mylog",
+  args    = list(path = "data/users.csv", format = "csv"),
+  output  = "success",
+  logmeta = list(stage = "load", user = "analyst")
+)
+```
+
+This creates a log entry with detailed context that you control entirely.
+
+### Example 2: Capturing caller arguments
+
+You can skip `args` entirely and let `log_add()` capture all objects in the calling environment:
+
+```{r}
+process_data <- function(file, limit = 100, ...) {
+  log_add("info", "process 1", name = "mylog")
+  log_add("info", "process 2", name = "mylog", .env = environment())
+  # do something
+}
+process_data("input.csv", limit = 10)
+l <- log_get("mylog")
+```
+
+The log will automatically store:
+```r
+$args = list(file = "input.csv", limit = 10)
+```
+
+If `...` contains other arguments, those are captured too!
+
+---
+
+### Example 3: Adding logmeta
+
+Use `logmeta` when you want to *augment* the captured arguments:
+
+```r
+log_add("warning", "Missing values found",
+        name = "mylog",
+        logmeta = list(n_missing = 14, variable = "income"))
+```
+
+This keeps your logs semantically rich without cluttering the function's local environment.
+
+---
+
+### Example 4: Logging results
+
+```r
+model <- lm(mpg ~ wt, data = mtcars)
+log_add("info", "Model fit", name = "mylog", output = model)
+```
+
+Later, you can inspect or extract the stored model from the log.
+
+---
+
+### Example 5: Logging inside a wrapper
+
+```r
+wrapped_call <- function(data, id) {
+  log_add("info", "Running wrapped_call", name = "mylog", .env = environment())
+  result <- mean(data)
+  log_add("info", "Result computed", name = "mylog", output = result)
+  result
+}
+```
+
+This pattern ensures your logs are informative and traceable.
+
+---
+
+### Key Takeaways
+
+- `log_add()` is designed to be smart and flexible.
+- Use it when you need more control than the helpers offer.
+- Combine `args`, `logmeta`, and `output` to produce rich logs.
+- Use `.env = environment()` to automatically capture local values.
+- Use in conjunction with `tryCatch()` to log recoverable errors.
+
+Let your team know: if they understand `log_add()`, they understand the whole logging system.
+
+
 ## Best Practices for Developers
 
 - Initialize logs early (e.g., in `.onLoad()` or on first use)
-- Use structured helpers instead of raw messages or warnings
+- Use structured helpers instead of raw messages. However, I highly recommend you learn how function `log_add()` works and use it as needed. 
 - Prefer named `logmeta` fields to store arguments or flags
 - Inspect logs interactively or export them for review
-- Add `log = TRUE` in your APIs for user control
-
-## Summarizing Logs
-
-```{r}
-log_summary("mylog")
-log_summary("mylog", by = c("fun", "event"))
-```
-
-## Saving and Reloading
-
-```{r}
-log_save("mylog", path = "mylog.qs")
-log_reset("mylog")
-log_load(path = "mylog.qs", name = "mylog")
-```
-
-## Checking for Errors
-
-```{r}
-if (log_has_errors("mylog")) {
-  cli::cli_alert_danger("Errors found")
-}
-
-log_has_errors("mylog", show = TRUE)
-```
+- Add `log = TRUE` in your functions for user control
 
 ## What’s Next?
 

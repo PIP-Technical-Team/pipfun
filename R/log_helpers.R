@@ -207,3 +207,14 @@ log_summary <- function(name = getOption("pipfun.log.default"),
   return(summary)
 }
 
+
+#' Print a log nicely (for use in vignettes or reports)
+#' @param name Log name (default: pipfun.log.default)
+#' @export
+log_show <- function(name = getOption("pipfun.log.default")) {
+  log <- log_get(name)
+  setattr(log, "class", unique(c("piplog", class(log))))
+  print(log)
+  invisible(log)
+}
+
