@@ -2,19 +2,11 @@
 % Please edit documentation in R/log_helpers.R
 \name{log_error}
 \alias{log_error}
-\alias{log_info}
 \alias{log_warn}
+\alias{log_info}
 \title{Log an error/info/warning}
 \usage{
 log_error(
-  message,
-  ...,
-  name = getOption("pipfun.log.default"),
-  output = NULL,
-  .trace = NULL
-)
-
-log_info(
   message,
   ...,
   name = getOption("pipfun.log.default"),
@@ -29,17 +21,25 @@ log_warn(
   output = NULL,
   .trace = NULL
 )
+
+log_info(
+  message,
+  ...,
+  name = getOption("pipfun.log.default"),
+  output = NULL,
+  .trace = NULL
+)
 }
 \arguments{
 \item{message}{The log message.}
 
-\item{...}{Additional data to include.}
+\item{...}{Additional objects passed to the log or the originating function.}
 
-\item{name}{Name of the log (default: "default").}
+\item{name}{Name of the log (default from options).}
 
-\item{output}{Optional output to capture.}
+\item{output}{Optional result or return value to include in the log.}
 
-\item{.trace}{Optional trace object.}
+\item{.trace}{Optional trace object or call stack override.}
 }
 \value{
 Invisibly returns the updated log.

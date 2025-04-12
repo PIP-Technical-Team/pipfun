@@ -3,61 +3,50 @@
 #' Wrapper functions for `log_add()` with predefined event types.
 #'
 #' @param message The log message.
-#' @param ... Additional data to include.
-#' @param name Name of the log (default: "default").
-#' @param output Optional output to capture.
-#' @param .trace Optional trace object.
+#' @param ... Additional objects passed to the log or the originating function.
+#' @param name Name of the log (default from options).
+#' @param output Optional result or return value to include in the log.
+#' @param .trace Optional trace object or call stack override.
 #'
 #' @return Invisibly returns the updated log.
 #' @export
-log_error <- function(message,
-                      ...,
+log_error <- function(message, ...,
                       name = getOption("pipfun.log.default"),
                       output = NULL,
                       .trace = NULL) {
-  log_add(
-    event   = "error",
-    message = message,
-    name = name,
-    output = output,
-    .trace = .trace,
-    .env = parent.frame()
-  )
+  log_add("error", message,
+          name = name,
+          output = output,
+          .trace = .trace,
+          .env = parent.frame())
 }
 
 #' @rdname log_error
 #' @export
-log_info <- function(message,
-                     ...,
+log_warn <- function(message, ...,
                      name = getOption("pipfun.log.default"),
                      output = NULL,
                      .trace = NULL) {
-  log_add(
-    event   = "info",
-    message = message,
-    name = name,
-    output = output,
-    .trace = .trace,
-    .env = parent.frame()
-  )
+  log_add("warning", message,
+          name = name,
+          output = output,
+          .trace = .trace,
+          .env = parent.frame())
 }
 
 #' @rdname log_error
 #' @export
-log_warn <- function(message,
-                     ...,
+log_info <- function(message, ...,
                      name = getOption("pipfun.log.default"),
                      output = NULL,
                      .trace = NULL) {
-  log_add(
-    event   = "warning",
-    message = message,
-    name = name,
-    output = output,
-    .trace = .trace,
-    .env = parent.frame()
-  )
+  log_add("info", message,
+          name = name,
+          output = output,
+          .trace = .trace,
+          .env = parent.frame())
 }
+
 
 
 #' @export

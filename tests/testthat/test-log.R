@@ -26,6 +26,63 @@ test_that("log_add appends a new entry", {
   expect_equal(log$event[[1]], "info")
 })
 
+test_that("log_add captures arguments when args is NULL", {
+  log_init("test_capture", overwrite = TRUE)
+
+  # Simulate a caller function
+  simulate_caller <- function(a = 1, b = "text") {
+    log_add("info", "capturing args", name = "test_capture", .env = environment())
+  }
+
+  simulate_caller()
+
+  log <- log_get("test_capture")
+  last <- log[.N]
+
+  expect_type(last$args[[1]], "list")
+  expect_named(last$args[[1]], c("a", "b"))
+  expect_equal(last$args[[1]]$a, 1)
+  expect_equal(last$args[[1]]$b, "text")
+})
+
+
+test_that("log_add uses provided args if not NULL", {
+  log_init("test_explicit", overwrite = TRUE)
+
+  log_add("info", "manual args", name = "test_explicit", args = list(foo = 123))
+
+  log <- log_get("test_explicit")
+  last <- log[.N]
+
+  expect_equal(last$args[[1]]$foo, 123)
+})
+
+
+test_that("log_add captures output if provided", {
+  log_init("test_output", overwrite = TRUE)
+
+  result <- sum(1:5)
+  log_add("info", "with result", name = "test_output", output = result)
+
+  log <- log_get("test_output")
+  last <- log[.N]
+
+  expect_equal(last$output[[1]], result)
+})
+
+
+test_that("log_add fallback to sys.call when .trace is NULL", {
+  log_init("test_trace", overwrite = TRUE)
+
+  log_add("info", "trace test", name = "test_trace")
+
+  log <- log_get("test_trace")
+  last <- log[.N]
+
+  expect_true(inherits(last$trace[[1]], "call"))
+})
+
+
 # helpers ------------
 test_that("log_error adds an error entry", {
   log_init("testlog", overwrite = TRUE)
