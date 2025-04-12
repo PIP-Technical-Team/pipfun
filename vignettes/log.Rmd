@@ -1,0 +1,32 @@
+---
+title: "Using pipfun's Logging System"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using pipfun's Logging System}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+# Load the package (dev version during development)
+devtools::load_all(".")
+#library(pipfun)
+```
+
+
+## Overview
+
+The `pipfun` logging system provides a powerful way to track events, diagnostics, and metadata **across functions and packages**. Logs are stored in memory and can be saved to disk as compressed `.qs` files.
+
+Use this system to:
+- Track function calls and arguments
+- Log errors, warnings, and info messages
+- Store outputs and traces
+- Filter, inspect, and summarize logs
