@@ -4,13 +4,15 @@
 \alias{log_has_errors}
 \title{Check whether a log contains any errors}
 \usage{
-log_has_errors(name = getOption("pipfun.log.default"))
+log_has_errors(name = getOption("pipfun.log.default"), show = FALSE)
 }
 \arguments{
 \item{name}{Name of the log (default: \code{pipfun.log.default})}
+
+\item{show}{Logical: whether to return the filtered error log (default: FALSE).}
 }
 \value{
-Logical: TRUE if any error is found.
+Logical if \code{show = FALSE}; a filtered \code{piplog} object if \code{show = TRUE}.
 }
 \description{
 Check whether a log contains any errors

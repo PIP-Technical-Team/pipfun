@@ -93,7 +93,7 @@ log_add <- function(event,
   log <- rbindlist(list(log, new_row),
                    use.names = TRUE,
                    fill = TRUE)
-  class(log) <- c("piplog", class(log))
+  setattr(log, "class", c("piplog", class(log)))
   rlang::env_poke(.piplogenv, name, log)
 
   invisible(TRUE)
@@ -228,6 +228,40 @@ log_filter <- function(name    = getOption("pipfun.log.default"),
                        after   = NULL,
                        before  = NULL) {
 
+  log <- name |>
+    log_get() |>
+    copy()
+
+  setDT(log)
+
+  # not elegant but works
+  e <- event
+  f <- fun
+
+  if (!is.null(event))  {
+    log <- log[event %in% e]
+  }
+  if (!is.null(fun)) {
+    log <- log[fun %in% f]
+  }
+  if (!is.null(after))  {
+    log <- log[time >= as.POSIXct(after)]
+  }
+  if (!is.null(before)) {
+    log <- log[time <= as.POSIXct(before)]
+  }
+  setattr(log, "class", c("piplog", class(log)))
+  return(log)
+}
+
+
+#' Get a particular log entries
+#'
+#' @param name Name of the log (default: `pipfun.log.default`)
+#'
+#' @return A raw `piplog` object.
+#' @export
+log_get <- function(name    = getOption("pipfun.log.default")) {
   if (!rlang::env_has(.piplogenv, name)) {
     cli::cli_abort("Log {.field {name}} does not exist.")
   }
@@ -235,14 +269,8 @@ log_filter <- function(name    = getOption("pipfun.log.default"),
   log <- rlang::env_get(.piplogenv, name)
 
   if (!inherits(log, "piplog")) {
-    cli::cli_abort("Object {.field {name}} is not a valid piplog.")
+    cli::cli_abort(c(x = "Object {.field {name}} is not a valid piplog.",
+                     i = "{.field {name}}'s class is {class(log)}"))
   }
-
-  if (!is.null(event))  log <- log[event %in% event]
-  if (!is.null(fun))    log <- log[fun %in% fun]
-  if (!is.null(after))  log <- log[time >= as.POSIXct(after)]
-  if (!is.null(before)) log <- log[time <= as.POSIXct(before)]
-
-  class(log) <- c("piplog", class(log))
-  return(log)
+  log
 }

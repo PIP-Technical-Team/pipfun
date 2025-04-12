@@ -88,3 +88,49 @@ test_that("log_save() and log_load() work as expected", {
   fs::file_delete(path)
   log_reset(name)
 })
+
+# log_filter and log_summary -----------------------------------------------
+
+test_that("log_filter() returns filtered entries", {
+  log_init("testlog", overwrite = TRUE)
+
+  log_info("Message 1", name = "testlog")
+  log_warn("Message 2", name = "testlog")
+  log_error("Message 3", name = "testlog")
+
+  errors <- log_filter(name = "testlog", event = "error")
+  expect_s3_class(errors, "piplog")
+  expect_equal(nrow(errors), 1)
+  expect_equal(errors$event, "error")
+
+  warnings <- log_filter(name = "testlog", event = "warning")
+  expect_equal(nrow(warnings), 1)
+  expect_equal(warnings$event, "warning")
+})
+
+test_that("log_summary() returns event counts", {
+  log_init("testlog", overwrite = TRUE)
+
+  log_info("info again", name = "testlog")
+  log_error("error again", name = "testlog")
+
+  summary <- log_summary("testlog")
+  expect_s3_class(summary, "data.table")
+  expect_true(all(c("event", "count") %in% names(summary)))
+  expect_true("info" %in% summary$event)
+  expect_true("error" %in% summary$event)
+})
+
+# log_has_errors ----------------------------------------------------------
+
+test_that("log_has_errors() returns correct logical or filtered log", {
+  log_init("testlog", overwrite = TRUE)
+  expect_false(log_has_errors("testlog"))
+
+  log_error("something bad happened", name = "testlog")
+  expect_true(log_has_errors("testlog"))
+
+  log <- log_has_errors("testlog", show = TRUE)
+  expect_s3_class(log, "piplog")
+  expect_equal(log$event, "error")
+})

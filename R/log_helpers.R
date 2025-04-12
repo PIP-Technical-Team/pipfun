@@ -16,8 +16,8 @@ log_error <- function(message,
                       output = NULL,
                       .trace = NULL) {
   log_add(
-    "error",
-    message,
+    event   = "error",
+    message = message,
     name = name,
     output = output,
     .trace = .trace,
@@ -33,8 +33,8 @@ log_info <- function(message,
                      output = NULL,
                      .trace = NULL) {
   log_add(
-    "info",
-    message,
+    event   = "info",
+    message = message,
     name = name,
     output = output,
     .trace = .trace,
@@ -50,8 +50,8 @@ log_warn <- function(message,
                      output = NULL,
                      .trace = NULL) {
   log_add(
-    "warning",
-    message,
+    event   = "warning",
+    message = message,
     name = name,
     output = output,
     .trace = .trace,
