@@ -1,26 +1,24 @@
 #' Add a log entry
 #'
 #' Adds a structured entry to a named log, capturing metadata such as timestamp,
-#' calling function, event type, message, arguments used, optional output, and more.
+#' calling function, event type, message, arguments used, optional output, and
+#' more.
 #'
 #' This function automatically captures all arguments from the calling function,
-#' including `...`. You can also manually add custom metadata to the log entry
-#' using the `logmeta` argument.
+#' including `...`. You can also manually add custom metadata using the
+#' `logmeta` argument.
 #'
-#' @param event Type of event. Usually one of `"error"`, `"info"`, or `"warning"`.
-#' @param message Description of the event to log.
-#' @param name Name of the log to write to (default: from `options("pipfun.log.default")`).
-#' @param args Optional named list of arguments to record. If `NULL` (default),
-#'   all arguments from the calling environment are captured, including `...`.
-#' @param logmeta Optional named list of extra metadata to include in the log entry.
-#'   This is useful for tracking additional context (e.g., `source = "user"`).
-#' @param output Optional return value or result to attach to the log.
-#' @param .trace Optional trace object or call stack override (default: `sys.call(-1)`).
-#' @param .env Environment to capture arguments from (default: `parent.frame()`).
+#' @param event Type of event (e.g. `"error"`, `"info"`, `"warning"`).
+#' @param message Description of the log entry.
+#' @param name Name of the log (default: `options("pipfun.log.default")`).
+#' @param args Optional list of captured arguments (default: auto-captured).
+#' @param logmeta Optional named list of metadata to attach (merged with args).
+#' @param output Optional result or return value.
+#' @param .trace Optional call stack or trace override.
+#' @param .env Internal use. Calling environment (default:
+#'   `rlang::caller_env()`).
 #'
-#' @return Invisibly returns `TRUE` if the log was updated successfully.
-#'
-#' @export
+#' @return Invisibly returns `TRUE` on success.
 #'
 #' @examples
 #' log_init("demo_log", overwrite = TRUE)
@@ -43,7 +41,7 @@ log_add <- function(event,
                     logmeta = NULL,
                     output  = NULL,
                     .trace  = NULL,
-                    .env    = parent.frame()) {
+                    .env    = rlang::caller_env()) {
 
   # if (is.null(args)) {
   #   args <- as.list(.env)
@@ -55,23 +53,25 @@ log_add <- function(event,
   # }
 
   # # Auto-capture args from caller if not supplied
+  # Auto-capture args from caller if not supplied
   if (is.null(args)) {
-    args <- tryCatch({
-      out <- inspect_args(.env)
-      lapply(out, `[[`, "value")  # Extract values only, drop source info
-    }, error = function(e) list())  # fallback to empty list
+    # Try rlang::call_args() if in a proper call frame
+    args <- tryCatch(rlang::call_args(.env), error = function(e) NULL)
+
+    # Fallback: manually grab all symbols in environment
+    if (is.null(args) || identical(names(args), "")) {
+      vars <- setdiff(ls(envir = .env), c("name", "event", "message"))
+      args <- rlang::env_get_list(.env, vars)
+    }
+
+    # Try to add dots (optional)
+    dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+    if (!is.null(dots)) args <- c(args, dots)
+
+    # Attach extra metadata if present
+    if (!is.null(logmeta)) args <- c(args, logmeta)
   }
 
-
-  # Merge additional metadata if provided
-  if (!is.null(logmeta)) {
-    args <- c(args, logmeta)
-  }
-
-  # Create log if it doesn't exist
-  if (!rlang::env_has(.piplogenv, name)) {
-    log_init(name)
-  }
 
   log <- rlang::env_get(.piplogenv, name)
 
@@ -83,7 +83,7 @@ log_add <- function(event,
     "unknown"
   }
 
-  new_row <- data.table::data.table(
+  new_row <- data.table(
     time    = Sys.time(),
     package = rlang::env_name(.env),
     fun     = calling_fn,
@@ -94,9 +94,13 @@ log_add <- function(event,
     trace   = list(if (!is.null(.trace)) .trace else sys.call(-1))
   )
 
-  log <- data.table::rbindlist(list(log, new_row), use.names = TRUE, fill = TRUE)
-  data.table::setattr(log, "class", c("piplog", class(log)))
+  log <- rbindlist(list(log, new_row),
+                   use.names = TRUE,
+                   fill = TRUE)
+  setattr(log, "class", c("piplog", class(log)))
   rlang::env_poke(.piplogenv, name, log)
+
+  # future = list(level = "debug", module = "foo")
 
   invisible(TRUE)
 }
