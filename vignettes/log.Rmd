@@ -190,50 +190,227 @@ log_load(path = tf, name = "pipapi_log", overwrite = TRUE)
 
 ## Mastering `log_add()`: The Workhorse of the Logging System
 
-While `log_info()`, `log_warn()`, and `log_error()` are convenient, `log_add()` is the engine behind them. Understanding `log_add()` gives you full control over logging and allows you to write more customized, powerful diagnostics.
+The `log_add()` function is the **core engine** behind the logging system in `pipfun`. While `log_info()`, `log_warn()`, and `log_error()` are convenient wrappers, `log_add()` is designed for **full transparency, flexibility, and programmatic control**.
 
-### the structure
+It allows you to:
+
+- Manually or automatically capture arguments from any function
+- Include custom metadata
+- Track outputs and computation results
+- Register messages across multiple logs
+- Define error levels or trace calls
+
+This is the function you use when developing custom pipelines, internal packages, or diagnostics that need deep traceability.
+
+### Function  Structure
 
 ```{r, eval=FALSE}
 log_add(
-  event,        # required: "info", "warning", "error"
-  message,      # required: string
+  event,
+  message,
   name    = getOption("pipfun.log.default"),
   args    = NULL,
   logmeta = NULL,
   output  = NULL,
   .trace  = NULL,
-  .env    = parent.frame()
+  .env    = rlang::caller_env()
 )
 ```
 
-#### Overview of Arguments
 
-| Argument   | Purpose |
-|------------|---------|
-| `event`    | The type of log entry. Must be `"info"`, `"warning"`, or `"error"`. |
-| `message`  | A brief, descriptive message. This is what will appear first when reading the log. |
-| `name`     | The name of the log object (defaults to `"default"` or the global option `pipfun.log.default`). |
-| `args`     | A named list of arguments to store. If `NULL`, the function automatically captures all local variables from `.env`, including `...`. |
-| `logmeta`  | A named list of *additional metadata*. This is merged with `args` and can be used to include tags, flags, file names, IDs, etc. |
-| `output`   | An object to attach as the result of the operation. Useful to store the return value, model object, parsed data, etc. |
-| `.trace`   | A captured call or stack trace. If `NULL`, defaults to `sys.call(-1)` automatically. |
-| `.env`     | The environment from which to capture arguments. Defaults to the calling environment. |
+### `event` — What kind of message is this?
 
+This is the **type** of log entry: it defines how the log is categorized. The most common values are:
 
-#### Full manual logging
+- `"info"` – For successful operations or checkpoints
+- `"warning"` – When something may be problematic
+- `"error"` – When something failed or needs attention
+
+You can also pass custom strings (e.g., `"debug"`, `"data"`) if your logging structure supports it.
+
+**Examples:**
 
 ```{r}
-log_init(name = "mylog", overwrite = TRUE)
-log_add(
-  event   = "info",
-  message = "Imported user data",
-  name    = "mylog",
-  args    = list(path = "data/users.csv", format = "csv"),
-  output  = "success",
-  logmeta = list(stage = "load", user = "analyst")
-)
+lname <- "event_log"
+log_init(lname)
+log_add("info", "Pipeline started", name = lname)
+log_add("warning", "Missing values found", name =lname)
+log_add("error", "Failed to merge datasets", name = lname)
 ```
+
+
+### `message` — What happened?
+
+A short, **descriptive message** of the event. This field will be shown in logs and summaries, so it should be concise and meaningful.
+
+Best practice: keep messages short but informative — they complement the structured metadata.
+
+**Examples:**
+
+```{r}
+log_add("info", "Reading household data", name = lname)
+log_add("data", "Poverty line is missing", name = lname)
+```
+
+
+### `name` — Which log to write to?
+
+Each log is a uniquely named object stored in a dedicated environment `.piplogenv`. The `name` argument tells `log_add()` which log to append to.
+
+If not provided, it defaults to the option set in `getOption("pipfun.log.default")`.
+
+**Examples:**
+
+```{r}
+# Default log name (from options)
+log_add("info", "Starting validation")
+
+# Custom log name
+log_init("step3_log")
+log_add("info", "Custom step complete", name = "step3_log")
+```
+
+This allows multiple logs to coexist (e.g., one per module or process), and even be saved/loaded independently.
+
+### `args` — What were the function arguments?
+
+If provided, this should be a named list of arguments. If omitted (`args = NULL`), then `log_add()` automatically captures the arguments from the calling environment.
+
+This lets you store:
+- Inputs used
+- Function parameters
+- Execution settings
+
+**Examples:**
+
+```{r}
+# Explicitly pass arguments
+log_add("info", "Manual log", args = list(country = "COL", year = 2022))
+
+# Auto-capture from current function
+calculate_stats <- function(x, method = "mean") {
+  log_add("info", "summary of x")
+  summary(x)
+}
+calculate_stats(rnorm(100))
+
+log_get()[]
+```
+
+If you need to log metadata not available in the function’s arguments, use `logmeta` (see below).
+
+### `logmeta` — Attach extra metadata
+
+`logmeta` is a named list that gets **merged with `args`** and lets you attach metadata that might not be passed as a function argument.
+
+Use it to attach:
+- Custom tags
+- Status flags
+- Source IDs
+- Anything else relevant to the context
+
+**Examples:**
+
+```{r}
+log_add("info", "Post-processing started",
+        logmeta = list(step = "adjustment", dataset = "povcalnet"))
+
+log_add("warning", "Missing PPP detected",
+        args = list(country = "ZAF"),
+        logmeta = list(stage = "pricing", source = "national_stats"))
+
+log_get()[event == "warning"][.N]
+```
+
+This is particularly useful when logging **from within a tryCatch() handler** or from wrappers that don’t have access to the original arguments directly.
+
+
+### `output` — What did the function return?
+
+You can attach any kind of **output or result** to the log. This makes the log entry a complete record of the input, processing, and result.
+
+This is useful for:
+
+- Storing return values
+- Inspecting intermediate results
+- Comparing expected vs. actual outputs
+
+**Examples:**
+
+```{r}
+result <- stats::lm(mpg ~ wt, data = mtcars)
+log_add("model", "Model finished", output = result)
+log_filter(event = "model")
+```
+
+If the result is large, you might log a summary or just a pointer (e.g., file path or row count):
+
+```{r}
+log_add("mtcars", "mtcars summary", 
+        output = list(n = nrow(mtcars), 
+                      vars = names(mtcars)))
+log_filter(event = "mtcars")
+log_get()[event == "mtcars"][.N][, output]
+```
+
+
+### `.trace` — What call triggered this?
+
+By default, `log_add()` captures the **immediate call that triggered the log** using `sys.call(-1)`.
+
+You can override it by passing a custom expression or trace object:
+
+```{r}
+log_add("lm", "weird reg", .trace = quote(stats::lm(am ~ wt, data = mtcars)))
+log_get()[event == "lm"][, trace]
+```
+
+This is useful when logging from deeply nested code and you want to reflect **the origin of the issue**, not just the logging wrapper.
+
+### `.env` — Where to look for arguments
+
+This is the environment from which to **capture arguments** when `args = NULL`. It defaults to the function that called `log_add()` (using `rlang::caller_env()`), which is usually correct.
+
+You only need to use this if you're capturing from a different environment on purpose.
+
+**Example:**
+
+```r
+caller <- function(x, y) {
+  inner()
+}
+inner <- function() {
+  log_add("info", "From caller", .env = parent.frame())
+}
+caller(1, 2)
+```
+
+Without `.env = parent.frame()`, `inner()` would log nothing useful — this makes it possible to step one level up and get what we need.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
