@@ -2,16 +2,18 @@
 % Please edit documentation in R/log_helpers.R
 \name{log_summary}
 \alias{log_summary}
-\title{Summarize a log by event type}
+\title{Summarize log contents}
 \usage{
-log_summary(name = getOption("pipfun.log.default"))
+log_summary(name = getOption("pipfun.log.default"), by = "event")
 }
 \arguments{
-\item{name}{Name of the log (default: \code{pipfun.log.default})}
+\item{name}{Name of the log (default: pipfun.log.default)}
+
+\item{by}{Character vector of grouping variables (default: c("event"))}
 }
 \value{
-A data.table with counts per event.
+A data.table with summary counts.
 }
 \description{
-Summarize a log by event type
+Provides a summary of the number of log entries by event type and function.
 }

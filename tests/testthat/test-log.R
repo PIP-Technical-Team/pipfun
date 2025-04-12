@@ -84,29 +84,56 @@ test_that("log_add fallback to sys.call when .trace is NULL", {
 
 
 # helpers ------------
-test_that("log_error adds an error entry", {
+test_that("log_error captures message and calling arguments", {
   log_init("testlog", overwrite = TRUE)
 
-  dummy_error <- function() {
-    x <- 123
-    log_error("An error occurred", name = "testlog")
+  simulate_error <- function(a = 42, b = "oops") {
+    log_error("This is an error", name = "testlog")
   }
 
-  dummy_error()
+  simulate_error()
   log <- log_get("testlog")
 
-  expect_true("error" %in% log$event)
-  expect_true("x" %in% names(log$args[[1]]))  # Check captured argument
-  expect_equal(log$args[[1]]$x, 123)
+  expect_equal(nrow(log), 1)
+  expect_equal(log$event[[1]], "error")
+  expect_match(log$message[[1]], "This is an error")
+  expect_equal(log$args[[1]]$a, 42)
+  expect_equal(log$args[[1]]$b, "oops")
 })
 
-test_that("log_warn and log_info behave correctly", {
+test_that("log_warn captures arguments correctly", {
   log_init("testlog", overwrite = TRUE)
-  log_warn("A warning", name = "testlog")
-  log_info("Some info", name = "testlog")
-  log <- rlang::env_get(.piplogenv, "testlog")
-  expect_true(all(c("warning", "info") %in% log$event))
+
+  simulate_warn <- function(x = TRUE) {
+    log_warn("This is a warning", name = "testlog")
+  }
+
+  simulate_warn()
+  log <- log_get("testlog")
+
+  expect_equal(nrow(log), 1)
+  expect_equal(log$event[[1]], "warning")
+  expect_match(log$message[[1]], "This is a warning")
+  expect_equal(log$args[[1]]$x, TRUE)
 })
+
+test_that("log_info captures output and arguments", {
+  log_init("testlog", overwrite = TRUE)
+
+  simulate_info <- function(vec = 1:3) {
+    result <- sum(vec)
+    log_info("Logging info with result", name = "testlog", output = result)
+  }
+
+  simulate_info()
+  log <- log_get("testlog")
+
+  expect_equal(nrow(log), 1)
+  expect_equal(log$event[[1]], "info")
+  expect_equal(log$args[[1]]$vec, 1:3)
+  expect_equal(log$output[[1]], 6)
+})
+
 
 test_that("print.piplog produces output without error", {
   skip() # we need to test when print.piplog is finished.

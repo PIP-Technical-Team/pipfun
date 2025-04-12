@@ -104,28 +104,30 @@ log_has_errors <- function(name = getOption("pipfun.log.default"),
   }
 }
 
-
-
-
-
-#' Summarize a log by event type
+#' Summarize log contents
 #'
-#' @param name Name of the log (default: `pipfun.log.default`)
+#' Provides a summary of the number of log entries by event type and function.
 #'
-#' @return A data.table with counts per event.
+#' @param name Name of the log (default: pipfun.log.default)
+#' @param by Character vector of grouping variables (default: c("event"))
+#'
+#' @return A data.table with summary counts.
 #' @export
-log_summary <- function(name = getOption("pipfun.log.default")) {
-  if (!rlang::env_has(.piplogenv, name)) {
-    cli::cli_abort("Log {.field {name}} does not exist.")
+log_summary <- function(name = getOption("pipfun.log.default"),
+                        by = "event") {
+
+  log <- log_get(name)
+  setDT(log)
+
+  if (!all(by %in% names(log))) {
+    cli::cli_abort("Invalid grouping column{?s}:
+                   {.field {by[!by %in% names(log)]}}")
   }
 
-  log <- rlang::env_get(.piplogenv, name)
-
-  if (!inherits(log, "piplog")) {
-    cli::cli_abort("Object {.field {name}} is not a valid piplog.")
-  }
-
-  summary <- log[, .N, by = .(event)]
+  summary <- log[, .N, by = by]
   setnames(summary, "N", "count")
-  summary[]
+
+  setattr(summary, "class", c("log_summary", class(summary)))
+  return(summary)
 }
+

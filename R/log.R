@@ -72,7 +72,8 @@ log_add <- function(event,
     args[["name"]] <- NULL
 
     # Capture dots if they exist (safely)
-    dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+    dots <- tryCatch(expr = evalq(list(...), envir = .env),
+                     error = function(e) NULL)
     args <- c(args, dots)
   }
 
