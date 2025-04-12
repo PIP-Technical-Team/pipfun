@@ -1,54 +1,83 @@
-#' Log an error/info/warning
+#' Log an error, warning, or informational message
 #'
-#' Wrapper functions for `log_add()` with predefined event types.
+#' These are wrapper functions around `log_add()` with predefined event types:
+#' `"error"`, `"warning"`, or `"info"`. They automatically capture arguments
+#' from the calling function, including `...`, and allow optional metadata
+#' using `logmeta`.
 #'
 #' @param message The log message.
-#' @param ... Additional objects passed to the log or the originating function.
-#' @param name Name of the log (default from options).
+#' @param ... Additional arguments from the caller to be captured.
+#' @param name Name of the log (default: `getOption("pipfun.log.default")`).
 #' @param output Optional result or return value to include in the log.
+#' @param logmeta Optional named list of additional metadata.
 #' @param .trace Optional trace object or call stack override.
 #'
-#' @return Invisibly returns the updated log.
-#' @export
-log_error <- function(message, ...,
-                      name = getOption("pipfun.log.default"),
-                      output = NULL,
-                      .trace = NULL) {
-  log_add("error", message,
-          name = name,
-          output = output,
-          .trace = .trace,
-          .env = parent.frame(),
-          ...)
-}
-
-#' @rdname log_error
-#' @export
-log_warn <- function(message, ...,
-                     name = getOption("pipfun.log.default"),
-                     output = NULL,
-                     .trace = NULL) {
-  log_add("warning", message,
-          name = name,
-          output = output,
-          .trace = .trace,
-          .env = parent.frame(),
-          ...)
-}
-
-#' @rdname log_error
+#' @return Invisibly returns `TRUE` if the log was updated successfully.
+#'
+#' @examples
+#' log_init("example", overwrite = TRUE)
+#' log_info("Starting process", name = "example", user = "analyst", stage = "init")
+#'
+#' my_function <- function(x, ...) {
+#'   result <- x^2
+#'   log_info("Squared a value", x = x, output = result, name = "example")
+#'   result
+#' }
+#' my_function(4)
+#'
+#' # With additional metadata
+#' log_error("Failure to connect", name = "example", logmeta = list(server = "db01", status = 500))
+#'
 #' @export
 log_info <- function(message, ...,
                      name = getOption("pipfun.log.default"),
                      output = NULL,
+                     logmeta = NULL,
                      .trace = NULL) {
-  log_add("info", message,
-          name = name,
-          output = output,
-          .trace = .trace,
-          .env = parent.frame(),
+  log_add(event = "info",
+          message = message,
+          name    = name,
+          output  = output,
+          logmeta = logmeta,
+          .trace  = .trace,
+          .env    = parent.frame(),
           ...)
 }
+
+#' @rdname log_info
+#' @export
+log_warn <- function(message, ...,
+                     name = getOption("pipfun.log.default"),
+                     output = NULL,
+                     logmeta = NULL,
+                     .trace = NULL) {
+  log_add(event = "warning",
+          message = message,
+          name    = name,
+          output  = output,
+          logmeta = logmeta,
+          .trace  = .trace,
+          .env    = parent.frame(),
+          ...)
+}
+
+#' @rdname log_info
+#' @export
+log_error <- function(message, ...,
+                      name = getOption("pipfun.log.default"),
+                      output = NULL,
+                      logmeta = NULL,
+                      .trace = NULL) {
+  log_add(event = "error",
+          message = message,
+          name    = name,
+          output  = output,
+          logmeta = logmeta,
+          .trace  = .trace,
+          .env    = parent.frame(),
+          ...)
+}
+
 
 
 
