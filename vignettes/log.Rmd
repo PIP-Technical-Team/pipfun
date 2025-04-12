@@ -102,3 +102,64 @@ log_filter(fun = "some_function")
 log_filter(after = Sys.Date() - 1)
 ```
 
+
+## Summarize Logs
+
+```{r}
+log_summary()
+log_summary(by = c("fun", "event"))
+```
+
+This gives a quick count of messages per function or type.
+
+## Save and Reload Logs
+
+```{r}
+log_save("mylog", path = "mylog.qs")
+log_reset("mylog")
+
+log_load(path = "mylog.qs", name = "mylog")
+```
+
+You can also load logs from other packages and continue appending to them.
+
+
+## Check for Errors
+
+```{r}
+if (log_has_errors("mylog")) {
+  cli::cli_alert_danger("Please fix logged errors before proceeding.")
+}
+```
+
+You can also view them:
+
+```{r}
+log_has_errors("mylog", show = TRUE)
+```
+
+
+## Tips
+
+- Logs are invisible by default.
+- Use `print(log_get("mylog"))` or future `print.piplog()` to inspect them.
+- Store logs in `.qs` format for speed and compactness.
+- Use in `tryCatch()` blocks to log recoverable errors.
+
+
+
+## 📚 What’s Next?
+
+Coming soon:
+- Print methods with color-coded formatting
+- Log levels and thresholds
+- Debugging exports (JSON / Markdown / CSV)
+- Visual summaries (e.g., timeline charts)
+
+## Final Note
+
+This system is designed to be **reliable, extensible, and developer-friendly**. Integrate it early in your pipeline packages to track behavior and errors efficiently.
+
+```{r}
+log_info("This vignette rocks!", topic = "logging")
+```
