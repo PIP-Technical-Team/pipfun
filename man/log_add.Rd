@@ -21,6 +21,9 @@ log_add(
 
 \item{name}{Name of the log to write to (default: "default").}
 
+\item{args}{Optional named list of arguments to include in the log.
+If NULL, arguments will be captured automatically from \code{.env}.}
+
 \item{output}{Optional output to capture.}
 
 \item{.trace}{Optional trace object or call stack.}
@@ -29,7 +32,7 @@ log_add(
 parent.frame()).}
 }
 \value{
-Invisibly returns the updated log.
+Invisibly returns TRUE after updating the log.
 }
 \description{
 Adds a structured entry to a named log, including timestamp, caller info,

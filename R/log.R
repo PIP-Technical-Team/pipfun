@@ -49,12 +49,14 @@ log_init <- function(name = getOption("pipfun.log.default"),
 #' @param event Type of event (e.g., "error", "info", "warning").
 #' @param message A descriptive message.
 #' @param name Name of the log to write to (default: "default").
+#' @param args Optional named list of arguments to include in the log.
+#'   If NULL, arguments will be captured automatically from `.env`.
 #' @param output Optional output to capture.
 #' @param .trace Optional trace object or call stack.
 #' @param .env Environment from which to capture arguments (default:
 #'   parent.frame()).
 #'
-#' @return Invisibly returns the updated log.
+#' @return Invisibly returns TRUE after updating the log.
 #' @export
 log_add <- function(event,
                     message,
@@ -64,12 +66,27 @@ log_add <- function(event,
                     .trace = NULL,
                     .env   = parent.frame()) {
 
+  # Auto-capture arguments if not supplied
+  if (is.null(args)) {
+    args <- as.list(.env)
+    # (Optional) Remove internal names like `name` if causing
+    # recursion — otherwise skip
+    args[["name"]] <- NULL
+
+    # Optional: force evaluation of lazy dots (see below)
+    if ("..." %in% names(formals(sys.function(-1)))) {
+      args <- c(args, evalq(list(...), envir = .env))
+    }
+  }
+
+  # Ensure log exists
   if (!rlang::env_has(.piplogenv, name)) {
     log_init(name)
   }
 
   log <- rlang::env_get(.piplogenv, name)
 
+  # Get caller information
   call_stack <- sys.calls()
   calling_fn <- if (length(call_stack) > 1) {
     deparse(call_stack[[length(call_stack) - 1]])
@@ -79,25 +96,26 @@ log_add <- function(event,
 
   calling_pkg <- rlang::env_name(.env)
 
+  # Create log entry
   new_row <- data.table(
     time     = Sys.time(),
     package  = calling_pkg,
     fun      = calling_fn,
-    event    = event,
+    event    = tolower(event),
     message  = as.character(message),
     args     = list(args),
     output   = list(output),
     trace    = list(if (!is.null(.trace)) .trace else sys.call(-1))
   )
 
-  log <- rbindlist(list(log, new_row),
-                   use.names = TRUE,
-                   fill = TRUE)
+  # Append and update
+  log <- rbindlist(list(log, new_row), use.names = TRUE, fill = TRUE)
   setattr(log, "class", c("piplog", class(log)))
   rlang::env_poke(.piplogenv, name, log)
 
   invisible(TRUE)
 }
+
 
 
 
