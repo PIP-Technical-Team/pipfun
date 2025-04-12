@@ -103,7 +103,73 @@ log_filter(after = Sys.Date() - 1)
 ```
 
 
-## Summarize Logs
+## How to Use Logging Inside Other Packages
+
+You can use `pipfun` logging functions directly in any function of another package you’re developing. Here's a recommended pattern:
+
+### 1. Initialize the log at package load (optional)
+
+In your other package’s `zzz.R`:
+
+```{r , eval=FALSE}
+.onLoad <- function(libname, pkgname) {
+  pipfun::log_init("pipapi_log")
+}
+```
+
+### 2. Add logging to individual functions
+
+```{r}
+# Inside your pip package function
+get_data <- function(path, clean = TRUE) {
+  log_info("Starting data load", name = "pipapi_log", path = path, clean = clean)
+  
+  data <- tryCatch({
+    read.csv(path)
+  }, error = function(e) {
+    log_error("Failed to read CSV", name = "pipapi_log", error = e$message)
+    stop(e)
+  })
+
+  log_info("Successfully loaded data", name = "pipapi_log", n_rows = nrow(data))
+  return(data)
+}
+```
+
+### 3. Check logs after execution
+
+```{r}
+# In your diagnostics script or shiny app
+if (log_has_errors("pipapi_log")) {
+  cli::cli_alert_danger("Errors detected in pipapi!")
+  print(log_has_errors("pipapi_log", show = TRUE))
+}
+```
+
+### 4. Save logs between sessions
+
+```{r}
+tf <- tempfile(fileext = ".qs")
+log_save("pipapi_log", path = tf)
+```
+
+### 5. Restore logs later
+
+```{r}
+log_load(path = tf, name = "pipapi_log")
+```
+
+
+### 6. Notes for Package Developers
+
+- Each log is just a `data.table` stored in memory (`.piplogenv`) — cheap to use and fast to update.
+- Use `log_info()`, `log_warn()`, `log_error()` instead of ad hoc `message()` or `warning()` calls.
+- You can use the same log across many functions, or different logs per module/function if you prefer.
+
+
+## Misc 
+
+### Summarize Logs
 
 ```{r}
 log_summary()
@@ -112,7 +178,7 @@ log_summary(by = c("fun", "event"))
 
 This gives a quick count of messages per function or type.
 
-## Save and Reload Logs
+### Save and Reload Logs
 
 ```{r}
 log_save("mylog", path = "mylog.qs")
@@ -124,7 +190,7 @@ log_load(path = "mylog.qs", name = "mylog")
 You can also load logs from other packages and continue appending to them.
 
 
-## Check for Errors
+### Check for Errors
 
 ```{r}
 if (log_has_errors("mylog")) {
@@ -139,7 +205,7 @@ log_has_errors("mylog", show = TRUE)
 ```
 
 
-## Tips
+### Tips
 
 - Logs are invisible by default.
 - Use `print(log_get("mylog"))` or future `print.piplog()` to inspect them.
@@ -155,11 +221,3 @@ Coming soon:
 - Log levels and thresholds
 - Debugging exports (JSON / Markdown / CSV)
 - Visual summaries (e.g., timeline charts)
-
-## Final Note
-
-This system is designed to be **reliable, extensible, and developer-friendly**. Integrate it early in your pipeline packages to track behavior and errors efficiently.
-
-```{r}
-log_info("This vignette rocks!", topic = "logging")
-```
