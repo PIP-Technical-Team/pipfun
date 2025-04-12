@@ -49,14 +49,14 @@ log_init <- function(name = getOption("pipfun.log.default"),
 #' @param event Type of event (e.g., "error", "info", "warning").
 #' @param message A descriptive message.
 #' @param name Name of the log to write to (default: "default").
-#' @param args Optional named list of arguments to include in the log.
-#'   If NULL, arguments will be captured automatically from `.env`.
+#' @param args Optional named list of arguments (default: auto-captured).
 #' @param output Optional output to capture.
 #' @param .trace Optional trace object or call stack.
-#' @param .env Environment from which to capture arguments (default:
+#' @param .env The environment from which to capture args (default:
 #'   parent.frame()).
+#' @param ... Additional arguments to include manually.
 #'
-#' @return Invisibly returns TRUE after updating the log.
+#' @return Invisibly returns TRUE if successful.
 #' @export
 log_add <- function(event,
                     message,
@@ -64,17 +64,22 @@ log_add <- function(event,
                     args   = NULL,
                     output = NULL,
                     .trace = NULL,
-                    .env   = parent.frame()) {
+                    .env   = parent.frame(),
+                    ...) {
 
-  # Auto-capture arguments if not supplied
+  # Merge arguments: auto-capture from .env + ... explicitly
   if (is.null(args)) {
     args <- as.list(.env)
     args[["name"]] <- NULL
 
-    # Capture dots if they exist (safely)
-    dots <- tryCatch(expr = evalq(list(...), envir = .env),
-                     error = function(e) NULL)
-    args <- c(args, dots)
+    dots <- tryCatch(
+      evalq(list(...), envir = .env),
+      error = function(e) NULL
+    )
+
+    # Add ... passed directly to this function too
+    direct_dots <- list(...)
+    args <- c(args, dots, direct_dots)
   }
 
   # Ensure log exists

@@ -36,17 +36,22 @@ Use this system to:
 ##  Quick Start
 
 ```{r}
-log_init("mylog")
 
-log_info("This is an info message", a = 1:5)
-log_warn("Something looks odd", issue = "formatting")
-log_error("An error occurred", critical = TRUE)
+log_name <- "mylog" 
+log_init(log_name)
+
+# log_info("This is an info message", a = 1:5)
+log_info("This is an info message", name = log_name)
+# log_warn("Something looks odd", issue = "formatting")
+log_warn("Something looks odd", name = log_name)
+# log_error("An error occurred", critical = TRUE)
+log_error("An error occurred", name = log_name)
 ```
 
 ```{r}
-log_has_errors("mylog")
-log_summary("mylog")
-log_filter("mylog", event = "error")
+log_has_errors(log_name)
+log_summary(log_name)
+log_filter(log_name, event = "error")
 ```
 
 ## Logging Concepts
