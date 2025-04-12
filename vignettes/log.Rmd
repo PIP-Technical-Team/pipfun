@@ -207,7 +207,7 @@ log_add(
 )
 ```
 
-### Overview of Arguments
+#### Overview of Arguments
 
 | Argument   | Purpose |
 |------------|---------|
@@ -221,7 +221,7 @@ log_add(
 | `.env`     | The environment from which to capture arguments. Defaults to the calling environment. |
 
 
-### Example 1: Full manual logging
+#### Full manual logging
 
 ```{r}
 log_init(name = "mylog", overwrite = TRUE)
@@ -235,30 +235,81 @@ log_add(
 )
 ```
 
-This creates a log entry with detailed context that you control entirely.
 
-### Example 2: Capturing caller arguments
 
-You can skip `args` entirely and let `log_add()` capture all objects in the calling environment:
+## Understanding `.env` in `log_add()`
+
+The `.env` argument in `log_add()` lets you control **which environment's arguments are captured** when recording a log entry. In most simple cases, you don’t need to specify `.env` manually — it defaults to `parent.frame()` and captures the caller's arguments. But in more advanced scenarios, especially when logging from **wrapper functions**, **nested calls**, or **custom logging infrastructure**, setting `.env` explicitly ensures correctness.
+
+Let’s look at some examples.
+
+### Basic use — no `.env` needed
 
 ```{r}
-process_data <- function(file, limit = 100, ...) {
-  log_add("info", "process 1", name = "mylog")
-  log_add("info", "process 2", name = "mylog", .env = environment())
-  # do something
+log_init("mylog", overwrite = TRUE)
+
+myfun <- function(x = 1, y = 2) {
+  log_add("info", "Called myfun", name = "mylog")
 }
-process_data("input.csv", limit = 10)
-l <- log_get("mylog")
+
+myfun(5, 10)
+log_get("mylog")$args[[1]]
 ```
 
-The log will automatically store:
-```r
-$args = list(file = "input.csv", limit = 10)
+> This works perfectly: `x` and `y` are captured automatically. No need to set `.env`.
+
+###  Problem: wrapped function logs its own frame
+
+```{r}
+wrapped <- function(a = 3) {
+  log_add("info", "From wrapped", name = "mylog")
+}
+
+outer <- function() {
+  a <- 42
+  wrapped()
+}
+
+log_init("mylog", overwrite = TRUE)
+outer()
+log_get("mylog")$args[[1]]
 ```
 
-If `...` contains other arguments, those are captured too!
+> Oops! The logged arguments come from `wrapped()`, not `outer()` — the values may be defaulted or wrong.
 
----
+
+### Solution: pass `.env = parent.frame()`
+
+```{r}
+wrapped <- function(a = 3) {
+  log_add("info", "From wrapped", name = "mylog", .env = parent.frame())
+}
+
+outer <- function() {
+  a <- 42
+  wrapped()
+}
+
+log_init("mylog", overwrite = TRUE)
+outer()
+log_get("mylog")$args[[1]]
+```
+
+> ✅ Now the arguments from `outer()` are logged correctly — including `a = 42`.
+
+### Best Practices
+
+| Scenario                        | Do you need to set `.env`?          |
+|---------------------------------|-------------------------------------|
+| Calling `log_add()` directly    | ❌ No (it auto-captures from caller) |
+| Calling from a wrapper          | ✅ Yes, set `.env = parent.frame()`  |
+| Nested pipelines or metaprogramming | ✅ Yes, be explicit                |
+| Building custom logging tools   | ✅ Always set `.env` for consistency |
+
+Using `.env` might look like a technical detail, but it makes your logs **predictable and robust**, especially in large pipelines or packages that delegate work across functions.
+
+This creates a log entry with detailed context that you control entirely.
+
 
 ### Example 3: Adding logmeta
 

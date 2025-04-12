@@ -218,3 +218,43 @@ log_show <- function(name = getOption("pipfun.log.default")) {
   invisible(log)
 }
 
+
+
+
+#' Argument Inspector
+#'
+#' introspects how arguments are being resolved — showing what was passed
+#' explicitly, what was set by default, and what's visible in the environment at
+#' runtime. This is super helpful when trying to debug or understand how
+#' log_add() captures arguments using environment()
+#'
+#' @param .env environment where the arguments are coming from
+#'
+#' @returns `inspect_args` class object
+#' @export
+inspect_args <- function(.env = parent.frame()) {
+  fn <- sys.function(-1)
+  call <- match.call(definition = fn, call = sys.call(-1), expand.dots = TRUE)
+
+  # Explicitly passed arguments
+  explicit <- as.list(call)[-1]
+
+  # All formal arguments
+  formals_all <- formals(fn)
+
+  # All actual values in the environment
+  env_values <- as.list(.env)
+
+  resolved <- mapply(function(name, default) {
+    if (name %in% names(explicit)) {
+      list(source = "explicit", value = explicit[[name]])
+    } else if (name %in% names(env_values)) {
+      list(source = "default (evaluated)", value = env_values[[name]])
+    } else {
+      list(source = "missing", value = default)
+    }
+  }, name = names(formals_all), default = formals_all, SIMPLIFY = FALSE)
+
+  structure(resolved, class = "inspect_args")
+}
+
