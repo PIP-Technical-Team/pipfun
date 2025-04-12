@@ -68,8 +68,11 @@ log_add <- function(event,
     dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
     if (!is.null(dots)) args <- c(args, dots)
 
-    # Attach extra metadata if present
-    if (!is.null(logmeta)) args <- c(args, logmeta)
+  }
+
+  # Always merge logmeta if provided
+  if (!is.null(logmeta)) {
+    args <- c(args, logmeta)
   }
 
 
