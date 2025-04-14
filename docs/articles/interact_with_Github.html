@@ -78,11 +78,11 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pip-technical-team.github.io/pipfun" class="external-link">pipfun</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pip-technical-team.github.io/pipfun">pipfun</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>The <a href="https://pip-technical-team.github.io/pipfun" class="external-link">pipfun</a> package provides a set of tools for
+<p>The <a href="https://pip-technical-team.github.io/pipfun">pipfun</a> package provides a set of tools for
 interacting with GitHub content, especially designed for working with
 PIP repositories. These functions act as lightweight wrappers around the
 <a href="https://gh.r-lib.org/" class="external-link">gh</a> package, offering a simpler and more focused interface
@@ -91,26 +91,26 @@ for specific GitHub tasks related to PIP.</p>
 <div class="section level2">
 <h2 id="managing-credentials">Managing Credentials<a class="anchor" aria-label="anchor" href="#managing-credentials"></a>
 </h2>
-<p>The <a href="https://pip-technical-team.github.io/pipfun" class="external-link">pipfun</a> package utilizes the
+<p>The <a href="https://pip-technical-team.github.io/pipfun">pipfun</a> package utilizes the
 <a href="https://gitcreds.r-lib.org/" class="external-link">gitcreds</a> package to manage, store, and authenticate
 GitHub credentials. <a href="https://gitcreds.r-lib.org/" class="external-link">gitcreds</a> provides a straightforward
 way to securely store your GitHub Personal Access Token (PAT) and ensure
-seamless access when using <a href="https://pip-technical-team.github.io/pipfun" class="external-link">pipfun</a>.</p>
+seamless access when using <a href="https://pip-technical-team.github.io/pipfun">pipfun</a>.</p>
 <p>To set up your credentials, you can follow the instructions provided
 on the <a href="https://gitcreds.r-lib.org/" class="external-link">official
 <code>{gitcreds}</code> documentation page</a>, or refer to Jenny
 Bryan’s excellent guide, <a href="https://happygitwithr.com/https-pat.html#gitcreds-package" class="external-link">Happy
 Git With R</a>. Both resources provide detailed explanations on how to
 properly configure your Git credentials.</p>
-<p>Please note that <a href="https://pip-technical-team.github.io/pipfun" class="external-link">pipfun</a> requires valid GitHub
+<p>Please note that <a href="https://pip-technical-team.github.io/pipfun">pipfun</a> requires valid GitHub
 credentials to interact with repositories. If your credentials are not
 set up correctly with <a href="https://gitcreds.r-lib.org/" class="external-link">gitcreds</a>, you will be unable to use
-<a href="https://pip-technical-team.github.io/pipfun" class="external-link">pipfun</a> for any GitHub-related functionality.</p>
+<a href="https://pip-technical-team.github.io/pipfun">pipfun</a> for any GitHub-related functionality.</p>
 </div>
 <div class="section level2">
 <h2 id="getting-data-from-github">Getting Data from GitHub<a class="anchor" aria-label="anchor" href="#getting-data-from-github"></a>
 </h2>
-<p>The functions in <a href="https://pip-technical-team.github.io/pipfun" class="external-link">pipfun</a> are organized to build upon
+<p>The functions in <a href="https://pip-technical-team.github.io/pipfun">pipfun</a> are organized to build upon
 one another, allowing for progressively more complex interactions with
 GitHub. Below, we’ll start by introducing the foundational, lower-level
 functions that provide core metadata and file information. We will then
@@ -184,7 +184,7 @@ across branches in the repository.</p>
 <p>Downloading and reading files from GitHub can be challenging due to
 the diversity of file formats, many of which cannot be read directly.
 This is where the <code><a href="../reference/get_file_from_gh.html">get_file_from_gh()</a></code> function in
-<a href="https://pip-technical-team.github.io/pipfun" class="external-link">pipfun</a> comes into play.</p>
+<a href="https://pip-technical-team.github.io/pipfun">pipfun</a> comes into play.</p>
 <p>The <code><a href="../reference/get_file_from_gh.html">get_file_from_gh()</a></code> function simplifies this process
 by identifying the format of the file, downloading it as a temporary
 file on your local drive (when necessary), and then loading it directly
@@ -222,7 +222,7 @@ steps needed to handle each format.</p>
 <div class="section level2">
 <h2 id="saving-data-to-github">Saving Data to GitHub<a class="anchor" aria-label="anchor" href="#saving-data-to-github"></a>
 </h2>
-<p>To save data to GitHub using <a href="https://pip-technical-team.github.io/pipfun" class="external-link">pipfun</a>, you need to have
+<p>To save data to GitHub using <a href="https://pip-technical-team.github.io/pipfun">pipfun</a>, you need to have
 appropriate permissions configured in your R environment. Ensure that
 the token you use with <a href="https://gitcreds.r-lib.org/" class="external-link">gitcreds</a> has the necessary
 permissions to write files to GitHub repositories.</p>

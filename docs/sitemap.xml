@@ -1,210 +1,210 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/404.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/articles/index.html</loc>
   </url>
   <url>
-    <loc>/articles/interact_with_Github.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/articles/interact_with_Github.html</loc>
   </url>
   <url>
-    <loc>/articles/log.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/articles/log.html</loc>
   </url>
   <url>
-    <loc>/articles/pip_release_management.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/articles/pip_release_management.html</loc>
   </url>
   <url>
-    <loc>/articles/release_branch_management.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/articles/release_branch_management.html</loc>
   </url>
   <url>
-    <loc>/articles/working_with_releases.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/articles/working_with_releases.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/index.html</loc>
   </url>
   <url>
-    <loc>/LICENSE-text.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>/LICENSE.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/news/index.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/add_gls_to_env.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/add_gls_to_env.html</loc>
   </url>
   <url>
-    <loc>/reference/all_args.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/all_args.html</loc>
   </url>
   <url>
-    <loc>/reference/check_pip_release_inputs.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/check_pip_release_inputs.html</loc>
   </url>
   <url>
-    <loc>/reference/check_pkg_active.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/check_pkg_active.html</loc>
   </url>
   <url>
-    <loc>/reference/compare_branches_sha.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/compare_branches_sha.html</loc>
   </url>
   <url>
-    <loc>/reference/compare_branch_content.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/compare_branch_content.html</loc>
   </url>
   <url>
-    <loc>/reference/confirm_branch_exists.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/confirm_branch_exists.html</loc>
   </url>
   <url>
-    <loc>/reference/create_dir.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/create_dir.html</loc>
   </url>
   <url>
-    <loc>/reference/create_new_branch.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/create_new_branch.html</loc>
   </url>
   <url>
-    <loc>/reference/delete_branch.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/delete_branch.html</loc>
   </url>
   <url>
-    <loc>/reference/dot-piplogenv.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/dot-piplogenv.html</loc>
   </url>
   <url>
-    <loc>/reference/download_and_read_file.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/download_and_read_file.html</loc>
   </url>
   <url>
-    <loc>/reference/download_from_gh.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/download_from_gh.html</loc>
   </url>
   <url>
-    <loc>/reference/find_release.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/find_release.html</loc>
   </url>
   <url>
-    <loc>/reference/get_branch_info_from_gh.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_branch_info_from_gh.html</loc>
   </url>
   <url>
-    <loc>/reference/get_commit_info_from_gh.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_commit_info_from_gh.html</loc>
   </url>
   <url>
-    <loc>/reference/get_file_from_gh.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_file_from_gh.html</loc>
   </url>
   <url>
-    <loc>/reference/get_file_info_from_gh.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_file_info_from_gh.html</loc>
   </url>
   <url>
-    <loc>/reference/get_from_pipenv.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_from_pipenv.html</loc>
   </url>
   <url>
-    <loc>/reference/get_gh.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_gh.html</loc>
   </url>
   <url>
-    <loc>/reference/get_github_creds.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_github_creds.html</loc>
   </url>
   <url>
-    <loc>/reference/get_latest_pip_release.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_latest_pip_release.html</loc>
   </url>
   <url>
-    <loc>/reference/get_pipenv.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_pipenv.html</loc>
   </url>
   <url>
-    <loc>/reference/get_pip_releases.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_pip_releases.html</loc>
   </url>
   <url>
-    <loc>/reference/get_ppp_versions.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_ppp_versions.html</loc>
   </url>
   <url>
-    <loc>/reference/get_repo_branches.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_repo_branches.html</loc>
   </url>
   <url>
-    <loc>/reference/get_wrk_release.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/get_wrk_release.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/inspect_args.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/inspect_args.html</loc>
   </url>
   <url>
-    <loc>/reference/is_package_attached.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/is_package_attached.html</loc>
   </url>
   <url>
-    <loc>/reference/is_package_loaded.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/is_package_loaded.html</loc>
   </url>
   <url>
-    <loc>/reference/is_private_repo.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/is_private_repo.html</loc>
   </url>
   <url>
-    <loc>/reference/load_from_disk.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/load_from_disk.html</loc>
   </url>
   <url>
-    <loc>/reference/load_from_gh.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/load_from_gh.html</loc>
   </url>
   <url>
-    <loc>/reference/log_add.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_add.html</loc>
   </url>
   <url>
-    <loc>/reference/log_exists.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_exists.html</loc>
   </url>
   <url>
-    <loc>/reference/log_filter.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_filter.html</loc>
   </url>
   <url>
-    <loc>/reference/log_get.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_get.html</loc>
   </url>
   <url>
-    <loc>/reference/log_has_errors.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_has_errors.html</loc>
   </url>
   <url>
-    <loc>/reference/log_info.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_info.html</loc>
   </url>
   <url>
-    <loc>/reference/log_init.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_init.html</loc>
   </url>
   <url>
-    <loc>/reference/log_load.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_load.html</loc>
   </url>
   <url>
-    <loc>/reference/log_names.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_names.html</loc>
   </url>
   <url>
-    <loc>/reference/log_reset.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_reset.html</loc>
   </url>
   <url>
-    <loc>/reference/log_save.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_save.html</loc>
   </url>
   <url>
-    <loc>/reference/log_show.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_show.html</loc>
   </url>
   <url>
-    <loc>/reference/log_summary.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/log_summary.html</loc>
   </url>
   <url>
-    <loc>/reference/merge_branch_into.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/merge_branch_into.html</loc>
   </url>
   <url>
-    <loc>/reference/new_pip_release.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/new_pip_release.html</loc>
   </url>
   <url>
-    <loc>/reference/pipinstall.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/pipinstall.html</loc>
   </url>
   <url>
-    <loc>/reference/pip_create_globals.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/pip_create_globals.html</loc>
   </url>
   <url>
-    <loc>/reference/pip_create_vintage.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/pip_create_vintage.html</loc>
   </url>
   <url>
-    <loc>/reference/pip_sign_save.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/pip_sign_save.html</loc>
   </url>
   <url>
-    <loc>/reference/save_to_gh.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/save_to_gh.html</loc>
   </url>
   <url>
-    <loc>/reference/setup_working_release.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/setup_working_release.html</loc>
   </url>
   <url>
-    <loc>/reference/set_in_pipenv.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/set_in_pipenv.html</loc>
   </url>
   <url>
-    <loc>/reference/update_branches.html</loc>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/update_branches.html</loc>
   </url>
 </urlset>

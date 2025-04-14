@@ -121,7 +121,7 @@ across your R codebase — especially when building packages.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:05.263048]</span> <span style="font-style: italic;">ERROR</span> — `An error occurred`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:25.032634]</span> <span style="font-style: italic;">ERROR</span> — `An error occurred`</span></span>
 <span><span class="co">#&gt; Function: `log_error("An error occurred", name = log_name)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_error("An error occurred", name = log_name)</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
@@ -176,7 +176,7 @@ from</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:05.531678]</span> <span style="font-style: italic;">ERROR</span> — `Failed to compute results`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:25.397571]</span> <span style="font-style: italic;">ERROR</span> — `Failed to compute results`</span></span>
 <span><span class="co">#&gt; Function: `log_error("Failed to compute results", name = "devlog", logmeta =</span></span>
 <span><span class="co">#&gt; list(file = "input.csv"))` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_error("Failed to compute results", name = "devlog", logmeta =</span></span>
@@ -191,18 +191,18 @@ from</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:05.529839]</span> <span style="font-style: italic;">INFO</span> — `Process started`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:25.395366]</span> <span style="font-style: italic;">INFO</span> — `Process started`</span></span>
 <span><span class="co">#&gt; Function: `log_info("Process started", name = "devlog", logmeta = list(step =</span></span>
 <span><span class="co">#&gt; 1))` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_info("Process started", name = "devlog", logmeta = list(step = 1))</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:05.530844]</span> <span style="font-style: italic;">WARNING</span> — `Unexpected format`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:25.396571]</span> <span style="font-style: italic;">WARNING</span> — `Unexpected format`</span></span>
 <span><span class="co">#&gt; Function: `log_warn("Unexpected format", name = "devlog", logmeta = list(column</span></span>
 <span><span class="co">#&gt; = "status"))` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_warn("Unexpected format", name = "devlog", logmeta = list(column =</span></span>
 <span><span class="co">#&gt; "status"))</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:05.531678]</span> <span style="font-style: italic;">ERROR</span> — `Failed to compute results`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:25.397571]</span> <span style="font-style: italic;">ERROR</span> — `Failed to compute results`</span></span>
 <span><span class="co">#&gt; Function: `log_error("Failed to compute results", name = "devlog", logmeta =</span></span>
 <span><span class="co">#&gt; list(file = "input.csv"))` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_error("Failed to compute results", name = "devlog", logmeta =</span></span>
@@ -304,11 +304,11 @@ argument:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".qs"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/log_save.html">log_save</a></span><span class="op">(</span><span class="st">"pipapi_log"</span>, path <span class="op">=</span> <span class="va">tf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> saved to <span style="color: #0000BB;">C:\Users\wb621604\AppData\Local\Temp\Rtmpc3QVsm\file7b6426f13f56.qs</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> saved to <span style="color: #0000BB;">C:\Users\wb621604\AppData\Local\Temp\Rtmp6lyYS8\file70b450179e5.qs</span></span></span>
 <span><span class="fu"><a href="../reference/log_reset.html">log_reset</a></span><span class="op">(</span><span class="st">"pipapi_log"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> has been reset.</span></span>
 <span><span class="fu"><a href="../reference/log_load.html">log_load</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">tf</span>, name <span class="op">=</span> <span class="st">"pipapi_log"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> loaded from <span style="color: #0000BB;">C:\Users\wb621604\AppData\Local\Temp\Rtmpc3QVsm\file7b6426f13f56.qs</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> loaded from <span style="color: #0000BB;">C:\Users\wb621604\AppData\Local\Temp\Rtmp6lyYS8\file70b450179e5.qs</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -424,22 +424,22 @@ settings</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu">calculate_stats</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. </span></span>
-<span><span class="co">#&gt; -1.64876 -0.54692 -0.00582  0.07529  0.73537  2.31654</span></span>
+<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span><span class="co">#&gt; -2.3536 -0.7670  0.0399  0.0419  0.8204  2.4711</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/log_get.html">log_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:06.404582]</span> <span style="font-style: italic;">INFO</span> — `Starting validation`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:26.653228]</span> <span style="font-style: italic;">INFO</span> — `Starting validation`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:06.480862]</span> <span style="font-style: italic;">INFO</span> — `Manual log`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:26.770906]</span> <span style="font-style: italic;">INFO</span> — `Manual log`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:06.507135]</span> <span style="font-style: italic;">INFO</span> — `summary of x`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:26.809079]</span> <span style="font-style: italic;">INFO</span> — `summary of x`</span></span>
 <span><span class="co">#&gt; Function: `calculate_stats(rnorm(100))` (from )</span></span>
 <span><span class="co">#&gt; Trace: calculate_stats(rnorm(100))</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
@@ -468,7 +468,7 @@ Anything else relevant to the context</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:06.633788]</span> <span style="font-style: italic;">WARNING</span> — `Missing PPP detected`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:27.004143]</span> <span style="font-style: italic;">WARNING</span> — `Missing PPP detected`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
@@ -497,7 +497,7 @@ processing, and result.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:06.726686]</span> <span style="font-style: italic;">MODEL</span> — `Model finished`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:27.15933]</span> <span style="font-style: italic;">MODEL</span> — `Model finished`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
@@ -511,7 +511,7 @@ processing, and result.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 15:03:06.826652]</span> <span style="font-style: italic;">MTCARS</span> — `mtcars summary`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-04-14 17:22:27.31289]</span> <span style="font-style: italic;">MTCARS</span> — `mtcars summary`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
 <span><span class="co">#&gt; </span></span>
