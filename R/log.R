@@ -34,6 +34,7 @@
 #' # Add custom metadata manually:
 #' log_info("Logging manually", name = "demo_log",
 #'          logmeta = list(stage = "processing", user = "analyst"))
+#' @export
 log_add <- function(event,
                     message,
                     name    = getOption("pipfun.log.default"),
