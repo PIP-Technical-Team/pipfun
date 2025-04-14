@@ -113,26 +113,26 @@ Below are examples demonstrating how to use it:
 
 This will create a new file named data_example.csv in the DEV branch of the aux_test repository.
 
-```{r}
+```{r try}
 #library(pipfun)
 
 # Example data frame
-df <- data.frame(a = 1:5, b = letters[1:5])
-
-# Save the data to a repository
-save_to_gh(
-  df       = df,
-  owner    = getOption("pipfun.ghowner"),
-  repo     = "aux_test", 
-  filename = "data_example", 
-  ext      = "csv"
-)
+# df <- data.frame(a = 1:5, b = letters[1:5])
+# 
+# # Save the data to a repository
+# save_to_gh(
+#   df       = df,
+#   owner    = getOption("pipfun.ghowner"),
+#   repo     = "aux_test", 
+#   filename = "data_example", 
+#   ext      = "csv"
+# )
 
 ```
 
 ### Example 2: updating an existing file 
 
-```{r}
+```{r eval = FALSE}
 
 # Updated data frame
 df <- data.frame(a = 6:10, b = letters[6:10])
@@ -148,7 +148,7 @@ save_to_gh(
 ```
 ### Example 3: Saving the Same Data to the Same File (No Change)
 
-```{r}
+```{r eval = FALSE}
 # Save the same data to the same file
 result_no_change <- save_to_gh(
   df = df,
