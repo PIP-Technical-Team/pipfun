@@ -1,0 +1,13 @@
+pandoc: 3.1.11
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  interact_with_Github: interact_with_Github.html
+  log: log.html
+  pip_release_management: pip_release_management.html
+  release_branch_management: release_branch_management.html
+  working_with_releases: working_with_releases.html
+last_built: 2025-04-14T22:19Z
+urls:
+  reference: https://pip-technical-team.github.io/pipfun/reference
+  article: https://pip-technical-team.github.io/pipfun/articles
