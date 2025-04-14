@@ -2,7 +2,7 @@
 title: "Tools for GitHub Interaction"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{interact_with_Github}
+  %\VignetteIndexEntry{Tools for GitHub Interaction}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
