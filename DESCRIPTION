@@ -1,6 +1,6 @@
 Package: pipfun
 Title: What the Package Does (One Line, Title Case)
-Version: 0.2.1.9000
+Version: 0.2.2
 Authors@R: person("R.Andres", 
                   "Castaneda",
                   email = "acastanedaa@worldbank.org",
@@ -38,7 +38,8 @@ Suggests:
     janitor,
     testthat (>= 3.0.0),
     writexl,
-    collapse
+    collapse,
+    stats
 Config/testthat/edition: 3
-URL: https://pip-technical-team.github.io/pipfun
+URL: https://pip-technical-team.github.io/pipfun, https://pip-technical-team.github.io/pipfun/
 VignetteBuilder: knitr

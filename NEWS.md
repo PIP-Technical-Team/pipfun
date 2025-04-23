@@ -1,4 +1,7 @@
-# pipfun (development version)
+# pipfun 0.2.2
+
+* Add full battery of functions for the logging system. Refer to the vignette 
+to learn more about them. 
 
 # pipfun 0.2.1
 
