@@ -631,7 +631,8 @@ sync_release_branch <- function(owner       = getOption("pipfun.ghowner"),
 
     create_new_branch(owner      = owner,
                       repo       = repo,
-                      ref_branch = ref_branch)
+                      ref_branch = ref_branch,
+                      verbose    = verbose)
   }
 }
 
