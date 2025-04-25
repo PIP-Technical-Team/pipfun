@@ -596,43 +596,51 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 #' \dontrun{
 #' sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")
 #' }
-sync_release_branch <- function(owner       = getOption("pipfun.ghowner"),
+sync_release_branch <- function(owner         = getOption("pipfun.ghowner"),
                                 repo,
-                                ref_branch  = "DEV",
-                                target_branch = paste0(wrk_release$release,
-                                                       "_",
-                                                       wrk_release$identity),
-                                verbose = FALSE) {
+                                ref_branch    = "DEV",
+                                target_branch = NULL,
+                                verbose       = FALSE) {
 
-  #identity       <- match.arg(identity)
-  #release_branch <- paste0(release, "_", identity)
+  get_wrk_release()
 
   release        <- wrk_release$release
   identity       <- wrk_release$identity
-  release_branch <- paste0(release, "_", identity)
+  target_branch <- paste0(release, "_", identity)
 
-  # Get repository branches
-  branches_info <- get_repo_branches(owner = owner,
-                                     repo  = repo)
+  tryCatch(
+    expr = {
+      update_branches(owner   = owner,
+                      repo    = repo,
+                      branch1 = ref_branch,
+                      branch2 = target_branch,
+                      verbose = verbose)
+    },
+    error = function(e) {
+      message("Encountered error: ", e$message)
 
-  if (release_branch %in% branches_info$release_branches) {
+      if (grepl("Branch not found", e$message)) {
+        message("Target branch not found. Creating it...")
 
-    # If a release branch exists, update it with most recent version of DEV
-    if (verbose) cli::cli_alert_info("Updating existing target branch: {.field {target_branch}}")
+        create_new_branch(owner      = owner,
+                          repo       = repo,
+                          ref_branch = ref_branch,
+                          new_branch = target_branch,  # make sure your function supports this!
+                          verbose    = verbose)
 
-    update_branches(owner   = owner,
-                    repo    = repo,
-                    branch1 = ref_branch,
-                    branch2 = target_branch)
-  } else {
+        update_branches(owner   = owner,
+                        repo    = repo,
+                        branch1 = ref_branch,
+                        branch2 = target_branch,
+                        verbose = verbose)
+      } else {
+        stop(e)  # re-throw other errors
+      }
+    }
+  )
 
-    # If release branch does not exist, create it
-    if (verbose) cli::cli_alert_info("Target branch not found. Creating a new one.")
+  invisible(TRUE)
 
-    create_new_branch(owner      = owner,
-                      repo       = repo,
-                      ref_branch = ref_branch,
-                      verbose    = verbose)
-  }
+
 }
 
