@@ -8,8 +8,6 @@ create_new_branch(
   measure = NULL,
   owner = getOption("pipfun.ghowner"),
   repo = ifelse(is.null(measure), NA, paste0("aux_", measure)),
-  release = format(Sys.Date(), "\%Y\%m\%d"),
-  identity = getOption("pipfun.identities"),
   ref_branch = "DEV",
   new_branch = NULL,
   verbose = getOption("pipfun.verbose")
@@ -22,10 +20,6 @@ create_new_branch(
 \code{getOption("pipfun.ghowner")}}
 
 \item{repo}{character: name of the repo}
-
-\item{release}{character: date in the form "\%Y\%m\%d"}
-
-\item{identity}{character: for PIP repos it must be one of \code{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
 
 \item{ref_branch}{Character: reference branch from which the new branch will be
 created.}

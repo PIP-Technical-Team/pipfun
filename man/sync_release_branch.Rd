@@ -8,8 +8,8 @@ sync_release_branch(
   owner = getOption("pipfun.ghowner"),
   repo,
   ref_branch = "DEV",
-  release = NULL,
-  identity = getOption("pipfun.identities")
+  target_branch = NULL,
+  verbose = FALSE
 )
 }
 \arguments{

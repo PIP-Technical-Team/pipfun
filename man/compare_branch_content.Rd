@@ -8,7 +8,8 @@ compare_branch_content(
   owner = getOption("pipfun.ghowner"),
   repo,
   branch1 = "main",
-  branch2 = "dev"
+  branch2 = "dev",
+  verbose = TRUE
 )
 }
 \arguments{

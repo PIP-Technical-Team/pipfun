@@ -19,8 +19,6 @@ setup_working_release(
 )
 }
 \arguments{
-\item{release}{character: date in the form "\%Y\%m\%d"}
-
 \item{identity}{character: one of "PROD", "INT", or "TEST"}
 
 \item{owner}{character: owner of repo}

@@ -9,7 +9,8 @@ update_branches(
   repo,
   branch1,
   branch2,
-  force = TRUE
+  force = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{

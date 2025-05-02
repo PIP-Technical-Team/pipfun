@@ -9,7 +9,8 @@ compare_branches_sha(
   measure = NULL,
   repo = ifelse(is.null(measure), NA, paste0("aux_", measure)),
   branch1 = "main",
-  branch2 = "DEV"
+  branch2 = "DEV",
+  verbose = FALSE
 )
 }
 \arguments{
