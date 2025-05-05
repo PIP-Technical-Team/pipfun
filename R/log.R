@@ -82,7 +82,16 @@ log_add <- function(event,
   # Extract calling function
   call_stack <- sys.calls()
   calling_fn <- if (length(call_stack) > 1) {
-    deparse(call_stack[[length(call_stack) - 1]])
+    cf <- deparse(call_stack[[length(call_stack) - 1]]) |>
+      trimws() |>
+      paste(collapse = " ")
+    if (grepl("^log_", cf)) {
+      cf <- deparse(call_stack[[length(call_stack) - 2]]) |>
+        trimws() |>
+        paste(collapse = " ")
+    }
+    invisible(cf)
+
   } else {
     "unknown"
   }
