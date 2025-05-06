@@ -1,4 +1,4 @@
-# pipfun (development version)
+# pipfun 0.3.0
 
 # pipfun 0.2.2
 
