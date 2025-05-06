@@ -25,10 +25,6 @@ remove_pip_release(
 )
 }
 \arguments{
-\item{release}{character: date in the form "\%Y\%m\%d"}
-
-\item{identity}{character: for PIP repos it must be one of \code{c("PROD", "INT", "TEST")}. For other repos, just leave de default, which is 'PROD'.}
-
 \item{verbose}{A logical: whether to print detailed messages
 about the process. The default is \code{TRUE}}
 

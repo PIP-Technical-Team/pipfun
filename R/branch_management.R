@@ -4,9 +4,6 @@
 #' new branch in repo
 #'
 #' @inheritParams load_from_gh
-#' @param release character: date in the form "%Y%m%d"
-#' @param identity character: for PIP repos it must be one of `c("PROD", "INT",
-#'   "TEST")`. For other repos, just leave de default, which is 'PROD'.
 #' @param ref_branch Character: reference branch from which the new branch will be
 #'   created.
 #' @param new_branch character: name of new branch. Default is
@@ -32,16 +29,22 @@
 #'   try()
 #' }
 create_new_branch <- function(measure     = NULL,
-                             owner       = getOption("pipfun.ghowner"),
-                             repo        = ifelse(is.null(measure), NA,
-                                                  paste0("aux_", measure)) ,
-                             release     = format(Sys.Date(), "%Y%m%d"),
-                             identity    = getOption("pipfun.identities"),
-                             ref_branch  = "DEV",
-                             new_branch  = NULL,
-                             verbose     = getOption("pipfun.verbose")) {
+                              owner       = getOption("pipfun.ghowner"),
+                              repo        = ifelse(is.null(measure), NA,
+                                                    paste0("aux_", measure)) ,
+                              #release     = format(Sys.Date(), "%Y%m%d"),
+                              #identity    = getOption("pipfun.identities"),
+                              ref_branch  = "DEV",
+                              new_branch  = NULL,
+                              verbose     = getOption("pipfun.verbose")) {
 
-  identity <- match.arg(identity)
+
+  # Get working release
+  pipfun::get_wrk_release()
+
+  release        <- wrk_release$release
+  identity       <- wrk_release$identity
+  release_branch <- paste0(release, "_", identity)
 
   if (is.null(new_branch)) {
     new_branch <- paste0(release, "_", identity)
@@ -283,7 +286,8 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
                                  repo        = ifelse(is.null(measure), NA,
                                                       paste0("aux_", measure)),
                                  branch1 = "main",
-                                 branch2 = "DEV") {
+                                 branch2 = "DEV",
+                                 verbose = FALSE) {
 
   # Confirm branches exist
   confirm_branch_exists(branch = branch1,
@@ -307,11 +311,15 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
   # Compare the SHAs
   if (sha_1 == sha_2) {
     updated <- TRUE
-    cli::cli_alert_success(
-      "The {.strong {cli::col_blue('SHAs')}} of the latest commits on both branches are {.strong {cli::col_blue('the same')}}."
-    )
+
+    if (verbose) {
+      cli::cli_alert_success(
+        "The {.strong {cli::col_blue('SHAs')}} of the latest commits on both branches are {.strong {cli::col_blue('the same')}}."
+      )
+    }
+
   } else {
-    cli::cli_alert_warning("The {.strong {cli::col_blue('SHAs')}} of the latest commits on the branches are {.strong {cli::col_blue('different')}}.")
+    if (verbose) cli::cli_alert_warning("The {.strong {cli::col_blue('SHAs')}} of the latest commits on the branches are {.strong {cli::col_blue('different')}}.")
   }
 
   return(list(sha_1   = sha_1,
@@ -334,7 +342,8 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
 compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
                                    repo,
                                    branch1 = "main",
-                                   branch2 = "dev") {
+                                   branch2 = "dev",
+                                   verbose = TRUE) {
   same_content <- FALSE
 
   # Get commit info for both branches
@@ -353,9 +362,9 @@ compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
   # Compare the tree SHAs
   if (tree_sha1 == tree_sha2) {
     same_content <- TRUE
-    cli::cli_alert_success("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have the same content at their latest commits.")
+    if (verbose) cli::cli_alert_success("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have the same content at their latest commits.")
   } else {
-    cli::cli_alert_warning("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have different content at their latest commits.")
+    if (verbose) cli::cli_alert_warning("The branches {.strong {cli::col_blue(branch1)}} and {.strong {cli::col_blue(branch2)}} have different content at their latest commits.")
   }
 
   return(list(
@@ -383,7 +392,7 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
   branch_names <- sapply(branches_info,
                          function(branch) branch$name)
   # Check if any branch matches the release pattern (8 digits)
-  release_pattern <- "^\\d{8}$"
+  release_pattern <- "^\\d{8}"
   release_branches <- grep(release_pattern,
                            branch_names,
                            value = TRUE)
@@ -420,7 +429,8 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
                             repo,
                             branch1,
                             branch2,
-                            force = TRUE
+                            force = TRUE,
+                            verbose = TRUE
 ) {
 
   # Update branch 2 based on branch 1 latest commit
@@ -429,17 +439,19 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
   branches_sha <- compare_branches_sha(repo = repo,
                                        owner = owner,
                                        branch1 = branch1,
-                                       branch2 = branch2)
+                                       branch2 = branch2,
+                                       verbose = verbose)
 
   # Check tree sha of latest commit
   branches_content <- compare_branch_content(repo = repo,
                                              owner = owner,
                                              branch1 = branch1,
-                                             branch2 = branch2)
+                                             branch2 = branch2,
+                                             verbose = verbose)
 
   # Do nothing if branches already have same content
   if (branches_content$same_content) {
-    cli::cli_alert_warning("Branches are already up-to-date.")
+    if (verbose) cli::cli_alert_warning("Branches are already up-to-date.")
     return(TRUE)
   }
 
@@ -565,3 +577,70 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 
   return(result)
 }
+
+#' Create or Update release branch of a GH repo
+#'
+#' This function checks if a GitHub repository has a release branch. If a release branch exists, it updates it with the latest `DEV` branch.
+#' If no release branch exists, it creates a new one from `DEV`
+#'
+#' @param owner Character. The GitHub owner or organization name. Defaults to `getOption("pipfun.ghowner")`
+#' @param repo Character. The name of the repository.
+#' @param ref_branch Character. The branch from which the release branch should be created or updated. Defaults to `"DEV"`
+#' @param release TBC
+#' @param identity Character. The identity used for naming the new branch if created. One of `getOption("pipfun.identities")`
+#'
+#' @return Invisible `TRUE` if the process succeeds, otherwise an error message is displayed
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")
+#' }
+sync_release_branch <- function(owner         = getOption("pipfun.ghowner"),
+                                repo,
+                                ref_branch    = "DEV",
+                                target_branch = NULL,
+                                verbose       = FALSE) {
+
+  get_wrk_release()
+
+  release        <- wrk_release$release
+  identity       <- wrk_release$identity
+  target_branch <- paste0(release, "_", identity)
+
+  tryCatch(
+    expr = {
+      update_branches(owner   = owner,
+                      repo    = repo,
+                      branch1 = ref_branch,
+                      branch2 = target_branch,
+                      verbose = verbose)
+    },
+    error = function(e) {
+      message("Encountered error: ", e$message)
+
+      if (grepl("Branch not found", e$message)) {
+        message("Target branch not found. Creating it...")
+
+        create_new_branch(owner      = owner,
+                          repo       = repo,
+                          ref_branch = ref_branch,
+                          new_branch = target_branch,  # make sure your function supports this!
+                          verbose    = verbose)
+
+        update_branches(owner   = owner,
+                        repo    = repo,
+                        branch1 = ref_branch,
+                        branch2 = target_branch,
+                        verbose = verbose)
+      } else {
+        stop(e)  # re-throw other errors
+      }
+    }
+  )
+
+  invisible(TRUE)
+
+
+}
+

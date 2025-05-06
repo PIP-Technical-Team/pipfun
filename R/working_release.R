@@ -106,14 +106,15 @@ setup_working_release <- function(release  = NULL,
 #' setup_working_release()
 #' print(hell())
 #' }
-get_wrk_release <- function(name = "wrk_release") {
+get_wrk_release <- function(name = "wrk_release",
+                            verbose = TRUE) {
   wrk_release <- get_from_pipenv("working_release")
   if (is.null(wrk_release)) {
     cli::cli_abort(
       c(x = "Working release has not been set up",
         i = "You need to set a working release with {.code pipfun::setup_working_release()}"))
   } else {
-    cli::cli_alert_info("Your working release is {.field {wrk_release$release}}")
+    if (verbose) cli::cli_alert_info("Your working release is {.field {wrk_release$release}}")
   }
 
   # Assign to hello()'s environment

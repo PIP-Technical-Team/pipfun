@@ -9,7 +9,7 @@ pip_sign_save(
   measure,
   msrdir,
   force = FALSE,
-  save_dta = TRUE,
+  save_dta = FALSE,
   verbose = getOption("pipfun.verbose")
 )
 }
