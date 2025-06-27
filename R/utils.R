@@ -75,3 +75,33 @@ get_latest_ppp_versions <- function(ppps = getOption("pipfun.ppps")) {
   ]
   pppmf
 }
+
+
+#' Constructor of secret.
+#'
+#' Right from the Advanced R Book
+#'
+#' @param x any vector
+#'
+#' @returns x with class "secrete"
+#' @export
+#'
+#' @examples
+#' y <- new_secrete("284092sdhfjsld")
+#' y
+new_secret <- function(x = double()) {
+  structure(x, class = "secret")
+}
+
+
+#' S# method for secret
+#'
+#' @param x secret vector
+#' @param ... other arguments
+#'
+#' @returns x invisible
+#' @export
+print.secret <- function(x, ...) {
+  print(strrep("x", (nchar(x) + 1)))
+  invisible(x)
+}
