@@ -4,7 +4,7 @@
 \alias{get_wrk_release}
 \title{get working release in PIP functions}
 \usage{
-get_wrk_release(name = "wrk_release")
+get_wrk_release(name = "wrk_release", verbose = TRUE)
 }
 \arguments{
 \item{name}{character: Name of the working release object. default is

@@ -21,6 +21,7 @@ remove_pip_release(
   verbose = getOption("pipfun.verbose"),
   working_dir = NULL,
   ppps = getOption("pipfun.ppps"),
+  confirm_remove = getOption("pipfun.confirm_remove"),
   ...
 )
 }

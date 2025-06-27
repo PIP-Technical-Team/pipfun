@@ -201,10 +201,11 @@ create_dir <- function(wdir, dirs,
 #' @export
 remove_pip_release <-
   function(release,
-           identity    = getOption("pipfun.identities"),
-           verbose     = getOption("pipfun.verbose"),
-           working_dir = NULL,
-           ppps        = getOption("pipfun.ppps"),
+           identity       = getOption("pipfun.identities"),
+           verbose        = getOption("pipfun.verbose"),
+           working_dir    = NULL,
+           ppps           = getOption("pipfun.ppps"),
+           confirm_remove = getOption("pipfun.confirm_remove"),
            ...) {
   # defenses ----------
   identity <- match.arg(identity)
@@ -223,8 +224,8 @@ remove_pip_release <-
     if (selection == 1) {
       working_dir <- official_dir
     } else if (selection == 2) {
-      cli::cli_abort("implement browse or something like that... (DEVELPMENT) ")
-    }else {
+      cli::cli_abort("implement browse or something like that... (DEVELOPMENT) ")
+    } else {
       cli::cli_abort("option not allowed")
     }
 
@@ -283,11 +284,28 @@ remove_pip_release <-
   pc_versions  <- df[,unique(pc_ver)]
 
   ## actual removal of dirs -----------
-  aux_dir <- remove_aux_dir(working_dir  = working_dir,
-                            aux_versions = aux_versions)
+  if (confirm_remove == FALSE) {
+    cli::cli_alert_danger("Are you sure you want to delete
+                  {.file {c(aux_versions, pc_versions)}} folders?")
+    selection <- menu(choices = c("NO", "YES"),
+                      title = "")
+    if (selection != 2) {
+      cli::cli_alert_danger("no folders were deleted")
+      return(invisible(FALSE))
+    }
+  }
 
-  pc_dir <- remove_pc_dir(working_dir  = working_dir,
-                          pc_versions  = pc_versions)
+  if (identity == "PROD" & working_dir == pip_off_folder_v2) {
+    pass <- readline("Enter password to delete folder: ")
+    if (pass != pip_off_v2_pass) {
+      cli::cli_abort("Password incorrect")
+    }
+  }
+    aux_dir <- remove_aux_dir(working_dir  = working_dir,
+                              aux_versions = aux_versions)
+
+    pc_dir <- remove_pc_dir(working_dir  = working_dir,
+                            pc_versions  = pc_versions)
 
 
   # Update release info ----------
