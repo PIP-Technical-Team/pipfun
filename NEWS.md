@@ -1,5 +1,7 @@
 # pipfun 0.3.0
 
+* add layers for security before deleting relseases folders
+
 # pipfun 0.2.2
 
 * Add full battery of functions for the logging system. Refer to the vignette 
