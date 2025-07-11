@@ -1,5 +1,5 @@
 # pipfun 0.3.1
-* add layers for security before deleting relseases folders
+* add layers for security before deleting releases folders
 
 # pipfun 0.3.0
 
