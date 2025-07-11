@@ -44,65 +44,51 @@ log_add <- function(event,
                     .trace  = NULL,
                     .env    = rlang::caller_env()) {
 
-  # if (is.null(args)) {
-  #   args <- as.list(.env)
-  #   args$name <- NULL
-  #
-  #   # Attempt to capture `...` from caller environment
-  #   dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
-  #   args <- c(args, dots)
-  # }
+
 
   # # Auto-capture args from caller if not supplied
   # Auto-capture args from caller if not supplied
+
+  # --- Find the true calling function and environment (skip log_ wrappers) ---
+  call_stack <- sys.calls()
+  env_stack <- sys.frames()
+  n <- length(call_stack)
+  target_idx <- n - 1
+  while (target_idx > 0 && grepl("^log_", deparse(call_stack[[target_idx]])[1])) {
+    target_idx <- target_idx - 1
+  }
+  target_env <- env_stack[[target_idx]]
+  target_fun <- tryCatch(eval(call_stack[[target_idx]][[1]], envir = target_env), error = function(e) NULL)
+
+  # --- Argument capture ---
   if (is.null(args)) {
-    # Find the correct call frame: skip wrappers starting with "log_"
-    call_stack <- sys.calls()
-    env_stack <- sys.frames()
-    n <- length(call_stack)
-    target_idx <- n - 1
-    # Go up until we find a non-wrapper
-    while (target_idx > 0 && grepl("^log_", deparse(call_stack[[target_idx]])[1])) {
-      target_idx <- target_idx - 1
-    }
-    # Use the found environment and function
-    target_env <- env_stack[[target_idx]]
-    target_fun <- eval(call_stack[[target_idx]][[1]], envir = target_env)
-    arg_names <- names(formals(target_fun))
-    arg_names <- arg_names[arg_names != "..."]
-    args <- mget(arg_names, envir = target_env, ifnotfound = list())
-    # Optionally, try to add ... if present
-    if ("..." %in% names(formals(target_fun))) {
-      dots <- tryCatch(evalq(list(...), envir = target_env), error = function(e) NULL)
-      if (!is.null(dots)) args <- c(args, dots)
+    if (!is.null(target_fun) && is.function(target_fun)) {
+      arg_names <- names(formals(target_fun))
+      arg_names <- arg_names[arg_names != "..."]
+      args <- mget(arg_names, envir = target_env, ifnotfound = list())
+      if ("..." %in% names(formals(target_fun))) {
+        dots <- tryCatch(evalq(list(...), envir = target_env), error = function(e) NULL)
+        if (!is.null(dots)) args <- c(args, dots)
+      }
+    } else {
+      args <- list()
     }
   }
+
 
   # Always merge logmeta if provided
   if (!is.null(logmeta)) {
     args <- c(args, logmeta)
   }
 
-
   log <- rlang::env_get(.piplogenv, name)
 
-  # Extract calling function
-  call_stack <- sys.calls()
-  calling_fn <- if (length(call_stack) > 1) {
-
-    # Find out what is the calling funtion of log_add
-    cf <- deparse(call_stack[[length(call_stack) - 1]]) |>
+  # --- Extract calling function name (from target_idx) ---
+  calling_fn <- if (target_idx > 0) {
+    cf <- deparse(call_stack[[target_idx]]) |>
       trimws() |>
       paste(collapse = " ")
-    # If the calling function in anout log_ function (list a wrapper)
-    # then call the one right before.
-    if (grepl("^log_", cf)) {
-      cf <- deparse(call_stack[[length(call_stack) - 2]]) |>
-        trimws() |>
-        paste(collapse = " ")
-    }
     invisible(cf)
-
   } else {
     "unknown"
   }
