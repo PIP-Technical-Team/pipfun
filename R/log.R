@@ -56,19 +56,26 @@ log_add <- function(event,
   # # Auto-capture args from caller if not supplied
   # Auto-capture args from caller if not supplied
   if (is.null(args)) {
-    # Try rlang::call_args() if in a proper call frame
-    args <- tryCatch(rlang::call_args(.env), error = function(e) NULL)
-
-    # Fallback: manually grab all symbols in environment
-    if (is.null(args) || identical(names(args), "")) {
-      vars <- setdiff(ls(envir = .env), c("name", "event", "message"))
-      args <- rlang::env_get_list(.env, vars)
+    # Find the correct call frame: skip wrappers starting with "log_"
+    call_stack <- sys.calls()
+    env_stack <- sys.frames()
+    n <- length(call_stack)
+    target_idx <- n - 1
+    # Go up until we find a non-wrapper
+    while (target_idx > 0 && grepl("^log_", deparse(call_stack[[target_idx]])[1])) {
+      target_idx <- target_idx - 1
     }
-
-    # Try to add dots (optional)
-    dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
-    if (!is.null(dots)) args <- c(args, dots)
-
+    # Use the found environment and function
+    target_env <- env_stack[[target_idx]]
+    target_fun <- eval(call_stack[[target_idx]][[1]], envir = target_env)
+    arg_names <- names(formals(target_fun))
+    arg_names <- arg_names[arg_names != "..."]
+    args <- mget(arg_names, envir = target_env, ifnotfound = list())
+    # Optionally, try to add ... if present
+    if ("..." %in% names(formals(target_fun))) {
+      dots <- tryCatch(evalq(list(...), envir = target_env), error = function(e) NULL)
+      if (!is.null(dots)) args <- c(args, dots)
+    }
   }
 
   # Always merge logmeta if provided
@@ -82,9 +89,13 @@ log_add <- function(event,
   # Extract calling function
   call_stack <- sys.calls()
   calling_fn <- if (length(call_stack) > 1) {
+
+    # Find out what is the calling funtion of log_add
     cf <- deparse(call_stack[[length(call_stack) - 1]]) |>
       trimws() |>
       paste(collapse = " ")
+    # If the calling function in anout log_ function (list a wrapper)
+    # then call the one right before.
     if (grepl("^log_", cf)) {
       cf <- deparse(call_stack[[length(call_stack) - 2]]) |>
         trimws() |>
