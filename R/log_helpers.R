@@ -26,26 +26,17 @@
 #' log_reset("mylog")
 #'
 #' @export
+
 log_info <- function(message,
                      name    = getOption("pipfun.log.default"),
                      output  = NULL,
                      .trace  = NULL,
                      .env    = parent.frame(),
                      logmeta = NULL) {
-
-  args <- as.list(.env)
-  args$name   <- NULL
-  args$output <- NULL
-  args$.trace <- NULL
-
-  # Optionally capture calling dots
-  dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
-  args <- c(args, dots)
-
   log_add(event   = "info",
           message = message,
           name    = name,
-          args    = args,
+          args    = NULL,
           output  = output,
           .trace  = .trace,
           logmeta = logmeta,
@@ -55,25 +46,17 @@ log_info <- function(message,
 
 #' @rdname log_info
 #' @export
+
 log_warn <- function(message,
                      name    = getOption("pipfun.log.default"),
                      output  = NULL,
                      .trace  = NULL,
                      .env    = parent.frame(),
                      logmeta = NULL) {
-
-  args <- as.list(.env)
-  args$name   <- NULL
-  args$output <- NULL
-  args$.trace <- NULL
-
-  dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
-  args <- c(args, dots)
-
   log_add(event   = "warning",
           message = message,
           name    = name,
-          args    = args,
+          args    = NULL,
           output  = output,
           .trace  = .trace,
           logmeta = logmeta,
@@ -83,25 +66,17 @@ log_warn <- function(message,
 
 #' @rdname log_info
 #' @export
+
 log_error <- function(message,
                       name    = getOption("pipfun.log.default"),
                       output  = NULL,
                       .trace  = NULL,
                       .env    = parent.frame(),
                       logmeta = NULL) {
-
-  args <- as.list(.env)
-  args$name   <- NULL
-  args$output <- NULL
-  args$.trace <- NULL
-
-  dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
-  args <- c(args, dots)
-
   log_add(event   = "error",
           message = message,
           name    = name,
-          args    = args,
+          args    = NULL,
           output  = output,
           .trace  = .trace,
           logmeta = logmeta,

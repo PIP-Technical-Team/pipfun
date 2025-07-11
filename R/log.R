@@ -46,49 +46,71 @@ log_add <- function(event,
 
 
 
-  # # Auto-capture args from caller if not supplied
-  # Auto-capture args from caller if not supplied
 
-  # --- Find the true calling function and environment (skip log_ wrappers) ---
-  call_stack <- sys.calls()
-  env_stack <- sys.frames()
-  n <- length(call_stack)
+  # --- Auto-capture args from caller if not supplied ---
+  # Get the current call stack
+  call_stack <- sys.calls() # (list of all active calls)
+  # Get the current environment stack
+  env_stack  <- sys.frames() # (list of all active environments)
+  # Number of calls in the stack
+  n          <- length(call_stack)
+  # Start from the immediate caller (one before this function)
   target_idx <- n - 1
+  # Move up the stack until we find a function that does NOT start with 'log_'
   while (target_idx > 0 && grepl("^log_", deparse(call_stack[[target_idx]])[1])) {
     target_idx <- target_idx - 1
   }
+  # The environment of the true calling function
   target_env <- env_stack[[target_idx]]
-  target_fun <- tryCatch(eval(call_stack[[target_idx]][[1]], envir = target_env), error = function(e) NULL)
+
+  # The function object of the true calling function (may error if not found)
+  # call_stack[[target_idx]] is the call (as a language object) to the target
+  # function. call_stack[[target_idx]][[1]] extracts the function name or object
+  # being called. eval(..., envir = target_env) evaluates that function name in
+  # the environment where it was called, so we get the actual function object
+  # (not just its name as a symbol). We need it as symbol so I can access its
+  # arguments... or formals.
+  target_fun <- tryCatch(eval(call_stack[[target_idx]][[1]],
+                              envir = target_env),
+                         error = function(e) NULL)
 
   # --- Argument capture ---
   if (is.null(args)) {
+    # If we found a valid function, get its formal argument names
     if (!is.null(target_fun) && is.function(target_fun)) {
-      arg_names <- names(formals(target_fun))
-      arg_names <- arg_names[arg_names != "..."]
-      args <- mget(arg_names, envir = target_env, ifnotfound = list())
+      arg_names <- names(formals(target_fun)) # all argument names
+      arg_names <- arg_names[arg_names != "..."] # exclude ...
+      # Get the values of those arguments from the target environment
+      args <- mget(arg_names,
+                   envir = target_env,
+                   ifnotfound = vector("list", length(arg_names)))
+      # If ... is present, try to capture its values as well
       if ("..." %in% names(formals(target_fun))) {
-        dots <- tryCatch(evalq(list(...), envir = target_env), error = function(e) NULL)
+        dots <- tryCatch(evalq(list(...), envir = target_env),
+                         error = function(e) NULL)
         if (!is.null(dots)) args <- c(args, dots)
       }
     } else {
+      # If we can't find a valid function, just use an empty list
       args <- list()
     }
   }
-
 
   # Always merge logmeta if provided
   if (!is.null(logmeta)) {
     args <- c(args, logmeta)
   }
 
+  # Retrieve the log object from the logging environment
   log <- rlang::env_get(.piplogenv, name)
 
   # --- Extract calling function name (from target_idx) ---
+  # Use the same target_idx as above to get the function name as a string
   calling_fn <- if (target_idx > 0) {
-    cf <- deparse(call_stack[[target_idx]]) |>
-      trimws() |>
-      paste(collapse = " ")
-    invisible(cf)
+    cf <- deparse(call_stack[[target_idx]]) |> # deparse the call
+      trimws() |>                            # trim whitespace
+      paste(collapse = " ")                 # collapse multi-line calls
+    invisible(cf)                            # return as invisible (for assignment)
   } else {
     "unknown"
   }
