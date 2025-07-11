@@ -96,11 +96,6 @@ log_add <- function(event,
     }
   }
 
-  # Always merge logmeta if provided
-  if (!is.null(logmeta)) {
-    args <- c(args, logmeta)
-  }
-
   # Retrieve the log object from the logging environment
   log <- rlang::env_get(.piplogenv, name)
 
@@ -122,6 +117,7 @@ log_add <- function(event,
     event   = tolower(event),
     message = as.character(message),
     args    = list(args),
+    logmeta = list(logmeta),
     output  = list(output),
     trace   = list(if (!is.null(.trace)) .trace else sys.call(-1))
   )

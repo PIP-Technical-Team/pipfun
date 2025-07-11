@@ -98,14 +98,29 @@ print.piplog <- function(x, ...) {
     cli::cli_alert("{.strong [{x$time[i]}]} {.emph {toupper(x$event[i])}} — {.code {x$message[i]}}")
     cli::cli_text("Function: {.code {x$fun[i]}} (from {x$package[i]})")
     if (!is.null(x$trace[[i]])) {
-      trace_str <- tryCatch(
-        deparse(x$trace[[i]]),
-        error = function(e)
-          NULL
+      trace_str <- tryCatch(deparse(x$trace[[i]]),
+                            error = function(e) NULL
       )
       if (!is.null(trace_str))
         cli::cli_text("Trace: {trace_str}")
     }
+
+    if (!is.null(x$output[[i]])) {
+      output_str <- tryCatch(deparse(x$output[[i]]),
+                            error = function(e) NULL
+      )
+      if (!is.null(output_str))
+        cli::cli_text("Output: {output_str}")
+    }
+
+    if (!is.null(x$logmeta[[i]])) {
+      logmeta_str <- tryCatch(deparse(x$logmeta[[i]]),
+                            error = function(e) NULL
+      )
+      if (!is.null(logmeta_str))
+        cli::cli_text("Metadata: {logmeta_str}")
+    }
+
     cli::cli_text("")
   }
 
