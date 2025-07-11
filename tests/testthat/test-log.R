@@ -90,10 +90,10 @@ test_that("log_add() captures logmeta passed to log_info()", {
 
   log_info("Testing dots", name = "dotstest", logmeta = list(a = 1:3, b = "hello"))
   log <- log_get("dotstest")
-  args <- log$args[[1]]
+  logmeta <- log$logmeta[[1]]
 
-  expect_true("a" %in% names(args))
-  expect_equal(args$b, "hello")
+  expect_true("a" %in% names(logmeta))
+  expect_equal(logmeta$b, "hello")
 })
 
 test_that("log_add() captures logmeta passed directly", {
@@ -103,10 +103,10 @@ test_that("log_add() captures logmeta passed directly", {
           logmeta = list(x = 99, y = "yay"))
 
   log <- log_get("directdots")
-  args <- log$args[[1]]
+  logmeta <- log$logmeta[[1]]
 
-  expect_equal(args$x, 99)
-  expect_equal(args$y, "yay")
+  expect_equal(logmeta$x, 99)
+  expect_equal(logmeta$y, "yay")
 })
 
 test_that("log_add() respects args override", {
@@ -133,10 +133,14 @@ test_that("log_add() merges all captured arguments and logmeta correctly", {
 
   log <- log_get("mergeargs")
   args <- log$args[[1]]
+  meta <- log$logmeta[[1]] # THis is another list because of list(...)
 
   expect_true(all(c("a", "b", "x", "y") %in% names(args)))
   expect_equal(args$x, "hello")
   expect_true(args$y)
+  expect_equal(meta$x, "hello")
+  expect_true(meta$y)
+
 })
 
 

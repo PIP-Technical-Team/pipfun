@@ -48,13 +48,11 @@ create_new_branch(measure    = "test",
 
 create_new_branch(repo = "aux_test",
                   new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"),
-                  ref_branch = "main",
-                  identity = "TEST")
+                  ref_branch = "main")
 
 create_new_branch(repo = "aux_test",
                   new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"),
-                  ref_branch = "main",
-                  identity = "TEST")
+                  ref_branch = "main")
 
 create_new_branch(repo = repo, owner = owner,
                   new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"),
