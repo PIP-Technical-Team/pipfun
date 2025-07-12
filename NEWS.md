@@ -1,4 +1,5 @@
 # pipfun 0.3.2
+* Fix issue with logmeta and arg in logging system.
 
 # pipfun 0.3.1
 * add layers for security before deleting releases folders
