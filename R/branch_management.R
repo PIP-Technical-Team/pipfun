@@ -40,7 +40,7 @@ create_new_branch <- function(measure     = NULL,
 
 
   # Get working release
-  pipfun::get_wrk_release()
+  get_wrk_release()
 
   release        <- wrk_release$release
   identity       <- wrk_release$identity

@@ -2,7 +2,7 @@
 # ----------------------------------------- #
 # Preliminary operations ####
 # ----------------------------------------- #
-
+library(withr)
 owner <- getOption("pipfun.ghowner")
 measure <- "test"
 repo <- paste0("aux_", measure)
@@ -29,10 +29,18 @@ if (length(to_delete) > 0) {
                   branch_to_delete = x,
                   ask = FALSE)
   })
+  deleted
 }
 
-deleted
-
+release  = format(Sys.Date(), "%Y%m%d")
+identity = getOption("pipfun.identities")[1]
+root_dir = tempdir()
+new_pip_release(release = release,
+                identity = identity,
+                root_dir = root_dir)
+setup_working_release(release = release,
+                      identity = identity,
+                      root_dir = root_dir)
 
 create_new_branch(measure    = "test",
                   ref_branch = "main",
@@ -40,13 +48,11 @@ create_new_branch(measure    = "test",
 
 create_new_branch(repo = "aux_test",
                   new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"),
-                  ref_branch = "main",
-                  identity = "TEST")
+                  ref_branch = "main")
 
 create_new_branch(repo = "aux_test",
                   new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"),
-                  ref_branch = "main",
-                  identity = "TEST")
+                  ref_branch = "main")
 
 create_new_branch(repo = repo, owner = owner,
                   new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"),
