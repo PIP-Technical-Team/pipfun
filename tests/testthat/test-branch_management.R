@@ -4,85 +4,89 @@
 # ----------------------------------------- #
 library(withr)
 owner <- getOption("pipfun.ghowner")
-measure <- "test"
-repo <- paste0("aux_", measure)
+repo <- "aux_test"
 creds <- get_github_creds()
+identity <- getOption("pipfun.identities")[1]
+root_dir <- tempdir()
 
-# create branches for testing purposes
-
+# Create known branches once
 to_keep <- c("DEV", "DEV_v2", "main", "PROD", "test_main", "20241121")
-branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
-                   owner = owner,
-                   repo = repo,
-                   .limit = Inf)
 
-branch_names <- sapply(branches,
+existing_branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
+                            owner = owner,
+                            repo = repo,
+                            .limit = Inf)
+
+branch_names <- sapply(existing_branches,
                        function(branch) branch$name)
 
+# Clean up unknown branches from previous runs
+to_delete <- setdiff(branch_names,
+                     to_keep)
 
-to_delete <- branch_names[!branch_names %in% to_keep]
+invisible(lapply(to_delete,
+                 function(b) {
+  delete_branch(repo = repo,
+                branch_to_delete = b, ask = FALSE)
+}))
 
-if (length(to_delete) > 0) {
-  deleted <-
-    sapply(to_delete, \(x) {
-    delete_branch(repo = repo,
-                  branch_to_delete = x,
-                  ask = FALSE)
-  })
-  deleted
-}
+# Create and setup new release for testing
+release  = base_date = format(Sys.Date(), "%Y%m%d")
 
-release  = format(Sys.Date(), "%Y%m%d")
-identity = getOption("pipfun.identities")[1]
-root_dir = tempdir()
 new_pip_release(release = release,
                 identity = identity,
                 root_dir = root_dir)
+
 setup_working_release(release = release,
                       identity = identity,
                       root_dir = root_dir)
 
-create_new_branch(measure    = "test",
-                  ref_branch = "main",
-                  new_branch = "test_main")
+# Create some branches for testing
 
-create_new_branch(repo = "aux_test",
-                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"),
+create_new_branch(repo = repo,
+                  new_branch = paste0(base_date, "_TEST"),
                   ref_branch = "main")
-
-create_new_branch(repo = "aux_test",
-                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_v2"),
+create_new_branch(repo = repo,
+                  new_branch = paste0(base_date, "_v2"),
                   ref_branch = "main")
-
-create_new_branch(repo = repo, owner = owner,
-                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"),
+create_new_branch(repo = repo,
+                  new_branch = paste0(base_date, "_force_true"),
                   ref_branch = "main")
-
-create_new_branch(repo = repo, owner = owner,
-                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_cancel"),
+create_new_branch(repo = repo,
+                  new_branch = paste0(base_date, "_force_cancel"),
                   ref_branch = "main")
-
-create_new_branch(repo = repo, owner = owner,
-                  new_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_false"),
+create_new_branch(repo = repo,
+                  new_branch = paste0(base_date, "_force_false"),
                   ref_branch = "main")
-
-create_new_branch(measure = "test",
+create_new_branch(repo = repo,
                   new_branch = "to_delete",
                   ref_branch = "DEV")
 
+# ______________________________ #
+# Tests ####
+# ______________________________ #
 
-
-# Test get repo branches
 test_that("get repo branches works as expected", {
 
-  # Check branch names ------ #
+  # create a release branch ###
+  new_branch <- paste0(base_date,
+                       "_release")
 
-  branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
-                     owner = owner,
-                     repo = repo,
-                     .limit = Inf)
+  create_new_branch(owner = owner,
+                    repo = repo,
+                    new_branch = new_branch,
+                    ref_branch = "main")
 
-  branch_names <- sapply(branches,
+  withr::defer(delete_branch(repo = repo,
+                             branch_to_delete = new_branch,
+                             ask = FALSE))
+
+  branches_api <- gh::gh("GET /repos/{owner}/{repo}/branches",
+                         owner = owner,
+                         repo = repo,
+                         .limit = Inf)
+
+  branch_names <- sapply(branches_api,
                          function(branch) branch$name)
 
   branches_test <- get_repo_branches(owner = owner,
@@ -91,26 +95,14 @@ test_that("get repo branches works as expected", {
   expect_equal(branch_names,
                branches_test$all_branches)
 
-  new_branch <- "20241202"
+  # check it finds release branch
 
-  # Check release branch ------ #
-  create_new_branch(owner = owner,
-                    repo  = repo,
-                    new_branch = new_branch,
-                    ref_branch = "main")
+  expect_equal(get_repo_branches(owner = owner,
+                                 repo = repo)$has_release_branch, TRUE)
 
-  get_repo_branches(owner = owner,
-                    repo = repo)$has_release_branch |>
-    expect_equal(TRUE)
-
-  get_repo_branches(owner = owner,
-                    repo = repo)$release_branches |>
-    expect_contains(new_branch)
-
-  # Check when no release branch
-  get_repo_branches(owner = owner,
-                    repo = "aux_ppp")$has_release_branch |>
-    expect_equal(FALSE)
+  expect_contains(get_repo_branches(owner = owner,
+                                    repo = repo)$release_branches,
+                  new_branch)
 })
 
 # Test compare branches sha
@@ -388,12 +380,6 @@ test_that("merge branch into works correctly", {
                     target_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"))|>
     expect_no_error()
 
-  # compare_branch_content(repo = "aux_test",
-  #                        branch1 = "main",
-  #                        branch2 = paste0(format(Sys.Date(), "%Y%m%d"), "_TEST"))$same_content |>
-  #   expect_equal(TRUE)
-
-
 
   # When branches have different content
   # successful merge
@@ -428,11 +414,6 @@ test_that("merge branch into works correctly", {
                     source_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"),
                     force = TRUE)
 
-  # compare_branch_content(repo = "aux_test",
-  #                        branch1 = "DEV",
-  #                        branch2 = paste0(format(Sys.Date(), "%Y%m%d"), "_force_true"))$same_content |>
-  #   expect_equal(TRUE)
-
   # Case: force = FALSE with user confirmation (simulating "Yes")
   assign("askYesNo", function(...) TRUE, envir = .GlobalEnv)
 
@@ -448,10 +429,6 @@ test_that("merge branch into works correctly", {
                     source_branch = paste0(format(Sys.Date(), "%Y%m%d"), "_force_false"),
                     force = FALSE)
 
-  # compare_branch_content(repo = "aux_test",
-  #                        branch1 = "DEV",
-  #                        branch2 = paste0(format(Sys.Date(), "%Y%m%d"), "_force_false"))$same_content |>
-  #   expect_equal(TRUE)
 
   # Remove the custom `askYesNo` function after the test
   rm(askYesNo, envir = .GlobalEnv)
