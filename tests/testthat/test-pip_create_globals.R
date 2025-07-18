@@ -1,7 +1,7 @@
 # init parameters
 rqr_sect          <- c("release", "ppp_year", "ppp_rv", "ppp_av", "identity")
 ddtt              <- format(Sys.Date(), "%Y%m%d")
-vintage_ch        <- paste0(ddtt, "_2017_01_02_TEST")
+vintage_ch        <- paste0(ddtt, "_2021_01_02_TEST")
 vintage_lt        <- data.table::tstrsplit(vintage_ch, "_")
 names(vintage_lt) <- rqr_sect
 
@@ -28,7 +28,7 @@ test_that("pip_create_globals works as expected", {
 
 
 test_that("not applicable in CI", {
-  # skip_on_ci()
+  #skip_on_ci()
 
   root <- fs::path_temp("pcg2")
 
