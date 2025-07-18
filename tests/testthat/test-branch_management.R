@@ -78,7 +78,6 @@ create_test_branch(paste0(base_date, "_v2"))
 create_test_branch(paste0(base_date, "_force_true"))
 create_test_branch(paste0(base_date, "_force_cancel"))
 create_test_branch(paste0(base_date, "_force_false"))
-create_test_branch("to_delete", from = "DEV")
 
 # ______________________________ #
 # Tests ####
@@ -403,29 +402,39 @@ test_that("merge_branch_into works correctly", {
 
 
 
-# Test delete branches function
-test_that("delete branch works", {
+test_that("delete_branch works", {
 
-  create_new_branch(new_branch = "to_delete",
-                    repo = repo,
-                    owner = owner)
+  branch_name <- "to_delete"
 
-  # delete branch
-  delete_branch(branch_to_delete = "to_delete",
-                repo = repo,
-                owner = owner,
-                ask = FALSE)
+  # Create the branch and defer cleanup only if the test exits early
+  create_new_branch(
+    new_branch = branch_name,
+    repo       = repo,
+    ref_branch = "DEV"  # or "main", depending on desired origin
+  )
 
-  # confirm it was deleted
-  branches <- gh::gh("GET /repos/{owner}/{repo}/branches",
-                     owner = owner,
-                     repo  = repo)
+  # Delete the branch
+  delete_branch(
+    branch_to_delete = branch_name,
+    repo             = repo,
+    owner            = owner,
+    ask              = FALSE
+  )
 
-  branch_names <- sapply(branches,
-                         function(branch) branch$name)
+  # Confirm it was deleted
+  branches <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches",
+    owner = owner,
+    repo  = repo
+  )
 
-  ("to_delete" %in% branch_names) |>
-    expect_equal(FALSE)
+  branch_names <- sapply(
+    branches,
+    function(branch) branch$name
+  )
 
+  expect_false(
+    branch_name %in% branch_names
+  )
 })
 
