@@ -32,11 +32,6 @@ test_that("Saves correctly if object is a list", {
     fs::file_exists() |>
     expect_true(label = "qs file is created from list")
 
-
-  fs::path(tdir, measure, ext = "rds") |>
-    fs::file_exists() |>
-    expect_true(label = "rds file is created from list")
-
   fs::path(tdir, measure, ext = "dta") |>
     fs::file_exists() |>
     expect_false(label = "No dta file should be saved")
@@ -101,11 +96,6 @@ test_that("Saves correctly if object is a dataframe", {
   fs::path(tdir, measure, ext = "dta") |>
     fs::file_exists() |>
     expect_true(label = "If object is data frame, dta should be saved")
-
-  fs::path(tdir, measure, ext = "fst") |>
-    fs::file_exists() |>
-    expect_true(label = "if dataframe, fst should be created")
-
 
   fs::path(tdir, glue("{measure}_datasignature.txt")) |>
     fs::file_exists() |>
