@@ -17,6 +17,9 @@ options(rmarkdown.html_vignette.check_title = FALSE)
 
 ```{r setup}
 library(pipfun)
+new_pip_release(release = format(Sys.Date(), "%Y%m%d"),
+                identity = "TEST")
+setup_working_release(release = format(Sys.Date(), "%Y%m%d"))
 #devtools::load_all()
 ```
 
@@ -93,7 +96,7 @@ compare_branch_content(repo    = "aux_test",
 
 ### Step 4 - Update branches
 
-Note (RT): as of now, I developed two functions that allow updating branches with two different approaches:
+There are two functions that allow updating branches with two different approaches:
 
 1.  Update the target branch to point to the latest commit of the source branch (this overwrites the history of target branch).
 2.  Update the target branch by merging the source branch into it.
