@@ -2,7 +2,7 @@
 title: "Functions for managing release branches"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{"Functions for managing release branches"}
+  %\VignetteIndexEntry{Functions for managing release branches}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,10 +17,9 @@ options(rmarkdown.html_vignette.check_title = FALSE)
 
 ```{r setup}
 library(pipfun)
-new_pip_release(release = format(Sys.Date(), "%Y%m%d"),
-                identity = "TEST")
-setup_working_release(release = format(Sys.Date(), "%Y%m%d"))
-#devtools::load_all()
+# new_pip_release(release = format(Sys.Date(), "%Y%m%d"),
+#                 identity = "TEST")
+setup_working_release(release = "20250203")
 ```
 
 The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions are a starting point to enable vintage control of auxiliary data, so we can track which version of aux data was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
@@ -51,12 +50,11 @@ Let's use a fake auxiliary data repo, aux_test, to illustrate how the functions 
 
 ### Step 2 - If absent, create release branch
 
-To create a release branch, simply call `create_new_branch()`, specifying the name of the new branch as well as the name of the reference branch it should be created from
+To create a release branch, simply call `create_new_branch()`, specifying the name of the new branch as well as the name of the reference branch it should be created from. If you would like to create a new branch for the current release, you can just leave the new_branch argument as `NULL` and the function will automatically create the new branch of the release that's been setup.
 
 ```{r}
 
 create_new_branch(repo = "aux_test",
-                  new_branch = format(Sys.Date(), "%Y%m%d"),
                   ref_branch = "main"
                   )
 
@@ -76,7 +74,7 @@ As a result, `compare_branch_content()` returns a list with: (1) tree SHA of bra
 ```{r}
 
 br_compare <- compare_branch_content(repo = "aux_test",
-                                     branch1 = format(Sys.Date(), "%Y%m%d"),
+                                     branch1 = "20250203_TEST",
                                      branch2 = "DEV")
 
 # Output list
@@ -106,16 +104,23 @@ There are two functions that allow updating branches with two different approach
 # Approach 1:
 update_branches(repo    = "aux_test",
                 branch1 = "DEV_v2",
-                branch2 = format(Sys.Date(), "%Y%m%d"))
+                branch2 = "20250203_TEST")
 
 
 # Approach 2:
 merge_branch_into(repo = "aux_test", 
                   source_branch = "DEV",
-                  target_branch = format(Sys.Date(), "%Y%m%d"))
+                  target_branch = "20250203_TEST")
 ```
 
 In both cases, you can set the `force` option to `FALSE` to make the function ask confirmation before proceeding with the operation. 
+```{r, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+
+delete_branch(repo   = "aux_test",
+              branch = "20250203_TEST")
+
+```
+
 
 ### Additional: Delete branches
 
