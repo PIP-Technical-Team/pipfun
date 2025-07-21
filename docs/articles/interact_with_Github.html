@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">pipfun</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,7 +135,6 @@ also used to confirm overwriting files in a GitHub repository.</p>
 <span>  file_path <span class="op">=</span> <span class="st">"releases.csv"</span>,</span>
 <span>  branch    <span class="op">=</span> <span class="st">"releases"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Git credentials are missing or invalid in non-interactive mode.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">ghf_info</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "name"         "path"         "sha"          "size"         "url"         </span></span>
@@ -171,7 +170,6 @@ across branches in the repository.</p>
 <span>  repo      <span class="op">=</span> <span class="st">"aux_ppp"</span>,</span>
 <span>  branch    <span class="op">=</span> <span class="st">"DEV"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Git credentials are missing or invalid in non-interactive mode.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gh_branch_info</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "name"           "commit"         "_links"         "protected"     </span></span>
@@ -208,15 +206,16 @@ steps needed to handle each format.</p>
 <span>                repo      <span class="op">=</span> <span class="st">"pip_info"</span>,</span>
 <span>                file_path <span class="op">=</span> <span class="st">"releases.csv"</span>,</span>
 <span>                branch    <span class="op">=</span> <span class="st">"releases"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Git credentials are missing or invalid in non-interactive mode.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     release identity</span></span>
 <span><span class="co">#&gt;       &lt;int&gt;   &lt;char&gt;</span></span>
 <span><span class="co">#&gt; 1: 20240326     PROD</span></span>
 <span><span class="co">#&gt; 2: 20241101     PROD</span></span>
-<span><span class="co">#&gt; 3: 20241105     PROD</span></span>
-<span><span class="co">#&gt; 4: 20250203     TEST</span></span></code></pre></div>
+<span><span class="co">#&gt; 3: 20250203     TEST</span></span>
+<span><span class="co">#&gt; 4: 20250501     TEST</span></span>
+<span><span class="co">#&gt; 5: 20250711     TEST</span></span>
+<span><span class="co">#&gt; 6: 20250717     TEST</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
