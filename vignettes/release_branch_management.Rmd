@@ -17,9 +17,9 @@ options(rmarkdown.html_vignette.check_title = FALSE)
 
 ```{r setup}
 library(pipfun)
-# new_pip_release(release = format(Sys.Date(), "%Y%m%d"),
-#                 identity = "TEST")
-setup_working_release(release = "20250203")
+
+# setup_working_release(release = "20250203",
+#                       identity = "TEST")
 ```
 
 The following functions provide tools for managing branches for specific PIP releases. These are mainly intended to be used for auxiliary data, which are stored in dedicated repositories, such as aux_gdp for GDP data or aux_ppp for PPP data. These functions are a starting point to enable vintage control of auxiliary data, so we can track which version of aux data was used for specific releases. They also ensure that release branches are consistently updated with the latest changes from the development branch.
@@ -55,6 +55,7 @@ To create a release branch, simply call `create_new_branch()`, specifying the na
 ```{r}
 
 create_new_branch(repo = "aux_test",
+                  new_branch = "20250203_TEST",
                   ref_branch = "main"
                   )
 
