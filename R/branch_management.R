@@ -36,14 +36,15 @@ create_new_branch <- function(measure     = NULL,
                               new_branch  = NULL,
                               verbose     = getOption("pipfun.verbose")) {
 
+  # Get working release
+  get_wrk_release()
+
+  release        <- wrk_release$release
+  identity       <- wrk_release$identity
+  release_branch <- paste0(release, "_", identity)
+
 
   if (is.null(new_branch)) {
-    # Get working release
-    get_wrk_release()
-
-    release        <- wrk_release$release
-    identity       <- wrk_release$identity
-    release_branch <- paste0(release, "_", identity)
 
     new_branch <- paste0(release, "_", identity)
   }
