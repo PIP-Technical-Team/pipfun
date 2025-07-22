@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">pipfun</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,21 +71,14 @@
 <span>  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"pipfun.verbose"</span><span class="op">)</span>,</span>
 <span>  working_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ppps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"pipfun.ppps"</span><span class="op">)</span>,</span>
+<span>  confirm_remove <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"pipfun.confirm_remove"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>release</dt>
-<dd><p>character: date in the form "%Y%m%d"</p></dd>
-
-
-<dt>identity</dt>
-<dd><p>character: for PIP repos it must be one of <code>c("PROD", "INT", "TEST")</code>. For other repos, just leave de default, which is 'PROD'.</p></dd>
-
-
-<dt>verbose</dt>
+    <dl><dt>verbose</dt>
 <dd><p>A logical: whether to print detailed messages
 about the process. The default is <code>TRUE</code></p></dd>
 

@@ -31,13 +31,10 @@
 create_new_branch <- function(measure     = NULL,
                               owner       = getOption("pipfun.ghowner"),
                               repo        = ifelse(is.null(measure), NA,
-                                                    paste0("aux_", measure)) ,
-                              #release     = format(Sys.Date(), "%Y%m%d"),
-                              #identity    = getOption("pipfun.identities"),
+                                                    paste0("aux_", measure)),
                               ref_branch  = "DEV",
                               new_branch  = NULL,
                               verbose     = getOption("pipfun.verbose")) {
-
 
   # Get working release
   get_wrk_release()
@@ -46,7 +43,9 @@ create_new_branch <- function(measure     = NULL,
   identity       <- wrk_release$identity
   release_branch <- paste0(release, "_", identity)
 
+
   if (is.null(new_branch)) {
+
     new_branch <- paste0(release, "_", identity)
   }
 

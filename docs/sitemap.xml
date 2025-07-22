@@ -184,6 +184,9 @@
     <loc>https://pip-technical-team.github.io/pipfun/reference/new_pip_release.html</loc>
   </url>
   <url>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/new_secret.html</loc>
+  </url>
+  <url>
     <loc>https://pip-technical-team.github.io/pipfun/reference/pipinstall.html</loc>
   </url>
   <url>
@@ -196,6 +199,9 @@
     <loc>https://pip-technical-team.github.io/pipfun/reference/pip_sign_save.html</loc>
   </url>
   <url>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/print.secret.html</loc>
+  </url>
+  <url>
     <loc>https://pip-technical-team.github.io/pipfun/reference/save_to_gh.html</loc>
   </url>
   <url>
@@ -203,6 +209,9 @@
   </url>
   <url>
     <loc>https://pip-technical-team.github.io/pipfun/reference/set_in_pipenv.html</loc>
+  </url>
+  <url>
+    <loc>https://pip-technical-team.github.io/pipfun/reference/sync_release_branch.html</loc>
   </url>
   <url>
     <loc>https://pip-technical-team.github.io/pipfun/reference/update_branches.html</loc>

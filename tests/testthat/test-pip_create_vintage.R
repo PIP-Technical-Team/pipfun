@@ -6,9 +6,9 @@ vintage_lt        <- data.table::tstrsplit(vintage_ch, "_")
 names(vintage_lt) <- rqr_sect
 
 
-ppp_v <- data.table(ppp_year = c(2005, 2011, 2011, 2011, 2011, 2017, 2017),
-                    ppp_rv = c("v1", "v1", "v1", "v2", "v2", "v1", "v1"),
-                    ppp_av = c("v1", "v1", "v2", "v1", "v2", "v1", "v2"))
+ppp_v <- data.table(ppp_year = c(2005, 2011, 2011, 2011, 2011, 2017, 2017, 2021),
+                    ppp_rv = c("v1", "v1", "v1", "v2", "v2", "v1", "v1", "v1"),
+                    ppp_av = c("v1", "v1", "v2", "v1", "v2", "v1", "v2", "v2"))
 
 # remove Vs in case they are available and add zeros
 ver_vars <- c("ppp_rv", "ppp_av")
