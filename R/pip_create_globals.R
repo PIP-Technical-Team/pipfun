@@ -45,6 +45,24 @@ pip_create_globals <-
   # Defenses   ---------
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    # root dir for CI/github actions env
+
+    # If root_dir is empty or not set, fallback to tempdir()
+    if (is.null(root_dir) || root_dir == "") {
+      root_dir <- tempdir()
+      if (verbose) {
+        cli::cli_alert_warning(
+          "No {.envvar PIP_ROOT_DIR} found; defaulting to {.path {root_dir}}"
+        )
+      }
+    }
+
+    # If out_dir is NULL, set it to root_dir
+    if (is.null(out_dir)) {
+      out_dir <- root_dir
+    }
+
+
   # vintage
   stopifnot( exprs = {
     is.list(vintage) || is.character(vintage) || is.null(vintage)

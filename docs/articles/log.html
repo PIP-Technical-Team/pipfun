@@ -119,7 +119,7 @@ across your R codebase — especially when building packages.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:06.007781]</span> <span style="font-style: italic;">ERROR</span> — `An error occurred`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:51.81221]</span> <span style="font-style: italic;">ERROR</span> — `An error occurred`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_error("An error occurred", name = log_name)</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
@@ -174,10 +174,11 @@ from</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:06.24825]</span> <span style="font-style: italic;">ERROR</span> — `Failed to compute results`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:51.998834]</span> <span style="font-style: italic;">ERROR</span> — `Failed to compute results`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_error("Failed to compute results", name = "devlog", logmeta =</span></span>
 <span><span class="co">#&gt; list(file = "input.csv"))</span></span>
+<span><span class="co">#&gt; Metadata: list(file = "input.csv")</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/log_filter.html">log_filter</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"devlog"</span>, fun <span class="op">=</span> <span class="st">"my_function"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -188,19 +189,22 @@ from</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:06.240888]</span> <span style="font-style: italic;">INFO</span> — `Process started`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:51.992126]</span> <span style="font-style: italic;">INFO</span> — `Process started`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_info("Process started", name = "devlog", logmeta = list(step = 1))</span></span>
+<span><span class="co">#&gt; Metadata: list(step = 1)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:06.246786]</span> <span style="font-style: italic;">WARNING</span> — `Unexpected format`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:51.997777]</span> <span style="font-style: italic;">WARNING</span> — `Unexpected format`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_warn("Unexpected format", name = "devlog", logmeta = list(column =</span></span>
 <span><span class="co">#&gt; "status"))</span></span>
+<span><span class="co">#&gt; Metadata: list(column = "status")</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:06.24825]</span> <span style="font-style: italic;">ERROR</span> — `Failed to compute results`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:51.998834]</span> <span style="font-style: italic;">ERROR</span> — `Failed to compute results`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: log_error("Failed to compute results", name = "devlog", logmeta =</span></span>
 <span><span class="co">#&gt; list(file = "input.csv"))</span></span>
+<span><span class="co">#&gt; Metadata: list(file = "input.csv")</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -298,11 +302,11 @@ argument:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".qs"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/log_save.html">log_save</a></span><span class="op">(</span><span class="st">"pipapi_log"</span>, path <span class="op">=</span> <span class="va">tf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> saved to <span style="color: #0000BB;">C:\Users\wb621604\AppData\Local\Temp\RtmpukhsS7\file1ac713264c2.qs</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> saved to <span style="color: #0000BB;">C:\Users\wb621604\AppData\Local\Temp\RtmpuKoIDE\file7b842b8ef83.qs</span></span></span>
 <span><span class="fu"><a href="../reference/log_reset.html">log_reset</a></span><span class="op">(</span><span class="st">"pipapi_log"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> has been reset.</span></span>
 <span><span class="fu"><a href="../reference/log_load.html">log_load</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">tf</span>, name <span class="op">=</span> <span class="st">"pipapi_log"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> loaded from <span style="color: #0000BB;">C:\Users\wb621604\AppData\Local\Temp\RtmpukhsS7\file1ac713264c2.qs</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Log <span style="color: #00BB00;">pipapi_log</span> loaded from <span style="color: #0000BB;">C:\Users\wb621604\AppData\Local\Temp\RtmpuKoIDE\file7b842b8ef83.qs</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -361,8 +365,6 @@ log is categorized. The most common values are:</p>
 <code class="sourceCode R"><span><span class="va">lname</span> <span class="op">&lt;-</span> <span class="st">"event_log"</span></span>
 <span><span class="fu"><a href="../reference/log_init.html">log_init</a></span><span class="op">(</span><span class="va">lname</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/log_add.html">log_add</a></span><span class="op">(</span><span class="st">"info"</span>, <span class="st">"Pipeline started"</span>, name <span class="op">=</span> <span class="va">lname</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
-<span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span>
 <span><span class="fu"><a href="../reference/log_add.html">log_add</a></span><span class="op">(</span><span class="st">"warning"</span>, <span class="st">"Missing values found"</span>, name <span class="op">=</span><span class="va">lname</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/log_add.html">log_add</a></span><span class="op">(</span><span class="st">"error"</span>, <span class="st">"Failed to merge datasets"</span>, name <span class="op">=</span> <span class="va">lname</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -420,22 +422,22 @@ settings</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu">calculate_stats</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. </span></span>
-<span><span class="co">#&gt; -2.310084 -0.831096  0.002634  0.003620  0.719606  2.359635</span></span>
+<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span><span class="co">#&gt; -3.0304 -0.6786 -0.1208 -0.1016  0.4465  2.5556</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/log_get.html">log_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:07.496992]</span> <span style="font-style: italic;">INFO</span> — `Starting validation`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:52.735501]</span> <span style="font-style: italic;">INFO</span> — `Starting validation`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:07.598882]</span> <span style="font-style: italic;">INFO</span> — `Manual log`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:52.791693]</span> <span style="font-style: italic;">INFO</span> — `Manual log`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:07.639454]</span> <span style="font-style: italic;">INFO</span> — `summary of x`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:52.79544]</span> <span style="font-style: italic;">INFO</span> — `summary of x`</span></span>
 <span><span class="co">#&gt; Function: `calculate_stats(rnorm(100))` (from )</span></span>
 <span><span class="co">#&gt; Trace: calculate_stats(rnorm(100))</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
@@ -464,9 +466,10 @@ Anything else relevant to the context</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:07.804753]</span> <span style="font-style: italic;">WARNING</span> — `Missing PPP detected`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:52.891797]</span> <span style="font-style: italic;">WARNING</span> — `Missing PPP detected`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
+<span><span class="co">#&gt; Metadata: list(stage = "pricing", source = "national_stats")</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 <p>This is particularly useful when logging <strong>from within a
 tryCatch() handler</strong> or from wrappers that don’t have access to
@@ -493,9 +496,29 @@ processing, and result.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:07.963137]</span> <span style="font-style: italic;">MODEL</span> — `Model finished`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:52.973319]</span> <span style="font-style: italic;">MODEL</span> — `Model finished`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
+<span><span class="co">#&gt; Output: structure(list(coefficients = c("(Intercept)" = 37.285126167342, , wt =</span></span>
+<span><span class="co">#&gt; -5.34447157272268), residuals = c("Mazda RX4" = -2.28261064680868, , "Mazda RX4</span></span>
+<span><span class="co">#&gt; Wag" = -0.919770395764312, "Datsun 710" = -2.08595211862542, , "Hornet 4 Drive"</span></span>
+<span><span class="co">#&gt; = 1.29734993896137, "Hornet Sportabout" = -0.200143957176023, , Valiant =</span></span>
+<span><span class="co">#&gt; -0.693254525721567, "Duster 360" = -3.90536265272207, , "Merc 240D" =</span></span>
+<span><span class="co">#&gt; 4.16373814964331, "Merc 230" = 2.3499592867344, , "Merc 280" =</span></span>
+<span><span class="co">#&gt; 0.299856042823977, "Merc 280C" = -1.10014395717602, , "Merc 450SE" =</span></span>
+<span><span class="co">#&gt; 0.866873133639263, "Merc 450SL" = -0.0502472010864455, , "Merc 450SLC" =</span></span>
+<span><span class="co">#&gt; -1.88302362245031, "Cadillac Fleetwood" = 1.17334958945202, , "Lincoln</span></span>
+<span><span class="co">#&gt; Continental" = 2.10328764310577, "Chrysler Imperial" = 5.98107438886067, ,</span></span>
+<span><span class="co">#&gt; "Fiat 128" = 6.87271129264786, "Honda Civic" = 1.74619542260509, , "Toyota</span></span>
+<span><span class="co">#&gt; Corolla" = 6.42197916860408, "Toyota Corona" = -2.61100374058063, , "Dodge</span></span>
+<span><span class="co">#&gt; Challenger" = -2.97258623135821, "AMC Javelin" = -3.72686631503964, , "Camaro</span></span>
+<span><span class="co">#&gt; Z28" = -3.46235532808695, "Pontiac Firebird" = 2.46436702977666, , "Fiat X1-9"</span></span>
+<span><span class="co">#&gt; = 0.356426325876352, "Porsche 914-2" = 0.1520429982845, , "Lotus Europa" =</span></span>
+<span><span class="co">#&gt; 1.20105932218738, "Ford Pantera L" = -4.54315128181114, , "Ferrari Dino" =</span></span>
+<span><span class="co">#&gt; -2.78093991090022, "Maserati Bora" = -3.20536265272208, , "Volvo 142E" =</span></span>
+<span><span class="co">#&gt; -1.02749519517299), effects = c("(Intercept)" = -113.649737406208, , …, "Lotus</span></span>
+<span><span class="co">#&gt; Europa", "Ford Pantera L", "Ferrari Dino", "Maserati Bora", , and "Volvo</span></span>
+<span><span class="co">#&gt; 142E"), class = "data.frame")), class = "lm")</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 <p>If the result is large, you might log a summary or just a pointer
 (e.g., file path or row count):</p>
@@ -507,9 +530,11 @@ processing, and result.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Log entries:</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-21 09:09:08.110385]</span> <span style="font-style: italic;">MTCARS</span> — `mtcars summary`</span></span>
+<span><span class="co">#&gt; → <span style="font-weight: bold;">[2025-07-22 09:03:53.039887]</span> <span style="font-style: italic;">MTCARS</span> — `mtcars summary`</span></span>
 <span><span class="co">#&gt; Function: `eval(expr, envir)` (from global)</span></span>
 <span><span class="co">#&gt; Trace: eval(expr, envir)</span></span>
+<span><span class="co">#&gt; Output: list(n = 32L, vars = c("mpg", "cyl", "disp", "hp", "drat", "wt", and</span></span>
+<span><span class="co">#&gt; "qsec", "vs", "am", "gear", "carb"))</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/log_get.html">log_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="va">event</span> <span class="op">==</span> <span class="st">"mtcars"</span><span class="op">]</span><span class="op">[</span><span class="va">.N</span><span class="op">]</span><span class="op">[</span>, <span class="va">output</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
@@ -557,13 +582,7 @@ environment on purpose.</p>
 <span>  <span class="fu"><a href="../reference/log_add.html">log_add</a></span><span class="op">(</span><span class="st">"caller"</span>, <span class="st">"From caller"</span>, .env <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu">caller</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/log_get.html">log_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="va">event</span> <span class="op">==</span> <span class="st">"caller"</span><span class="op">]</span><span class="op">[</span><span class="va">.N</span><span class="op">]</span><span class="op">[</span>, <span class="va">args</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [[1]]</span></span>
-<span><span class="co">#&gt; [[1]]$x</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$y</span></span>
-<span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/log_get.html">log_get</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="va">event</span> <span class="op">==</span> <span class="st">"caller"</span><span class="op">]</span><span class="op">[</span><span class="va">.N</span><span class="op">]</span><span class="op">[</span>, <span class="va">args</span><span class="op">]</span></span></code></pre></div>
 <p>Without <code>.env = parent.frame()</code>, <code>inner()</code>
 would log nothing useful — this makes it possible to step one level up
 and get what we need.</p>
@@ -624,9 +643,7 @@ automatically. No need to set <code>.env</code>.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/log_init.html">log_init</a></span><span class="op">(</span><span class="st">"mylog"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/log_get.html">log_get</a></span><span class="op">(</span><span class="st">"mylog"</span><span class="op">)</span><span class="op">$</span><span class="va">args</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="co">#&gt; $a</span></span>
-<span><span class="co">#&gt; [1] 42</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/log_get.html">log_get</a></span><span class="op">(</span><span class="st">"mylog"</span><span class="op">)</span><span class="op">$</span><span class="va">args</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <blockquote>
 <p>Now the arguments from <code><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer()</a></code> are logged correctly —
 including <code>a = 42</code>.</p>

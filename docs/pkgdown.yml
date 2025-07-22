@@ -7,7 +7,7 @@ articles:
   pip_release_management: pip_release_management.html
   release_branch_management: release_branch_management.html
   working_with_releases: working_with_releases.html
-last_built: 2025-07-21T13:06Z
+last_built: 2025-07-22T13:01Z
 urls:
   reference: https://pip-technical-team.github.io/pipfun/reference
   article: https://pip-technical-team.github.io/pipfun/articles
