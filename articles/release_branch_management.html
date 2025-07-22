@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pipfun</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,8 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pip-technical-team.github.io/pipfun">pipfun</a></span><span class="op">)</span></span>
-<span><span class="co">#devtools::load_all()</span></span></code></pre></div>
+<span></span>
+<span><span class="fu"><a href="../reference/setup_working_release.html">setup_working_release</a></span><span class="op">(</span>release <span class="op">=</span> <span class="st">"20250203"</span><span class="op">)</span></span></code></pre></div>
 <p>The following functions provide tools for managing branches for
 specific PIP releases. These are mainly intended to be used for
 auxiliary data, which are stored in dedicated repositories, such as
@@ -96,15 +97,11 @@ has a release branch.</p>
 <span>                  owner <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"pipfun.ghowner"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">repo_branches</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "all_branches"       "release_branches"   "has_release_branch"</span></span>
 <span></span>
 <span><span class="co"># printing all elements of the list</span></span>
 <span><span class="va">repo_branches</span><span class="op">$</span><span class="va">all_branches</span></span>
-<span><span class="co">#&gt; [1] "DEV_v2" "DEV"    "PROD"   "main"</span></span>
 <span><span class="va">repo_branches</span><span class="op">$</span><span class="va">release_branch</span></span>
-<span><span class="co">#&gt; character(0)</span></span>
-<span><span class="va">repo_branches</span><span class="op">$</span><span class="va">has_release_branch</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<span><span class="va">repo_branches</span><span class="op">$</span><span class="va">has_release_branch</span></span></code></pre></div>
 <p>Let’s use a fake auxiliary data repo, aux_test, to illustrate how the
 functions work.</p>
 </div>
@@ -113,16 +110,16 @@ functions work.</p>
 </h3>
 <p>To create a release branch, simply call
 <code><a href="../reference/create_new_branch.html">create_new_branch()</a></code>, specifying the name of the new branch
-as well as the name of the reference branch it should be created
-from</p>
+as well as the name of the reference branch it should be created from.
+If you would like to create a new branch for the current release, you
+can just leave the new_branch argument as <code>NULL</code> and the
+function will automatically create the new branch of the release that’s
+been setup.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/create_new_branch.html">create_new_branch</a></span><span class="op">(</span>repo <span class="op">=</span> <span class="st">"aux_test"</span>,</span>
-<span>                  new_branch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y%m%d"</span><span class="op">)</span>,</span>
 <span>                  ref_branch <span class="op">=</span> <span class="st">"main"</span></span>
-<span>                  <span class="op">)</span></span>
-<span><span class="co">#&gt; Git credentials are missing or invalid in non-interactive mode.</span></span>
-<span><span class="co">#&gt; → branch <span style="color: #00BB00;">20250414</span> already exists in repo <span style="color: #00BB00;">PIP-Technical-Team/aux_test</span></span></span></code></pre></div>
+<span>                  <span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-3---check-if-release-branch-is-updated-with-development-branch">Step 3 - Check if release branch is updated with development
@@ -155,41 +152,27 @@ be <code>FALSE</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">br_compare</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare_branch_content.html">compare_branch_content</a></span><span class="op">(</span>repo <span class="op">=</span> <span class="st">"aux_test"</span>,</span>
-<span>                                     branch1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y%m%d"</span><span class="op">)</span>,</span>
+<span>                                     branch1 <span class="op">=</span> <span class="st">"20250203_TEST"</span>,</span>
 <span>                                     branch2 <span class="op">=</span> <span class="st">"DEV"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> The branches <span style="color: #0000BB; font-weight: bold;">20250414</span> and <span style="color: #0000BB; font-weight: bold;">DEV</span> have different content at their latest commits.</span></span>
 <span></span>
 <span><span class="co"># Output list</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">br_compare</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "tree_sha_1"   "tree_sha_2"   "same_content"</span></span>
 <span></span>
 <span><span class="va">br_compare</span><span class="op">$</span><span class="va">tree_sha_1</span></span>
-<span><span class="co">#&gt; [1] "b02c728e9ad5c6a52950b6200c923208ccb7db38"</span></span>
 <span><span class="va">br_compare</span><span class="op">$</span><span class="va">tree_sha_2</span></span>
-<span><span class="co">#&gt; [1] "df6cdf58ecba3397d668b4c6d17995600895dd98"</span></span>
 <span></span>
 <span><span class="va">br_compare</span><span class="op">$</span><span class="va">same_content</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
 <span></span>
 <span><span class="co"># Example with branches of the same content</span></span>
 <span><span class="fu"><a href="../reference/compare_branch_content.html">compare_branch_content</a></span><span class="op">(</span>repo    <span class="op">=</span> <span class="st">"aux_test"</span>,</span>
 <span>                       branch1 <span class="op">=</span> <span class="st">"main"</span>,</span>
-<span>                       branch2 <span class="op">=</span> <span class="st">"test_main"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> The branches <span style="color: #0000BB; font-weight: bold;">main</span> and <span style="color: #0000BB; font-weight: bold;">test_main</span> have the same content at their latest commits.</span></span>
-<span><span class="co">#&gt; $tree_sha_1</span></span>
-<span><span class="co">#&gt; [1] "b1430b7286e86c933e61902de5677c42064081d0"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $tree_sha_2</span></span>
-<span><span class="co">#&gt; [1] "b1430b7286e86c933e61902de5677c42064081d0"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $same_content</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<span>                       branch2 <span class="op">=</span> <span class="st">"test_main"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-4---update-branches">Step 4 - Update branches<a class="anchor" aria-label="anchor" href="#step-4---update-branches"></a>
 </h3>
-<p>Note (RT): as of now, I developed two functions that allow updating
-branches with two different approaches:</p>
+<p>There are two functions that allow updating branches with two
+different approaches:</p>
 <ol style="list-style-type: decimal">
 <li>Update the target branch to point to the latest commit of the source
 branch (this overwrites the history of target branch).</li>
@@ -200,22 +183,13 @@ branch (this overwrites the history of target branch).</li>
 <span><span class="co"># Approach 1:</span></span>
 <span><span class="fu"><a href="../reference/update_branches.html">update_branches</a></span><span class="op">(</span>repo    <span class="op">=</span> <span class="st">"aux_test"</span>,</span>
 <span>                branch1 <span class="op">=</span> <span class="st">"DEV_v2"</span>,</span>
-<span>                branch2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y%m%d"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Git credentials are missing or invalid in non-interactive mode.</span></span>
-<span><span class="co">#&gt; Git credentials are missing or invalid in non-interactive mode.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> The <span style="color: #0000BB; font-weight: bold;">SHAs</span> of the latest commits on both branches are <span style="color: #0000BB; font-weight: bold;">the same</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> The branches <span style="color: #0000BB; font-weight: bold;">DEV_v2</span> and <span style="color: #0000BB; font-weight: bold;">20250414</span> have the same content at their latest commits.</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Branches are already up-to-date.</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
+<span>                branch2 <span class="op">=</span> <span class="st">"20250203_TEST"</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="co"># Approach 2:</span></span>
 <span><span class="fu"><a href="../reference/merge_branch_into.html">merge_branch_into</a></span><span class="op">(</span>repo <span class="op">=</span> <span class="st">"aux_test"</span>, </span>
 <span>                  source_branch <span class="op">=</span> <span class="st">"DEV"</span>,</span>
-<span>                  target_branch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y%m%d"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> The branches <span style="color: #0000BB; font-weight: bold;">DEV</span> and <span style="color: #0000BB; font-weight: bold;">20250414</span> have different content at their latest commits.</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Error merging branches: GitHub API error (403):  Resource not accessible by integration</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<span>                  target_branch <span class="op">=</span> <span class="st">"20250203_TEST"</span><span class="op">)</span></span></code></pre></div>
 <p>In both cases, you can set the <code>force</code> option to
 <code>FALSE</code> to make the function ask confirmation before
 proceeding with the operation.</p>
@@ -231,17 +205,10 @@ deleting a branch:</p>
 <span><span class="co"># Create a new branch named "to_delete"</span></span>
 <span><span class="fu"><a href="../reference/create_new_branch.html">create_new_branch</a></span><span class="op">(</span>repo <span class="op">=</span> <span class="st">"aux_test"</span>,</span>
 <span>                  new_branch <span class="op">=</span> <span class="st">"to_delete"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Git credentials are missing or invalid in non-interactive mode.</span></span>
-<span><span class="co">#&gt;                                                                   </span></span>
-<span><span class="co">#&gt; "GitHub API error (403):  Resource not accessible by integration"</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `create_new_branch()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Failed creating branch to_delete. Check connection and try again</span></span>
 <span></span>
 <span><span class="co"># Delete the branch named "to_delete" (asks for confirmation in interactive mode)</span></span>
 <span><span class="fu"><a href="../reference/delete_branch.html">delete_branch</a></span><span class="op">(</span>repo <span class="op">=</span> <span class="st">"aux_test"</span>,</span>
-<span>              branch_to_delete <span class="op">=</span> <span class="st">"to_delete"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `delete_branch()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> branch <span style="color: #00BB00;">to_delete</span> does not exists. Nothing to delete</span></span></code></pre></div>
+<span>              branch_to_delete <span class="op">=</span> <span class="st">"to_delete"</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -254,7 +221,7 @@ deleting a branch:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
