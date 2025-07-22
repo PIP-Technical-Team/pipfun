@@ -1,4 +1,4 @@
-# pipfun (development version)
+# pipfun 0.3.3
 * Fix all tests
 
 
