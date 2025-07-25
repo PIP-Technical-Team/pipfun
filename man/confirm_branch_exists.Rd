@@ -18,7 +18,7 @@ confirm_branch_exists(
 
 \item{owner}{owner of repo}
 
-\item{repo}{repo}
+\item{repo}{character: name of repository}
 }
 \value{
 logical

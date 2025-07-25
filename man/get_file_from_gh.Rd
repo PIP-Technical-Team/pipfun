@@ -8,7 +8,8 @@ get_file_from_gh(
   owner = getOption("pipfun.ghowner"),
   repo,
   branch = "main",
-  file_path
+  file_path,
+  creds = NULL
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ get_file_from_gh(
 \item{branch}{character: branch where the file is}
 
 \item{file_path}{character: file path}
+
+\item{creds}{list. Basically, it is \code{get_github_creds()}}
 }
 \value{
 a file in a data.table class

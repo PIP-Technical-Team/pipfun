@@ -24,6 +24,9 @@ delete_branch(
 \item{repo}{character: name of the repo}
 
 \item{ask}{logical: whether to ask the user to confirm. Default is \code{\link[=interactive]{interactive()}}}
+
+\item{verbose}{A logical: whether to print detailed messages
+about the process. The default is \code{TRUE}}
 }
 \value{
 logical, whether or not branch was deleted
@@ -33,7 +36,7 @@ delete branch in Github repo
 }
 \examples{
 \dontrun{
-create_new_brach(
+create_new_branch(
   measure = "regions",
   release = "20240903")
 
@@ -41,7 +44,7 @@ delete_branch(branch_to_delete = "20240903_PROD",
               measure = "regions",
               ask = FALSE)
 
-create_new_brach("regions",
+create_new_branch("regions",
 new_branch = "test")
 
 delete_branch(branch_to_delete = "test",

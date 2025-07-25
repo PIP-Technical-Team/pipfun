@@ -2,8 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
-docs
 sessionInfoLog
 
 inst/tmp/
 inst/doc
+/doc/
+/Meta/
+
+docs

@@ -25,6 +25,8 @@ remove_dir(wdir, dirs, verbose = getOption("pipfun.verbose"))
 \item{aux_versions}{character: name of auxiliary folders. they must come in
 the form "\%Y\%m\%d_\code{identify}", where \code{identify} stands for \code{c("PROD", "INT", "TEST")}}
 
+\item{working_dir}{character: Working directory where files will be created. Defaults to a subdirectory of \code{root_dir}}
+
 \item{pc_versions}{character: name of auxiliary folders. they must come in
 the form "\%Y\%m\%d_YYYY_MM_AA_\code{identify}", where \code{YYYY} stands for the PPP
 year, \code{MM} stands for the master version of the PPPs,  \code{AA} refers to the
@@ -35,6 +37,9 @@ adaptation  version of the PPPs, and  \code{identify} stands for one of
 
 \item{dirs}{chracter: directories to be created inside or removed from
 \code{wdir}}
+
+\item{verbose}{A logical: whether to print detailed messages
+about the process. The default is \code{TRUE}}
 }
 \value{
 logical vector. the names of the elements correspond to the directory

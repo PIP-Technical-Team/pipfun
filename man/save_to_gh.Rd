@@ -10,46 +10,60 @@ save_to_gh(
   owner = getOption("pipfun.ghowner"),
   branch = "DEV",
   filename = repo,
-  ext = NULL,
+  ext = "csv",
   metadata = NULL,
-  message = paste("Updating data via R script on", Sys.time()),
   verbose = TRUE,
-  ...
+  message = paste("Updating data via R script on", Sys.time())
 )
 }
 \arguments{
-\item{df}{A dataframe object}
+\item{df}{A dataframe containing the data to be uploaded or used to
+update an existing file. The dataframe will be converted into a base64-encoded
+string before being uploaded}
 
-\item{repo}{character: name of the repo}
+\item{repo}{A character string specifying the name of the GitHub repo
+where the file will be uploaded or updated}
 
-\item{owner}{character: Github repo owner. Default is
-\code{getOption("pipfun.ghowner")}}
+\item{owner}{A character string specifying the GitHub username or organization
+that owns the repository. Defaults to \code{pipfun.ghowner} option}
 
-\item{branch}{character: either "DEV" or "PROD". Refers to the branch that
-will be used to update either the development server or production.}
+\item{branch}{A character string specifying the branch of the repository where
+the file should be uploaded or updated. The default is \code{DEV} branch}
 
-\item{filename}{character: Name of file name without the ".csv" extension.
-Default is \code{measure}}
+\item{filename}{A character string specifying the name of the file to be created
+or updated in the GitHub repository. If not provided, it defaults to repo name}
 
-\item{ext}{character: Extension of \code{filename}. Default "csv"}
+\item{ext}{A character string representing the file extension (e.g., \code{.csv}). Default is \code{csv}}
 
-\item{metadata}{a list with all the information of a file, usually from
-\link{get_pip_releases}}
+\item{metadata}{A list containing metadata for an existing file in the repository. Usually from \link{get_pip_releases}
+It should contain \code{sha} (the SHA hash of the file) and \code{path} (the file
+path in the repository). If \code{NULL}, the function will check whether the file exists
+and retrieve the metadata}
 
-\item{...}{parameters to be passed to the loading functions depending of the
-extension used}
+\item{verbose}{A logical: whether to print detailed messages
+about the process. The default is \code{TRUE}}
+
+\item{message}{A character string specifying the commit message for the GitHub upload
+or update. The default is a message with the current timestamp}
 }
 \value{
-invisible NULL
+Returns \code{invisible(NULL)}. The function primarily performs an upload or update
+operation and does not return any value other than invisibly indicating the completion
+of the task.
 }
 \description{
-Save to GitHub
+This function uploads or updates a file in a GitHub repository. If the file
+does not already exist, a new file will be created. If the
+file already exists, it will be updated with the new data.
 }
 \examples{
 \dontrun{
-df <- data.frame(a = 1:10, b = letters[1:10])
-save_to_gh(df, repo = "pip_info",
-           filename = "to_delete.csv",
-           branch = "testing")
+  # Create a new file on GitHub
+  df <- data.frame(a = 1:5, b = letters[1:5])
+  save_to_gh(df = df, repo = "aux_test", filename = "data_example", ext = "csv")
+
+  # Update an existing file on GitHub
+  df <- data.frame(a = 6:10, b = letters[6:10])
+  save_to_gh(df = df, repo = "aux_test", filename = "data_example", ext = "csv")
 }
 }

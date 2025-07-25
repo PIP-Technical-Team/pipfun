@@ -6,6 +6,7 @@
 #' Get file from Github
 #'
 #' @inheritParams get_file_info_from_gh
+#' @inheritParams download_and_read_file
 #' @return a file in a data.table class
 #' @export
 #'
@@ -17,7 +18,8 @@
 get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
                              repo,
                              branch = "main",
-                             file_path) {
+                             file_path,
+                             creds = NULL) {
 
 
   # Fetch the content metadata using gh, with authentication
@@ -62,7 +64,7 @@ get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
           rawToChar() |>
           fread()
       },
-      download_and_read_file(metadata$download_url)
+      download_and_read_file(metadata$download_url, creds = creds)
 
     ) |>
     setDT()
@@ -76,16 +78,18 @@ get_file_from_gh <- function(owner= getOption("pipfun.ghowner"),
 #' Helper function to handle file downloads and reading
 #'
 #' @param url character: url of file. usually it comes
-#'   [get_file_info_from_gh()$download_url]
-#' @param type character: file format
+#'   `get_file_info_from_gh()$download_url`
+#' @param creds  list. Basically, it is `get_github_creds()`
 #'
 #' @return data in data.table format
 #' @keywords internal
-download_and_read_file <- function(path) {
-  type      <- fs::path_ext(path)
+download_and_read_file <- function(url, creds = NULL) {
+  type      <- fs::path_ext(url)
   temp_file <- tempfile(fileext = paste0(".", type))
   on.exit(unlink(temp_file))
-  temp_file <- download_from_gh(path, temp_file)
+  temp_file <- download_from_gh(url = url,
+                                temp_file = temp_file,
+                                creds = creds)
 
   load_from_disk(temp_file) |>
     setDT()
@@ -93,21 +97,25 @@ download_and_read_file <- function(path) {
 
 #' Download file from Github
 #'
-#' @param path character: URL of file
+#' @inheritParams download_and_read_file
 #' @param temp_file [tempfile()] where new file will be saved
 #'
 #' @return file of extension in [path]
 #' @keywords internal
-download_from_gh <- function(path, temp_file) {
+download_from_gh <- function(url,
+                             temp_file,
+                             creds = NULL) {
 
-  creds = get_github_creds()
+  if (is.null(creds)) {
+    creds = get_github_creds()
+  }
 
   # load temporal file from disk
   tryCatch(
     expr = {
       # using httr2 to download the file
       # Create a request object with authentication
-      path |>
+      url |>
         httr2::request() |>
         httr2::req_auth_basic(username = creds$username,
                               password = creds$password) |>
@@ -119,10 +127,10 @@ download_from_gh <- function(path, temp_file) {
     # end of expr section
 
     error = function(e) {
-      # extract owner and repo name from path of the form
+      # extract owner and repo name from url of the form
       # root <- "https://raw.githubusercontent.com"
-      # path  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
-      path_parts <- gsub("https://raw.githubusercontent.com/", "", path) |>
+      # url  <- glue("{root}/{owner}/{repo}/{tag}/{filename}.{ext}")
+      path_parts <- gsub("https://raw.githubusercontent.com/", "", url) |>
         strsplit("/") |>
         unlist()
       owner    <- path_parts[1]
@@ -167,10 +175,12 @@ load_from_disk <- function(temp_file, ...) {
   data <- switch(ext,
                  csv  = readr::read_csv(temp_file,
                                         show_col_types = FALSE,
-                                        ...),
+                                        col_names = TRUE),
+                                        #...),
                  xls  = readxl::read_excel(temp_file, ...),
                  xlsx = readxl::read_excel(temp_file, ...),
-                 dta  = haven::read_dta(temp_file, ...),
+                 #dta  = haven::read_dta(temp_file, ...),
+                 dta  = haven::read_dta(temp_file, encoding = "UTF-8", ...),
                  qs   = qs::qread(temp_file, ...),
                  fst  = fst::read_fst(temp_file, ...),
                  yaml = yaml::read_yaml(temp_file, ...),
@@ -311,3 +321,69 @@ info_from_url <- function(url) {
        repo  = repo,
        branch = branch)
 }
+
+#' Get info of latest commit of a GitHub repo
+#' @param owner character: owner of repo
+#' @param repo character: repository name
+#' @param branch character: branch name (default is "main")
+#' @return A list containing detailed information about the latest commit on the specified branch.
+#' @keywords internal
+get_commit_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
+                                    repo,
+                                    branch = "main") {
+  # Get GitHub credentials
+  creds <- gitcreds::gitcreds_get()
+
+  # Fetch the latest commit of the branch
+  commit_info <- gh::gh(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = branch,
+    .token = creds$password
+  )
+
+  # Return the commit details
+  return(commit_info$commit)
+}
+
+#' Get info of a branch in a GitHub repo
+#'
+#' @param owner character: owner of repo
+#' @param repo character: repository name
+#' @param branch character: branch name (default is "main")
+#' @param gh_func function: function used to call the GitHub API (default is `gh::gh`)
+#' @param creds_func function: function used to retrieve GitHub credentials (default is `get_github_creds`)
+#' @param url_func function: function used to extract additional information from the protection URL (default is `info_from_url`)
+#'
+#'
+#' @return Complete response from GET method of GitHub API
+#' @export
+#'
+#' @examples
+#' get_branch_info_from_gh(owner     = getOption("pipfun.ghowner"),
+#'                         repo      = "pip_info",
+#'                         branch    = "releases")
+get_branch_info_from_gh <- function(owner = getOption("pipfun.ghowner"),
+                                    repo,
+                                    branch = "main",
+                                    gh_func = gh::gh,
+                                    creds_func = get_github_creds,
+                                    url_func = info_from_url) {
+  # Get GitHub credentials
+  creds <- creds_func()
+
+  # Fetch branch metadata using GitHub API
+  mt <- gh_func(
+    "GET /repos/{owner}/{repo}/branches/{branch}",
+    owner  = owner,
+    repo   = repo,
+    branch = branch,
+    .token = creds$password
+  )
+
+  # Append additional information extracted from the URL
+  append(mt,
+         url_func(mt$protection_url))
+}
+

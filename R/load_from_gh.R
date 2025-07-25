@@ -67,6 +67,7 @@ load_from_gh <- function(measure,
       if (is.data.frame(df)) {
         setDT(df)
       }
+
     },
     # end of expr section
 
@@ -77,6 +78,38 @@ load_from_gh <- function(measure,
     } # end of error section
 
   ) # End of trycatch
+
+  #Ensure df is not NULL before assigning attributes
+  if (!is.null(df)) {
+
+    gh_raw_sha <- pipfun::get_file_info_from_gh(
+      owner    = owner,
+      repo     = repo,
+      branch   = branch,
+      #file_path = "OutputData/CLASS.dta",
+      file_path = filename
+    )$sha
+
+    # # Assign list of attrbutes
+    # attr(df, "gh") <- list(
+    #   file_path = filename,
+    #   ext = ext,
+    #   owner = owner,
+    #   repo = repo,
+    #   branch = branch,
+    #   gh_raw_sha = gh_raw_sha
+    # )
+
+    data.table::setattr(df, "gh", list(
+      file_path = filename,
+        ext = ext,
+        owner = owner,
+        repo = repo,
+        branch = branch,
+        gh_raw_sha = gh_raw_sha
+
+    ))
+  }
 
   #   __________________________________________________
   #   Return                                ####
@@ -156,9 +189,25 @@ get_github_creds <- function() {
 
   creds <- tryCatch(
     invisible(gitcreds::gitcreds_get()),
-    gitcreds_nogit_error = function(e) cli::cli_abort("{gitcreds_msg(\"no_git\")}"),
-    gitcreds_no_credentials = function(e) cli::cli_abort("{gitcreds_msg(\"no_creds\")}")
-  )
+    gitcreds_nogit_error = \(e) {
+      cli::cli_abort("{gitcreds_msg(\"no_git\")}")
+      },
+    gitcreds_no_credentials = \(e) {
+      cli::cli_abort("{gitcreds_msg(\"no_creds\")}")
+    },
+    error = function(e) {
+      NULL  # Return NULL on error
+    })
+
+  # Ensure credentials are valid
+  if (is.null(creds) || is.na(creds$username) || is.na(creds$password)) {
+    message("Git credentials are missing or invalid in non-interactive mode.")
+    creds <- list(protocol = "https",
+                  host = "github.com",
+                  username = "PersonalAccessToken",
+                  password = Sys.getenv("GH_PASS", unset = NA_character_))
+  }
+
   invisible(creds)
 
   # if (Sys.getenv("GITHUB_PAT") == "")

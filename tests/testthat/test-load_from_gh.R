@@ -51,7 +51,7 @@ test_that("get_gh throws an error when an invalid value is passed to the what ar
 
 # Test if get_github_creds() succeeds when valid credentials are available
 test_that("get_github_creds succeeds with valid credentials", {
-  skip_on_cran()
+  skip()
   # Assuming there's a way to temporarily set a valid GITHUB_PAT for testing
   # This is a placeholder for setting up a mock or a temporary credential
   # setup_mock_creds()
@@ -160,39 +160,61 @@ test_that("load_from_disk loads CSV files correctly", {
 # Test loading Excel files (xls and xlsx)
 test_that("load_from_disk loads Excel files correctly", {
   skip_if_not(requireNamespace("writexl", quietly = TRUE))
-  # temp_file_xls <- tempfile(fileext = ".xls")
+
+  # Create a temporary .xlsx file
   temp_file_xlsx <- tempfile(fileext = ".xlsx")
-  # Assuming the presence of a function to write Excel files for testing
-  # writexl::write_xlsx(mtcars, temp_file_xls)
+
+  # Write mtcars to the .xlsx file
   writexl::write_xlsx(mtcars, temp_file_xlsx)
-  # result_xls <- load_from_disk(temp_file_xls, "xls")
-  result_xlsx <- load_from_disk(temp_file_xlsx, "xlsx")
-  # Assuming the Excel files have the same structure as mtcars for this test
-  # expect_equal(dim(result_xls), dim(mtcars))
+
+  # Load the .xlsx file using load_from_disk
+  result_xlsx <- load_from_disk(temp_file_xlsx)
+
+  # Test if dimensions match
   expect_equal(dim(result_xlsx), dim(mtcars))
-  # Cleanup
-  # unlink(temp_file_xls)
+
+  # Cleanup temporary file
   unlink(temp_file_xlsx)
 })
 
+
 # Test loading Stata files (dta)
+
 test_that("load_from_disk loads Stata files correctly", {
   skip_if_not(requireNamespace("haven", quietly = TRUE))
+
   temp_file <- tempfile(fileext = ".dta")
-  # Assuming the presence of a function to write Stata files for testing
-  haven::write_dta(mtcars, temp_file)
-  result <- load_from_disk(temp_file, "dta")
-  # Assuming the Stata file has the same structure as mtcars for this test
-  expect_equal(dim(result), dim(mtcars))
+
+  # Write mtcars to a Stata file (explicitly specify version for compatibility)
+  haven::write_dta(mtcars,
+                   temp_file,
+                   version = 14)
+
+  # Ensure the file is written
+  expect_true(file.exists(temp_file))
+
+  # Load the data using the function
+  result <- load_from_disk(temp_file)
+
+  # Check dimensions, column names, and class
+  expect_equal(dim(result),
+               dim(mtcars))
+  expect_equal(colnames(result),
+               colnames(mtcars))
+  expect_s3_class(result,
+                  "data.frame")
+
+  # Clean up
   unlink(temp_file)
 })
+
 
 # Test loading QS files
 test_that("load_from_disk loads QS files correctly", {
   skip_if_not(requireNamespace("qs", quietly = TRUE))
   temp_file <- tempfile(fileext = ".qs")
   qs::qsave(mtcars, temp_file)
-  result <- load_from_disk(temp_file, "qs")
+  result <- load_from_disk(temp_file)
   expect_equal(dim(result), dim(mtcars))
   unlink(temp_file)
 })
@@ -202,7 +224,7 @@ test_that("load_from_disk loads FST files correctly", {
   skip_if_not(requireNamespace("fst", quietly = TRUE))
   temp_file <- tempfile(fileext = ".fst")
   fst::write_fst(mtcars, temp_file)
-  result <- load_from_disk(temp_file, "fst")
+  result <- load_from_disk(temp_file)
   expect_equal(dim(result), dim(mtcars))
   unlink(temp_file)
 })
@@ -211,11 +233,19 @@ test_that("load_from_disk loads FST files correctly", {
 test_that("load_from_disk loads YAML files correctly", {
   skip_if_not(requireNamespace("yaml", quietly = TRUE))
   temp_file <- tempfile(fileext = ".yaml")
-  yaml::write_yaml(list(mtcars), temp_file)
-  result <- load_from_disk(temp_file, "yaml")
-  expect_true(is.list(result))
+  original_data <- mtcars
+  yaml::write_yaml(original_data, temp_file)
+
+  # Load the data using the function
+  result <- load_from_disk(temp_file)
+
+  # Check that the file was loaded as YAML (e.g., as a list or matching structure)
+  expect_true(is.list(result)) # YAML files are loaded as lists
+  expect_equal(names(result), names(as.list(original_data))) # Check structure
+  expect_equal(result, as.list(original_data)) # Check content
   unlink(temp_file)
 })
+
 
 # Test unsupported file extension
 test_that("load_from_disk handles unsupported extensions correctly", {

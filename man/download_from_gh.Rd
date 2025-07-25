@@ -4,12 +4,15 @@
 \alias{download_from_gh}
 \title{Download file from Github}
 \usage{
-download_from_gh(path, temp_file)
+download_from_gh(url, temp_file, creds = NULL)
 }
 \arguments{
-\item{path}{character: URL of file}
+\item{url}{character: url of file. usually it comes
+\code{get_file_info_from_gh()$download_url}}
 
 \item{temp_file}{\code{\link[=tempfile]{tempfile()}} where new file will be saved}
+
+\item{creds}{list. Basically, it is \code{get_github_creds()}}
 }
 \value{
 file of extension in \link{path}
