@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_from_gh.R
 \name{get_file_info_from_gh}
 \alias{get_file_info_from_gh}
-\title{Get info of a file in a Github repo}
+\title{Get info of a file or files within a folder in a Github repo}
 \usage{
 get_file_info_from_gh(
   owner = getOption("pipfun.ghowner"),
@@ -16,19 +16,24 @@ get_file_info_from_gh(
 
 \item{repo}{character: repository name}
 
-\item{branch}{character: branch where the file is}
+\item{branch}{character: branch where the file or folder is}
 
-\item{file_path}{character: file path}
+\item{file_path}{character: file or folder path}
 }
 \value{
 Complete response from GET method of Github API
 }
 \description{
-Get info of a file in a Github repo
+Get info of a file or files within a folder in a Github repo
 }
 \examples{
 get_file_info_from_gh(owner     = getOption("pipfun.ghowner"),
                       repo      = "pip_info",
                       file_path = "releases.csv",
                       branch    = "releases")
+
+get_file_info_from_gh(owner     = getOption("pipfun.ghowner"),
+                      repo      = "pipfaker",
+                      file_path = "data/20240627_2017_01_02_PROD/_aux",
+                      branch    = "aux_estimations")
 }

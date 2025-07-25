@@ -25,9 +25,9 @@ setup_working_release(
 
 \item{repo}{character: repository name}
 
-\item{file_path}{character: file path}
+\item{file_path}{character: file or folder path}
 
-\item{branch}{character: branch where the file is}
+\item{branch}{character: branch where the file or folder is}
 
 \item{verbose}{logical: whether to display additional information}
 

@@ -202,15 +202,18 @@ load_from_disk <- function(temp_file, ...) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' load_all_from_gh(owner     = getOption("pipfun.ghowner"),
 #'                  repo      = "pipfaker",
-#'                  file_path = "data/20240627_2017_01_02_PROD/_aux",
-#'                  branch    = "aux_estimations")
+#'                  folder_path = "data/20240627_2017_01_02_PROD/_aux",
+#'                  branch    = "aux_estimations",
+#'                  output_path = getwd())
+#'                  }
 load_all_from_gh <- function(owner= getOption("pipfun.ghowner"),
                              repo,
                              branch = "main",
                              folder_path,
-                             output_path) {
+                             output_path){
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # computations   ---------

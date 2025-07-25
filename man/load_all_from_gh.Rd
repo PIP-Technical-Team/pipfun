@@ -30,8 +30,11 @@ file of extension in \link{path}
 Get all files from folder in Github
 }
 \examples{
+\dontrun{
 load_all_from_gh(owner     = getOption("pipfun.ghowner"),
                  repo      = "pipfaker",
-                 file_path = "data/20240627_2017_01_02_PROD/_aux",
-                 branch    = "aux_estimations")
+                 folder_path = "data/20240627_2017_01_02_PROD/_aux",
+                 branch    = "aux_estimations",
+                 output_path = getwd())
+                 }
 }
