@@ -15,8 +15,8 @@ get_latest_pip_release(identity = getOption("pipfun.identities"), ...)
     \item{\code{verbose}}{logical: whether to display additional information}
     \item{\code{owner}}{character: owner of repo}
     \item{\code{repo}}{character: repository name}
-    \item{\code{file_path}}{character: file path}
-    \item{\code{branch}}{character: branch where the file is}
+    \item{\code{file_path}}{character: file or folder path}
+    \item{\code{branch}}{character: branch where the file or folder is}
     \item{\code{creds}}{list. Basically, it is \code{get_github_creds()}}
   }}
 }

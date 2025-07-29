@@ -17,9 +17,9 @@ get_file_from_gh(
 
 \item{repo}{character: repository name}
 
-\item{branch}{character: branch where the file is}
+\item{branch}{character: branch where the file or folder is}
 
-\item{file_path}{character: file path}
+\item{file_path}{character: file or folder path}
 
 \item{creds}{list. Basically, it is \code{get_github_creds()}}
 }

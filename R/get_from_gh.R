@@ -1,5 +1,5 @@
 # The objective of all the functions below is to provide a suite of interactive
-# tools to work with github files seamlessly. Ideally, these functions will
+# tools to work with github files or folders seamlessly. Ideally, these functions will
 # fully supersede the functions in load_from_gh.R
 
 
@@ -192,14 +192,67 @@ load_from_disk <- function(temp_file, ...) {
   return(data)
 }
 
+#' Get all files from folder in Github
+#'
+#' @inheritParams get_file_info_from_gh
+#' @param folder_path character: folder path
+#' @param output_path character: folder path
+#'
+#' @return file of extension in [path]
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' load_all_from_gh(owner     = getOption("pipfun.ghowner"),
+#'                  repo      = "pipfaker",
+#'                  folder_path = "data/20240627_2017_01_02_PROD/_aux",
+#'                  branch    = "aux_estimations",
+#'                  output_path = getwd())
+#'                  }
+load_all_from_gh <- function(owner= getOption("pipfun.ghowner"),
+                             repo,
+                             branch = "main",
+                             folder_path,
+                             output_path){
 
-#' Get info of a file in a Github repo
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # computations   ---------
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  # Fetch the content metadata using gh, with authentication
+
+  metadata      <- get_file_info_from_gh(owner     = owner,
+                                         repo      = repo,
+                                         branch    = branch,
+                                         file_path = folder_path)
+
+  # Create lists of paths
+
+  urls         <- lapply(metadata,
+                         function(df) df$url)
+
+  output_paths <- lapply(as.list(names(urls)),
+                         function(base) path <- fs::path(output_path, base))
+
+  # Download all files
+
+  temp_files   <- mapply(download_from_gh, urls, output_paths)
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Return   ---------
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  return(invisible(temp_files))
+
+}
+
+
+#' Get info of a file or files within a folder in a Github repo
 #'
 #'
 #' @param owner character: owner of repo
 #' @param repo character: repository name
-#' @param file_path character: file path
-#' @param branch character: branch where the file is
+#' @param file_path character: file or folder path
+#' @param branch character: branch where the file or folder is
 #'
 #' @return Complete response from GET method of Github API
 #' @export
@@ -209,6 +262,11 @@ load_from_disk <- function(temp_file, ...) {
 #'                       repo      = "pip_info",
 #'                       file_path = "releases.csv",
 #'                       branch    = "releases")
+#'
+#' get_file_info_from_gh(owner     = getOption("pipfun.ghowner"),
+#'                       repo      = "pipfaker",
+#'                       file_path = "data/20240627_2017_01_02_PROD/_aux",
+#'                       branch    = "aux_estimations")
 get_file_info_from_gh <- function(owner= getOption("pipfun.ghowner"),
                                   repo,
                                   branch = "main",
@@ -231,6 +289,16 @@ get_file_info_from_gh <- function(owner= getOption("pipfun.ghowner"),
     .params   = list(ref = branch),
     .token = creds$password
   )
+
+  # Fix names for folders
+
+  if(is.null(names(mt))){
+    names(mt) <- lapply(mt, function(x) names(x) <- x$name)
+
+    return(mt)
+  }
+
+  # For files
 
   append(mt, info_from_url(mt$url))
 
