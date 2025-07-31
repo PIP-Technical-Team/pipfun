@@ -15,6 +15,7 @@ setup_working_release(
   verbose = getOption("pipfun.verbose"),
   ppp = getOption("pipfun.ppps"),
   creds = NULL,
+  main_dir = getOption("pipfun.main_dir"),
   ...
 )
 }
@@ -34,6 +35,11 @@ setup_working_release(
 \item{ppp}{numeric: PPP year to use.}
 
 \item{creds}{list. Basically, it is \code{get_github_creds()}}
+
+\item{main_dir}{character: directory  path where all PIP data is stored. By
+default it is available in \code{getOption("pipfun.main_dir")}, but it is
+basically a combination of \code{Sys.getenv("PIP_ROOT_DIR")} and
+\code{getOption("pipfun.working_dir")}.}
 
 \item{...}{
   Arguments passed on to \code{\link[=pip_create_globals]{pip_create_globals}}

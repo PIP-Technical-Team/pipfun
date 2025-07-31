@@ -376,7 +376,7 @@ You only need to use this if you're capturing from a different environment on pu
 
 **Example:**
 
-```{r, eval=FALSE}
+```{r}
 caller <- function(x, y) {
   inner()
 }
@@ -428,7 +428,7 @@ Oops! The logged arguments come from `wrapped()`, not `outer()` — the values m
 
 ### Solution: pass `.env = parent.frame()`
 
-```{r, eval=FALSE}
+```{r}
 wrapped <- function(a = 3) {
   log_add("info", "From wrapped", name = "mylog", .env = parent.frame())
 }

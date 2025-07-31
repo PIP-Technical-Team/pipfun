@@ -8,6 +8,10 @@
 #' @inheritParams download_and_read_file
 #' @inheritDotParams pip_create_globals -vintage -create_dir
 #' @param ppp numeric: PPP year to use.
+#' @param main_dir character: directory  path where all PIP data is stored. By
+#'   default it is available in `getOption("pipfun.main_dir")`, but it is
+#'   basically a combination of `Sys.getenv("PIP_ROOT_DIR")` and
+#'   `getOption("pipfun.working_dir")`.
 #'
 #' @return invisible table with release information and list object in the
 #'   `.pipenv` environment
@@ -22,8 +26,8 @@
 #' try(setup_working_release())
 #' }
 setup_working_release <- function(release  = NULL,
-                                 identity = getOption("pipfun.identities"),
-                                 force    = FALSE,
+                                 identity  = getOption("pipfun.identities"),
+                                 force     = FALSE,
                                  owner     = getOption("pipfun.ghowner"),
                                  repo      = "pip_info",
                                  file_path = "releases.csv",
@@ -31,6 +35,7 @@ setup_working_release <- function(release  = NULL,
                                  verbose   = getOption("pipfun.verbose"),
                                  ppp       = getOption("pipfun.ppps"),
                                  creds     = NULL,
+                                 main_dir  = getOption("pipfun.main_dir"),
                                  ...) {
   identity <- match.arg(identity)
   ppp      <- ppp[1]
@@ -84,6 +89,72 @@ setup_working_release <- function(release  = NULL,
 }
 
 
+
+
+#' set pins board
+#'
+#' set all the directory paths that contain pins boards for pip. It should be
+#' used inside [setup_working_release] but it could be used interactively for
+#' testing purposes.
+#'
+#' @inheritParams setup_working_release
+#'
+#' @returns lists of pins boards
+#' @export
+#'
+#' @examples
+#' set_pip_boards()
+set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
+                           release  = NULL,
+                           identity  = getOption("pipfun.identities")) {
+
+  identity <- match.arg(identity)
+  release <- if (is.null(release)) {
+    get_latest_pip_release() |>
+      _[, release]
+  }
+
+  rt      <- glue("{release}_{identity}")
+
+  # Aux data
+  aux_dir <- fs::path(main_dir, "aux_data", rt) |>
+    fs::dir_create()
+
+  aux_data <- pins::board_folder(aux_dir, TRUE)
+
+  # DLW data
+  dlw_dir <- fs::path(main_dir, "dlw_repository") |>
+    fs::dir_create(recurse = TRUE)
+
+  dlw_data_dir      <- fs::path(dlw_dir, "dlw_data")
+  dlw_inventory_dir <- fs::path(dlw_dir, "dlw_inventory", rt) |>
+    fs::dir_create(recurse = TRUE)
+
+  dlw_data      <- pins::board_folder(dlw_data_dir, TRUE)
+  dlw_inventory <- pins::board_folder(dlw_inventory_dir, TRUE)
+
+  # PIP data
+  pip_dir <- fs::path(main_dir, "pip_repository") |>
+    fs::dir_create(recurse = TRUE)
+
+  pip_data_dir      <- fs::path(dlw_dir, "pip_data", "surveys")
+  pip_metadata_dir  <- fs::path(dlw_dir, "pip_data", "surveys_metadata")
+  pip_inventory_dir <- fs::path(dlw_dir, "pip_inventory", rt) |>
+    fs::dir_create(recurse = TRUE)
+
+  pip_data      <- pins::board_folder(pip_data_dir, TRUE)
+  pip_metadata  <- pins::board_folder(pip_metadata_dir, TRUE)
+  pip_inventory <- pins::board_folder(pip_inventory_dir, TRUE)
+
+
+  boards <- list(aux_data      = aux_data,
+                 dlw_data      = dlw_data,
+                 dlw_inventory = dlw_inventory,
+                 pip_data      = pip_data,
+                 pip_metadata  = pip_metadata,
+                 pip_inventory = pip_inventory)
+
+}
 
 #' get working release in PIP functions
 #'
