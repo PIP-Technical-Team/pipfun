@@ -66,7 +66,8 @@ setup_working_release <- function(release  = NULL,
     }
 
   # create globals
-  gls <- pip_create_globals(create_dir = FALSE,  # for now. Dirs should be created elsewhere
+  # for now. Dirs should be created elsewhere
+  gls <- pip_create_globals(create_dir = FALSE,
                             vintage    = list(release = release,
                                               ppp_year = ppp,
                                               identity = identity),
@@ -78,11 +79,17 @@ setup_working_release <- function(release  = NULL,
              identity = pr[, identity],
              ppp      = ppp)
 
+  boards <- set_pip_boards(main_dir = main_dir,
+                           release = pr[, release],
+                           identity = pr[, identity])
+
   rlang::env_poke(.pipenv, "working_release", wr)
   rlang::env_poke(.pipenv, "gls", gls)
+  rlang::env_poke(.pipenv, "pins_boards", boards)
 
   if (verbose) {
     cli::cli_alert_info("PIP working release setup to {.field {wr$release}-{wr$identity}}")
+    print(boards)
   }
 
   invisible(wr)
@@ -109,8 +116,8 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
                            identity  = getOption("pipfun.identities")) {
 
   identity <- match.arg(identity)
-  release <- if (is.null(release)) {
-    get_latest_pip_release() |>
+  if (is.null(release)) {
+    release <- get_latest_pip_release() |>
       _[, release]
   }
 
@@ -162,6 +169,7 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
 #' You can place this function at the beginning of any of your PIP function to
 #' work with the working release
 #'
+#' @inheritParams setup_working_release
 #' @param name character: Name of the working release object. default is
 #'   "wrk_release" and you should leave it like that
 #'
@@ -179,8 +187,8 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
 #' print(hell())
 #' }
 get_wrk_release <- function(name = "wrk_release",
-                            verbose = TRUE) {
-  wrk_release <- get_from_pipenv("working_release")
+                            verbose  = getOption("pipfun.verbose")) {
+  wrk_release <- get_from_pipenv(name)
   if (is.null(wrk_release)) {
     cli::cli_abort(
       c(x = "Working release has not been set up",
@@ -189,7 +197,32 @@ get_wrk_release <- function(name = "wrk_release",
     if (verbose) cli::cli_alert_info("Your working release is {.field {wrk_release$release}}")
   }
 
-  # Assign to hello()'s environment
   assign(name, wrk_release, envir = parent.frame())
 }
 
+
+
+
+#' Get PIP pins boards from pipenv environment
+#'
+#' @param name character: Name of the pins boards that you want to assign to the
+#'   parent.frame() that call this function. default is "pins_boards" and you
+#'   should leave it like that. this is just an argument for developers.
+#' @inheritParams setup_working_release
+#'
+#' @returns list of pins boards
+#' @export
+#' @rdname get_wrk_release
+get_pins_boards <- function(name = "pins_boards",
+                           verbose  = getOption("pipfun.verbose")) {
+  pins_boards <- get_from_pipenv("pins_boards")
+  if (is.null(pins_boards)) {
+    cli::cli_abort(
+      c(x = "PIP pins boards have not been set up",
+        i = "You need to set a working release with {.code pipfun::setup_working_release()}"))
+  } else {
+    if (verbose) pins_boards
+  }
+
+  assign(name, pins_boards, envir = parent.frame())
+}

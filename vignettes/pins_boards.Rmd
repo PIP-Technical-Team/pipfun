@@ -1,0 +1,68 @@
+---
+title: "Working with pins boards in PIP"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working with pins boards in PIP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This vignette demonstrates how to work with pins boards in the PIP ecosystem. Pins boards are used to store and retrieve data objects efficiently across PIP packages. Most users will not need to interact with these boards directly, but understanding their setup and retrieval can be useful for advanced workflows and package development.
+
+## Setting up a working release
+
+To begin, you need to define a `release` (typically the current date) and an `identity` (by default, "TEST"). These parameters determine the context for your PIP session.
+
+
+
+```{r setup}
+devtools::load_all(".")
+# library(pipfun)
+```
+
+
+We are going to get the final release available for demostration in this vignette. You rarely need to use function `get_latest_pip_release()` 
+```{r release}
+
+pr <- get_latest_pip_release()
+release <- pr[, release]
+identity <- pr[, identity]
+```
+
+The boards are set up automatically when you call `setup_working_release()`. This function stores the boards in the special `.pipenv` environment for use by other PIP functions.
+
+```{r}
+setup_working_release(release = release, identity = identity)
+```
+
+## Retrieving pins boards
+
+You can retrieve the pins boards at any time using the `get_pins_boards()` function. This will assign the boards to your environment for inspection or advanced use.
+
+```{r}
+get_pins_boards()
+# Now you have a `pins_boards` object in your environment (default name: pins_boards)
+print(pins_boards)
+```
+
+## Usage in other packages
+
+These are lower-level functions intended for developers who need to save or load pins directly in other packages. For most workflows, you should not need to interact with the boards directly, as higher-level PIP functions will handle data access for you.
+
+## Summary
+
+- Define a `release` and `identity` (defaults: today's date and "TEST").
+- Call `setup_working_release()` to set up the environment and boards.
+- Use `get_pins_boards()` to retrieve the boards if needed.
+- Use these functions for advanced or package development workflows.
+
+
