@@ -1,3 +1,6 @@
+# pipfun 0.3.6
+* Add tests and add functionality to retrieve specif boards in `get_pins_boards()`
+
 # pipfun 0.3.5
 
 * Fix big bug
