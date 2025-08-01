@@ -39,6 +39,6 @@ get_wrk_release()
 invisible(wrk_release)
 }
 setup_working_release()
-print(hell())
+print(hello())
 }
 }

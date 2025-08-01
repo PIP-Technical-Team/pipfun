@@ -83,7 +83,7 @@ setup_working_release <- function(release  = NULL,
                            release = pr[, release],
                            identity = pr[, identity])
 
-  rlang::env_poke(.pipenv, "working_release", wr)
+  rlang::env_poke(.pipenv, "wrk_release", wr)
   rlang::env_poke(.pipenv, "gls", gls)
   rlang::env_poke(.pipenv, "pins_boards", boards)
 
@@ -190,7 +190,7 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
 #' }
 get_wrk_release <- function(name = "wrk_release",
                             verbose  = getOption("pipfun.verbose")) {
-  wrk_release <- get_from_pipenv(name)
+  wrk_release <- get_from_pipenv("wrk_release")
   if (is.null(wrk_release)) {
     cli::cli_abort(
       c(x = "Working release has not been set up",
