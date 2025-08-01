@@ -1,0 +1,60 @@
+---
+title: "Working with pins boards in PIP"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working with pins boards in PIP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This vignette will show you how to work with pins boards in the PIP ecosystem. If you're new to pins boards, don't worry—most users won't need to interact with them directly, but it's helpful to know how they work behind the scenes. Pins boards are simply organized folders where PIP packages store and share data.
+
+
+
+## Getting Started: Setting up your working release
+
+Before you can use pins boards, you need to set up a "working release." This is basically letting all the PIP functions know which version of the data will be working with. You usually do this by specifying a `release` (Which by default is the current date, but you should be working with a specific release) and an `identity` (by default, "TEST").
+
+
+```{r setup}
+devtools::load_all(".")
+# library(pipfun)
+```
+
+For this vignette, let's grab the latest available release for demonstration. (In practice, you rarely need to call `get_latest_pip_release()` yourself.)
+
+
+```{r release}
+
+pr <- get_latest_pip_release()
+release <- pr[, release]
+identity <- pr[, identity]
+```
+
+Now, set up your working release. This will automatically create and store the pins boards in a special environment called `.pipenv`:
+
+```{r}
+setup_working_release(release = release, identity = identity)
+```
+
+## Retrieving pins boards
+
+At any time, you can retrieve the pins boards using the `get_pins_boards()` function. This will assign the boards to your environment with the name `pins_boards` so you can inspect or use them directly. However, you can change that name by passing a different `name` argument if you prefer, or just assign it to a variable of your choice.
+
+```{r}
+get_pins_boards()
+# Now you have a `pins_boards` object in your environment (default name: pins_boards)
+```
+
+## Usage in other packages
+
+These are lower-level functions intended for developers who need to save or load pins directly in other packages. For most workflows, you should not need to interact with the boards directly, as higher-level PIP functions will handle data access for you.
