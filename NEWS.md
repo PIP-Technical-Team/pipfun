@@ -1,3 +1,7 @@
+# pipfun 0.3.5
+
+* Fix big bug
+
 # pipfun 0.3.4
 
 * Include pins boards in working release. Now, they can be retrieve with `get_pins_boards()`

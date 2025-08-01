@@ -10,8 +10,9 @@ get_wrk_release(name = "wrk_release", verbose = getOption("pipfun.verbose"))
 get_pins_boards(name = "pins_boards", verbose = getOption("pipfun.verbose"))
 }
 \arguments{
-\item{name}{character: Name of the pins boards default is "pins_boards" and
-you should leave it like that. this is just an argument for developers}
+\item{name}{character: Name of the pins boards that you want to assign to the
+parent.frame() that call this function. default is "pins_boards" and you
+should leave it like that. this is just an argument for developers.}
 
 \item{verbose}{logical: whether to display additional information}
 }

@@ -145,7 +145,9 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
     fs::dir_create(recurse = TRUE)
 
   pip_data_dir      <- fs::path(pip_dir, "pip_data", "surveys")
-  pip_metadata_dir  <- fs::path(pip_dir, "pip_data", "surveys_metadata")
+  pip_metadata_dir  <- fs::path(pip_dir, "pip_data", "surveys_metadata", rt) |>
+    fs::dir_create(recurse = TRUE)
+
   pip_inventory_dir <- fs::path(pip_dir, "pip_inventory", rt) |>
     fs::dir_create(recurse = TRUE)
 
