@@ -186,7 +186,7 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
 #' invisible(wrk_release)
 #' }
 #' setup_working_release()
-#' print(hell())
+#' print(hello())
 #' }
 get_wrk_release <- function(name = "wrk_release",
                             verbose  = getOption("pipfun.verbose")) {
@@ -206,7 +206,7 @@ get_wrk_release <- function(name = "wrk_release",
 
 
 #' Get PIP pins boards from pipenv environment
-#'
+#' @param board character: name of the PIP board you want to filter
 #' @param name character: Name of the pins boards that you want to assign to the
 #'   parent.frame() that call this function. default is "pins_boards" and you
 #'   should leave it like that. this is just an argument for developers.
@@ -215,7 +215,8 @@ get_wrk_release <- function(name = "wrk_release",
 #' @returns list of pins boards
 #' @export
 #' @rdname get_wrk_release
-get_pins_boards <- function(name = "pins_boards",
+get_pins_boards <- function(board = NULL,
+                            name = "pins_boards",
                            verbose  = getOption("pipfun.verbose")) {
   pins_boards <- get_from_pipenv("pins_boards")
   if (is.null(pins_boards)) {
@@ -227,4 +228,13 @@ get_pins_boards <- function(name = "pins_boards",
   }
 
   assign(name, pins_boards, envir = parent.frame())
+
+  if (is.null(board)) return(invisible(pins_boards))
+
+  if (!(board %in% names(pins_boards))) {
+    cli::cli_abort("{.field {board}} is not available in {.field pins_board}")
+  }
+
+  pins_boards[[board]]
+
 }
