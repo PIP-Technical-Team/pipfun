@@ -186,6 +186,8 @@ log_init <- function(name = getOption("pipfun.log.default"),
 #' @param path `r lifecycle::badge("deprecated")` `path` is no longer supported.
 #'   Use `board` argument now. If value passed to `path` is not a pins board, it
 #'   will through an error.
+#' @param board pins board
+#' @param pin_name name of pin that will be used to load the log. By default it is the same as `name`.
 #' @inheritDotParams pins::pin_write title description metadata tags
 #'
 #'
@@ -239,45 +241,71 @@ log_save <- function(name     = getOption("pipfun.log.default", "default"),
 #' Loads a previously saved log into `.piplogenv`, optionally under a different
 #' name.
 #'
-#' @param path Path to the `.qs` file to load.
-#' @param name Name to assign to the log in memory (default: inferred from
-#'   filename).
-#' @param overwrite Whether to overwrite an existing log of the same name
-#'   (default: FALSE).
+#' @param board pins board
+#' @param pin_name name of pin that will be used to load the log. By default it
+#'   is the same as `name`.
+#' @inheritParams pins::pin_read
+#' @param name `r lifecycle::badge("deprecated")` `name` has been superseded by
+#'   `pin_name`. It is nor inferred from filename any more.
+#' @param path `r lifecycle::badge("deprecated")` `path` is no longer supported.
+#'   Use `board` argument now. If value passed to `path` is not a pins board, it
+#'   will through an error.
+#' @inheritDotParams pins::pin_read
+#'
+#' @param overwrite logical: whether to override the log in `.piplogenv` with
+#'   the same `pin_name`. Default is FALSE.
 #'
 #' @return Invisibly returns the name of the loaded log.
 #' @export
-log_load <- function(path,
-                     name      = NULL,
-                     overwrite = FALSE) {
+log_load <- function(board,
+                     pin_name  = name,
+                     version   = NULL,
+                     hash      = NULL,
+                     path      = deprecated(),
+                     name      = deprecated(),
+                     overwrite = FALSE,
+                     ...) {
 
-  if (!requireNamespace("qs", quietly = TRUE)) {
-    cli::cli_abort("Package {.pkg qs} is required to load logs.")
+  if (lifecycle::is_present(path)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.7",
+      what = "log_save(path)",
+      with = "log_save(board)",
+      details = "all the logs will be saved as pins, so you need to use a pins board rather than a directory path"
+    )
+    board <- path
+  }
+  if (lifecycle::is_present(name)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.7",
+      what = "log_save(name)",
+      with = "log_save(pin_name)"
+    )
+    pin_name <- name
   }
 
-  if (!fs::file_exists(path)) {
-    cli::cli_abort("File {.file {path}} does not exist.")
+  if (!inherits(board, "pins_board")) {
+    cli::cli_abort("{.arg board} must be a pins_board class object")
   }
 
-  log <- qs::qread(path)
+  log <- pins::pin_read(board = board,
+                        name = pin_name,
+                        version = version,
+                        hash = hash,
+                        ...)
 
   if (!inherits(log, "piplog")) {
     cli::cli_abort("File does not contain a valid {.cls piplog} object.")
   }
 
-  if (is.null(name)) {
-    name <- path |>
-      fs::path_ext_remove() |>
-      fs::path_file()
-  }
 
-  if (rlang::env_has(.piplogenv, name) && !overwrite) {
+  if (rlang::env_has(.piplogenv, pin_name) && !overwrite) {
     cli::cli_abort("A log named {.field {name}} already exists in memory. Use {.code overwrite = TRUE} to replace it.")
   }
 
-  rlang::env_poke(.piplogenv, name, log)
-  cli::cli_alert_success("Log {.field {name}} loaded from {.file {path}}")
-  invisible(name)
+  rlang::env_poke(.piplogenv, pin_name, log)
+  cli::cli_alert_success("Log {.field {pin_name}} loaded from {.file {path}}")
+  invisible(pin_name)
 }
 
 #' Reset or delete a log from memory

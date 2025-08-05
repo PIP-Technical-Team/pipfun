@@ -4,16 +4,45 @@
 \alias{log_load}
 \title{Load a log from a .qs file}
 \usage{
-log_load(path, name = NULL, overwrite = FALSE)
+log_load(
+  board,
+  pin_name = name,
+  version = NULL,
+  hash = NULL,
+  path = deprecated(),
+  name = deprecated(),
+  overwrite = FALSE,
+  ...
+)
 }
 \arguments{
-\item{path}{Path to the \code{.qs} file to load.}
+\item{board}{pins board}
 
-\item{name}{Name to assign to the log in memory (default: inferred from
-filename).}
+\item{pin_name}{name of pin that will be used to load the log. By default it
+is the same as \code{name}.}
 
-\item{overwrite}{Whether to overwrite an existing log of the same name
-(default: FALSE).}
+\item{version}{Retrieve a specific version of a pin. Use \code{\link[pins:pin_versions]{pin_versions()}} to
+find out which versions are available and when they were created.}
+
+\item{hash}{Specify a hash to verify that you get exactly the dataset that
+you expect. You can find the hash of an existing pin by looking for
+\code{pin_hash} in \code{\link[pins:pin_meta]{pin_meta()}}.}
+
+\item{path}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{path} is no longer supported.
+Use \code{board} argument now. If value passed to \code{path} is not a pins board, it
+will through an error.}
+
+\item{name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{name} has been superseded by
+\code{pin_name}. It is nor inferred from filename any more.}
+
+\item{overwrite}{logical: whether to override the log in \code{.piplogenv} with
+the same \code{pin_name}. Default is FALSE.}
+
+\item{...}{
+  Arguments passed on to \code{\link[pins:pin_read]{pins::pin_read}}
+  \describe{
+    \item{\code{}}{}
+  }}
 }
 \value{
 Invisibly returns the name of the loaded log.

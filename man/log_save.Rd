@@ -16,6 +16,10 @@ log_save(
 \item{name}{Name of the log in memory (default:
 \code{getOption("pipfun.log.default")}).}
 
+\item{board}{pins board}
+
+\item{pin_name}{name of pin that will be used to load the log. By default it is the same as \code{name}.}
+
 \item{path}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{path} is no longer supported.
 Use \code{board} argument now. If value passed to \code{path} is not a pins board, it
 will through an error.}
