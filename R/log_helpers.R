@@ -33,6 +33,7 @@ log_info <- function(message,
                      .trace  = NULL,
                      .env    = parent.frame(),
                      logmeta = NULL) {
+
   log_add(event   = "info",
           message = message,
           name    = name,
