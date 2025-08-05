@@ -183,19 +183,34 @@ log_init <- function(name = getOption("pipfun.log.default"),
 #'
 #' @param name Name of the log in memory (default:
 #'   `getOption("pipfun.log.default")`).
-#' @param path File path to save the log to. If missing, defaults to
-#'   `{name}.qs`.
-#' @param compress Whether to compress the file (default: TRUE).
+#' @param path `r lifecycle::badge("deprecated")` `path` is no longer supported.
+#'   Use `board` argument now. If value passed to `path` is not a pins board, it
+#'   will through an error.
+#' @inheritDotParams pins::pin_write title description metadata tags
+#'
 #'
 #' @return Invisible `TRUE` if successful.
 #' @export
 log_save <- function(name     = getOption("pipfun.log.default", "default"),
-                     path     = NULL,
-                     compress = TRUE) {
+                     board    = NULL,
+                     pin_name = name,
+                     path     =  deprecated(),
+                     ...) {
 
-  if (!requireNamespace("qs", quietly = TRUE)) {
-    cli::cli_abort("Package {.pkg qs} is required to save logs.")
+  if (lifecycle::is_present(path)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.7",
+      what = "log_save(path)",
+      with = "log_save(board)",
+      details = "all the logs will be saved as pins, so you need to use a pins board rather than a directory path"
+    )
+    board <- path
   }
+
+  if (!inherits(board, "pins_board")) {
+    cli::cli_abort("{.arg board} must be a pins_board class object")
+  }
+
 
   if (!exists(name, envir = .piplogenv)) {
     cli::cli_abort("Log {.field {name}} does not exist in memory.")
@@ -207,14 +222,13 @@ log_save <- function(name     = getOption("pipfun.log.default", "default"),
     cli::cli_abort("Object {.field {name}} is not a valid piplog.")
   }
 
-  if (is.null(path)) {
-    path <- fs::path(name, ext = "qs")
-  }
-  if (fs::path_ext(path) != "qs") {
-    path <- fs::path(path, ext = "qs")
-  }
+  pins::pin_write(board     = board,
+                  x         = log,
+                  name      = pin_name,
+                  type      = "qs",
+                  versioned = TRUE,
+                  ...)
 
-  qs::qsave(log, file = path, preset = if (compress) "high" else "fast")
   cli::cli_alert_success("Log {.field {name}} saved to {.path {path}}")
   invisible(TRUE)
 }
