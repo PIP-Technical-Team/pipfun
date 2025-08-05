@@ -74,7 +74,16 @@ log_add <- function(event,
 
   # 5. Capture arguments from the caller if not provided
   if (is.null(args)) {
-    if (!is.null(target_fun) && is.function(target_fun)) {
+    # If .env was explicitly provided (not the default), use it for argument capture
+    if (!identical(.env, rlang::caller_env())) {
+      # Try to get all objects in .env except hidden ones
+      env_names <- ls(envir = .env, all.names = TRUE)
+      # Remove hidden/internal variables (starting with ".")
+      env_names <- env_names[!grepl("^\\.", env_names)]
+      # Get their values from .env
+      args <- mget(env_names, envir = .env, ifnotfound = vector("list", length(env_names)))
+      # Short comment: Use .env directly for argument capture if provided
+    } else if (!is.null(target_fun) && is.function(target_fun)) {
       # Get all formal argument names except ...
       arg_names <- names(formals(target_fun))
       arg_names <- arg_names[arg_names != "..."]
@@ -88,6 +97,7 @@ log_add <- function(event,
         dots <- tryCatch(evalq(list(...), envir = target_env), error = function(e) NULL)
         if (!is.null(dots)) args <- c(args, dots)
       }
+      # Short comment: Use call stack for argument capture if .env is default
     } else {
       # If no valid function, just use an empty list
       args <- list()
