@@ -9,7 +9,6 @@
 #' @section pipfun functions:
 #' The pipfun functions ...
 #'
-#' @docType package
 #' @name pipfun
 ## usethis namespace: start
 #' @import data.table
