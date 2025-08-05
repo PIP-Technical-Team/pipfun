@@ -30,7 +30,8 @@ Imports:
     yaml,
     base64enc,
     rlang,
-    jsonlite
+    jsonlite,
+    lifecycle
 Suggests: 
     covr,
     knitr,

@@ -1,3 +1,7 @@
+#' @keywords internal
+"_PACKAGE"
+
+
 #' pipfun: A common place for crossed-packages functions in PIP
 #'
 #' Description These functions are use in different packages across the PIP project
@@ -7,9 +11,13 @@
 #'
 #' @docType package
 #' @name pipfun
+## usethis namespace: start
 #' @import data.table
+#' @importFrom lifecycle deprecated
 #' @importFrom glue glue
 #' @importFrom utils menu
+## usethis namespace: end
+NULL
 
 # Make sure data.table knows we know we're using it
 #' @noRd
