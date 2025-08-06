@@ -6,7 +6,40 @@
 \usage{
 capture_log_args(helper_name, .env)
 }
+\arguments{
+\item{helper_name}{The function object of the logging helper (e.g., \code{log_info}).
+Used to identify and skip the helper in the call stack.}
+
+\item{.env}{The environment from which to capture arguments. Usually \code{parent.frame()}
+of the helper.}
+}
+\value{
+A named list of captured arguments. If called inside a function, returns
+all named and \code{...} arguments from the parent function. If called interactively,
+returns all visible objects in \code{.env}.
+}
 \description{
 Captures arguments from the parent function (one level up from the helper),
-including ... if present, or all visible objects in .env for interactive use.
+including \code{...} if present, or all visible objects in \code{.env} for interactive use.
 }
+\details{
+This function is designed to be called inside logging helpers such as \code{log_info},
+\code{log_warn}, and \code{log_error}. It inspects the call stack to find the true parent
+function (the function that called the helper), and captures all its arguments,
+including any \code{...} arguments. If called interactively (i.e., not inside another
+function), it captures all visible objects in the provided environment, excluding
+hidden variables (those starting with a dot).
+}
+\examples{
+# Inside a function:
+my_fun <- function(x, y = 1, ...) {
+  capture_log_args(log_info, environment())
+}
+my_fun(3, z = 9)
+
+# Interactive use:
+a <- 1; b <- 2
+capture_log_args(log_info, environment())
+
+}
+\keyword{internal}
