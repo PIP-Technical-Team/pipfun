@@ -123,13 +123,16 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
 
   rt      <- glue("{release}_{identity}")
 
-  # Aux data
-  aux_dir <- fs::path(main_dir, "aux_data", rt) |>
+  # Aux data ---------
+  aux_internal <- c("aux_data", "aux_metadata")
+  aux_dir <- fs::path(main_dir, "aux_repository", aux_internal) |>
+    fs::path(rt) |>
     fs::dir_create()
 
-  aux_data <- pins::board_folder(aux_dir, TRUE)
+  aux_data <- pins::board_folder(aux_dir[1], TRUE)
+  aux_metadata <- pins::board_folder(aux_dir[2], TRUE)
 
-  # DLW data
+  # DLW data ---------
   dlw_dir <- fs::path(main_dir, "dlw_repository") |>
     fs::dir_create(recurse = TRUE)
 
@@ -140,7 +143,7 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
   dlw_data      <- pins::board_folder(dlw_data_dir, TRUE)
   dlw_inventory <- pins::board_folder(dlw_inventory_dir, TRUE)
 
-  # PIP data
+  # PIP data ------
   pip_dir <- fs::path(main_dir, "pip_repository") |>
     fs::dir_create(recurse = TRUE)
 
@@ -157,6 +160,7 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
 
 
   boards <- list(aux_data      = aux_data,
+                 aux_metadata  = aux_metadata,
                  dlw_data      = dlw_data,
                  dlw_inventory = dlw_inventory,
                  pip_data      = pip_data,
