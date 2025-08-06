@@ -219,39 +219,40 @@ test_that("log_exists() works as expected", {
 
 # Save and load --------
 
-test_that("log_save() and log_load() work as expected", {
+test_that("log_save() and log_load() work as expected with pins board", {
   skip_on_ci()  # Skip on GitHub Actions or CI environments
   skip_if_not_installed("qs")
-  skip_if_not_installed("fs")
+  skip_if_not_installed("pins")
 
   name <- "persist_test"
-  path <- fs::file_temp(ext = "qs")
+  board <- pins::board_temp(versioned = TRUE)
+  pin_name <- "persist_test_pin"
 
   # Create and populate log
   log_init(name, overwrite = TRUE)
-  log_info("Saving this log", name = name)
+  log_info(message = "Saving this log",
+           name = name)
 
-  # Save to file
-  expect_true(log_save(name = name, path = path))
-  expect_true(fs::file_exists(path))
+  # Save to pins board
+  expect_true(log_save(name = name, board = board, pin_name = pin_name))
+  expect_true(pin_name %in% pins::pin_list(board))
 
   # Clear from memory
   log_reset(name)
   expect_false(name %in% log_names())
 
-  # Load back
-  log_load(path = path, name = name)
-  expect_true(name %in% log_names())
+  # Load back from pins board
+  log_load(board = board, pin_name = pin_name)
+  expect_true(pin_name %in% log_names())
 
   # Check contents
-  log <- rlang::env_get(.piplogenv, name)
+  log <- rlang::env_get(.piplogenv, pin_name)
   expect_s3_class(log, "piplog")
   expect_equal(nrow(log), 1)
   expect_match(log$message[1], "Saving this log")
 
   # Clean up
-  fs::file_delete(path)
-  log_reset(name)
+  log_reset(pin_name)
 })
 
 # log_filter and log_summary -----------------------------------------------

@@ -15,8 +15,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-#devtools::load_all(".")
-library(pipfun)
+devtools::load_all(".")
+# library(pipfun)
 ```
 
 ## Intro
@@ -179,13 +179,24 @@ if (log_has_errors("pipapi_log")) {
 }
 ```
 
+
 ### 6. Save and Reload Logs
 
+With the new pins-based interface, you save and reload logs using a pins board and a pin name:
+
 ```{r}
-tf <- tempfile(fileext = ".qs")
-log_save("pipapi_log", path = tf)
+# Create a temporary pins board (in practice, use your persistent board)
+board <- pins::board_temp(versioned = TRUE)
+pin_name <- "pipapi_log_pin"
+
+# Save the log to the board
+log_save(name = "pipapi_log", board = board, pin_name = pin_name)
+
+# Remove from memory
 log_reset("pipapi_log")
-log_load(path = tf, name = "pipapi_log", overwrite = TRUE)
+
+# Load the log back from the board
+log_load(board = board, pin_name = pin_name, overwrite = TRUE)
 ```
 
 
@@ -477,14 +488,3 @@ Let your team know: if they understand `log_add()`, they understand the whole lo
 - Prefer named `logmeta` fields to store arguments or flags
 - Inspect logs interactively or export them for review
 - Add `log = TRUE` in your functions for user control
-
-## What’s Next?
-
-Planned improvements to the logging framework include:
-
-- Color-coded `print.piplog()` for interactive sessions
-- Log levels (debug, info, warning, error, critical)
-- Export to JSON, Markdown, or CSV for diagnostics
-- Timeline visualizations of log activity
-- `log_args()` and `log_with()` helpers to simplify metadata
-- Integration with `rlang::caller_args()` and `current_env()` for richer introspection

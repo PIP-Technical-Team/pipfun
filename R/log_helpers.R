@@ -1,3 +1,61 @@
+##' Capture arguments for logging helpers
+##'
+##' Captures arguments from the parent function (one level up from the helper),
+##' including `...` if present, or all visible objects in `.env` for interactive use.
+##'
+##' This function is designed to be called inside logging helpers such as `log_info`,
+##' `log_warn`, and `log_error`. It inspects the call stack to find the true parent
+##' function (the function that called the helper), and captures all its arguments,
+##' including any `...` arguments. If called interactively (i.e., not inside another
+##' function), it captures all visible objects in the provided environment, excluding
+##' hidden variables (those starting with a dot).
+##'
+##' @param helper_name The function object of the logging helper (e.g., `log_info`).
+##'   Used to identify and skip the helper in the call stack.
+##' @param .env The environment from which to capture arguments. Usually `parent.frame()`
+##'   of the helper.
+##'
+##' @return A named list of captured arguments. If called inside a function, returns
+##'   all named and `...` arguments from the parent function. If called interactively,
+##'   returns all visible objects in `.env`.
+##'
+##' @examples
+##' # Inside a function:
+##' my_fun <- function(x, y = 1, ...) {
+##'   capture_log_args(log_info, environment())
+##' }
+##' my_fun(3, z = 9)
+##'
+##' # Interactive use:
+##' a <- 1; b <- 2
+##' capture_log_args(log_info, environment())
+##'
+##' @keywords internal
+capture_log_args <- function(helper_name, .env) {
+  # Get the parent function and call (one level up from the helper)
+  parent_call <- sys.call(-2)
+  parent_fun <- tryCatch(sys.function(-2), error = function(e) NULL)
+  if (!is.null(parent_fun) && !identical(parent_fun, helper_name)) {
+    arg_names <- names(formals(parent_fun))
+    arg_names <- arg_names[arg_names != "..."]
+    if (length(arg_names) > 0) {
+      args <- mget(arg_names, envir = .env, ifnotfound = vector("list", length(arg_names)))
+    } else {
+      args <- list()
+    }
+    # If ... is present, capture those as well
+    if ("..." %in% names(formals(parent_fun))) {
+      dots <- tryCatch(evalq(list(...), envir = .env), error = function(e) NULL)
+      if (!is.null(dots)) args <- c(args, dots)
+    }
+  } else {
+    # Interactive use: capture all visible objects in .env (excluding hidden)
+    env_names <- ls(envir = .env, all.names = TRUE)
+    env_names <- env_names[!grepl("^\\.", env_names)]
+    args <- mget(env_names, envir = .env, ifnotfound = vector("list", length(env_names)))
+  }
+  args
+}
 #' Log an error, warning, or info event
 #'
 #' These are wrapper functions for `log_add()` to log events of type "error", "warning", or "info".
@@ -33,10 +91,12 @@ log_info <- function(message,
                      .trace  = NULL,
                      .env    = parent.frame(),
                      logmeta = NULL) {
+  # Capture arguments from parent function or environment
+  args <- capture_log_args(log_info, .env)
   log_add(event   = "info",
           message = message,
           name    = name,
-          args    = NULL,
+          args    = args,
           output  = output,
           .trace  = .trace,
           logmeta = logmeta,
@@ -53,10 +113,12 @@ log_warn <- function(message,
                      .trace  = NULL,
                      .env    = parent.frame(),
                      logmeta = NULL) {
+  # Capture arguments from parent function or environment
+  args <- capture_log_args(log_warn, .env)
   log_add(event   = "warning",
           message = message,
           name    = name,
-          args    = NULL,
+          args    = args,
           output  = output,
           .trace  = .trace,
           logmeta = logmeta,
@@ -73,10 +135,12 @@ log_error <- function(message,
                       .trace  = NULL,
                       .env    = parent.frame(),
                       logmeta = NULL) {
+  # Capture arguments from parent function or environment
+  args <- capture_log_args(log_error, .env)
   log_add(event   = "error",
           message = message,
           name    = name,
-          args    = NULL,
+          args    = args,
           output  = output,
           .trace  = .trace,
           logmeta = logmeta,

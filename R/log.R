@@ -44,68 +44,73 @@ log_add <- function(event,
                     .trace  = NULL,
                     .env    = rlang::caller_env()) {
 
-
-
-
   # --- Auto-capture args from caller if not supplied ---
-  # Get the current call stack
-  call_stack <- sys.calls() # (list of all active calls)
-  # Get the current environment stack
-  env_stack  <- sys.frames() # (list of all active environments)
-  # Number of calls in the stack
-  n          <- length(call_stack)
-  # Start from the immediate caller (one before this function)
-  target_idx <- n - 1
-  # Move up the stack until we find a function that does NOT start with 'log_'
+
+  # 1. Get the current call and environment stacks
+  call_stack <- sys.calls()      # All active calls (as language objects)
+  env_stack  <- sys.frames()     # All active environments
+  n          <- length(call_stack) # Number of calls in the stack
+
+  # 2. Find the index of the true calling function (skip log_* wrappers)
+  target_idx <- n - 1            # Start from the immediate caller
   while (target_idx > 0 && grepl("^log_", deparse(call_stack[[target_idx]])[1])) {
-    target_idx <- target_idx - 1
+    target_idx <- target_idx - 1 # Move up until not a log_* function
   }
-  # The environment of the true calling function
-  target_env <- env_stack[[target_idx]]
 
-  # The function object of the true calling function (may error if not found)
-  # call_stack[[target_idx]] is the call (as a language object) to the target
-  # function. call_stack[[target_idx]][[1]] extracts the function name or object
-  # being called. eval(..., envir = target_env) evaluates that function name in
-  # the environment where it was called, so we get the actual function object
-  # (not just its name as a symbol). We need it as symbol so I can access its
-  # arguments... or formals.
-  target_fun <- tryCatch(eval(call_stack[[target_idx]][[1]],
-                              envir = target_env),
-                         error = function(e) NULL)
+  # 3. Get the environment of the true calling function, or fallback
+  target_env <- if (target_idx > 0) {
+    env_stack[[target_idx]]
+  } else {
+    parent.frame()
+  }
 
-  # --- Argument capture ---
+  # 4. Try to get the function object of the true caller (for argument capture)
+  target_fun <- if (target_idx > 0) {
+    tryCatch(eval(call_stack[[target_idx]][[1]],  envir = target_env),
+             error = function(e) NULL)
+  } else {
+    NULL
+  }
+
+  # 5. Capture arguments from the caller if not provided
   if (is.null(args)) {
-    # If we found a valid function, get its formal argument names
-    if (!is.null(target_fun) && is.function(target_fun)) {
-      arg_names <- names(formals(target_fun)) # all argument names
-      arg_names <- arg_names[arg_names != "..."] # exclude ...
-      # Get the values of those arguments from the target environment
+    # If .env was explicitly provided (not the default), use it for argument capture
+    if (!identical(.env, rlang::caller_env())) {
+      # Try to get all objects in .env except hidden ones
+      env_names <- ls(envir = .env, all.names = TRUE)
+      # Remove hidden/internal variables (starting with ".")
+      env_names <- env_names[!grepl("^\\.", env_names)]
+      # Get their values from .env
+      args <- mget(env_names, envir = .env, ifnotfound = vector("list", length(env_names)))
+      # Short comment: Use .env directly for argument capture if provided
+    } else if (!is.null(target_fun) && is.function(target_fun)) {
+      # Get all formal argument names except ...
+      arg_names <- names(formals(target_fun))
+      arg_names <- arg_names[arg_names != "..."]
+      # Get their values from the caller's environment
       args <- mget(arg_names,
                    envir = target_env,
                    ifnotfound = vector("list", length(arg_names)))
-      # If ... is present, try to capture its values as well
+
+      # If ... is present, capture those as well
       if ("..." %in% names(formals(target_fun))) {
-        dots <- tryCatch(evalq(list(...), envir = target_env),
-                         error = function(e) NULL)
+        dots <- tryCatch(evalq(list(...), envir = target_env), error = function(e) NULL)
         if (!is.null(dots)) args <- c(args, dots)
       }
+      # Short comment: Use call stack for argument capture if .env is default
     } else {
-      # If we can't find a valid function, just use an empty list
+      # If no valid function, just use an empty list
       args <- list()
     }
   }
 
-  # Retrieve the log object from the logging environment
+  # 6. Retrieve the log object from the logging environment
   log <- rlang::env_get(.piplogenv, name)
 
-  # --- Extract calling function name (from target_idx) ---
-  # Use the same target_idx as above to get the function name as a string
+  # 7. Extract the calling function name as a string (for log entry)
   calling_fn <- if (target_idx > 0) {
-    cf <- deparse(call_stack[[target_idx]]) |> # deparse the call
-      trimws() |>                            # trim whitespace
-      paste(collapse = " ")                 # collapse multi-line calls
-    invisible(cf)                            # return as invisible (for assignment)
+    cf <- deparse(call_stack[[target_idx]]) |> trimws() |> paste(collapse = " ")
+    invisible(cf)
   } else {
     "unknown"
   }
@@ -183,19 +188,36 @@ log_init <- function(name = getOption("pipfun.log.default"),
 #'
 #' @param name Name of the log in memory (default:
 #'   `getOption("pipfun.log.default")`).
-#' @param path File path to save the log to. If missing, defaults to
-#'   `{name}.qs`.
-#' @param compress Whether to compress the file (default: TRUE).
+#' @param path `r lifecycle::badge("deprecated")` `path` is no longer supported.
+#'   Use `board` argument now. If value passed to `path` is not a pins board, it
+#'   will through an error.
+#' @param board pins board
+#' @param pin_name name of pin that will be used to load the log. By default it is the same as `name`.
+#' @inheritDotParams pins::pin_write title description metadata tags
+#'
 #'
 #' @return Invisible `TRUE` if successful.
 #' @export
 log_save <- function(name     = getOption("pipfun.log.default", "default"),
-                     path     = NULL,
-                     compress = TRUE) {
+                     board    = NULL,
+                     pin_name = name,
+                     path     =  deprecated(),
+                     ...) {
 
-  if (!requireNamespace("qs", quietly = TRUE)) {
-    cli::cli_abort("Package {.pkg qs} is required to save logs.")
+  if (lifecycle::is_present(path)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.7",
+      what = "log_save(path)",
+      with = "log_save(board)",
+      details = "all the logs will be saved as pins, so you need to use a pins board rather than a directory path"
+    )
+    board <- path
   }
+
+  if (!inherits(board, "pins_board")) {
+    cli::cli_abort("{.arg board} must be a pins_board class object")
+  }
+
 
   if (!exists(name, envir = .piplogenv)) {
     cli::cli_abort("Log {.field {name}} does not exist in memory.")
@@ -207,15 +229,13 @@ log_save <- function(name     = getOption("pipfun.log.default", "default"),
     cli::cli_abort("Object {.field {name}} is not a valid piplog.")
   }
 
-  if (is.null(path)) {
-    path <- fs::path(name, ext = "qs")
-  }
-  if (fs::path_ext(path) != "qs") {
-    path <- fs::path(path, ext = "qs")
-  }
+  pins::pin_write(board     = board,
+                  x         = log,
+                  name      = pin_name,
+                  type      = "qs",
+                  versioned = TRUE,
+                  ...)
 
-  qs::qsave(log, file = path, preset = if (compress) "high" else "fast")
-  cli::cli_alert_success("Log {.field {name}} saved to {.path {path}}")
   invisible(TRUE)
 }
 
@@ -225,45 +245,71 @@ log_save <- function(name     = getOption("pipfun.log.default", "default"),
 #' Loads a previously saved log into `.piplogenv`, optionally under a different
 #' name.
 #'
-#' @param path Path to the `.qs` file to load.
-#' @param name Name to assign to the log in memory (default: inferred from
-#'   filename).
-#' @param overwrite Whether to overwrite an existing log of the same name
-#'   (default: FALSE).
+#' @param board pins board
+#' @param pin_name name of pin that will be used to load the log. By default it
+#'   is the same as `name`.
+#' @inheritParams pins::pin_read
+#' @param name `r lifecycle::badge("deprecated")` `name` has been superseded by
+#'   `pin_name`. It is nor inferred from filename any more.
+#' @param path `r lifecycle::badge("deprecated")` `path` is no longer supported.
+#'   Use `board` argument now. If value passed to `path` is not a pins board, it
+#'   will through an error.
+#' @inheritDotParams pins::pin_read
+#'
+#' @param overwrite logical: whether to override the log in `.piplogenv` with
+#'   the same `pin_name`. Default is FALSE.
 #'
 #' @return Invisibly returns the name of the loaded log.
 #' @export
-log_load <- function(path,
-                     name      = NULL,
-                     overwrite = FALSE) {
+log_load <- function(board,
+                     pin_name  = name,
+                     version   = NULL,
+                     hash      = NULL,
+                     path      = deprecated(),
+                     name      = deprecated(),
+                     overwrite = FALSE,
+                     ...) {
 
-  if (!requireNamespace("qs", quietly = TRUE)) {
-    cli::cli_abort("Package {.pkg qs} is required to load logs.")
+  if (lifecycle::is_present(path)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.7",
+      what = "log_save(path)",
+      with = "log_save(board)",
+      details = "all the logs will be saved as pins, so you need to use a pins board rather than a directory path"
+    )
+    board <- path
+  }
+  if (lifecycle::is_present(name)) {
+    lifecycle::deprecate_warn(
+      when = "0.3.7",
+      what = "log_save(name)",
+      with = "log_save(pin_name)"
+    )
+    pin_name <- name
   }
 
-  if (!fs::file_exists(path)) {
-    cli::cli_abort("File {.file {path}} does not exist.")
+  if (!inherits(board, "pins_board")) {
+    cli::cli_abort("{.arg board} must be a pins_board class object")
   }
 
-  log <- qs::qread(path)
+  log <- pins::pin_read(board = board,
+                        name = pin_name,
+                        version = version,
+                        hash = hash,
+                        ...)
 
   if (!inherits(log, "piplog")) {
     cli::cli_abort("File does not contain a valid {.cls piplog} object.")
   }
 
-  if (is.null(name)) {
-    name <- path |>
-      fs::path_ext_remove() |>
-      fs::path_file()
+
+  if (rlang::env_has(.piplogenv, pin_name) && !overwrite) {
+    cli::cli_abort("A log named {.field {pin_name}} already exists in memory. Use {.code overwrite = TRUE} to replace it.")
   }
 
-  if (rlang::env_has(.piplogenv, name) && !overwrite) {
-    cli::cli_abort("A log named {.field {name}} already exists in memory. Use {.code overwrite = TRUE} to replace it.")
-  }
+  rlang::env_poke(.piplogenv, pin_name, log)
 
-  rlang::env_poke(.piplogenv, name, log)
-  cli::cli_alert_success("Log {.field {name}} loaded from {.file {path}}")
-  invisible(name)
+  invisible(pin_name)
 }
 
 #' Reset or delete a log from memory

@@ -1,3 +1,7 @@
+# pipfun 0.3.7
+* deprecate `path` in `log_save()`. Now we use pins boards. 
+* Fix issue with logging system and its helpers.
+
 # pipfun 0.3.6
 * Add tests and add functionality to retrieve specif boards in `get_pins_boards()`
 

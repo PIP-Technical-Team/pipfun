@@ -6,18 +6,37 @@
 \usage{
 log_save(
   name = getOption("pipfun.log.default", "default"),
-  path = NULL,
-  compress = TRUE
+  board = NULL,
+  pin_name = name,
+  path = deprecated(),
+  ...
 )
 }
 \arguments{
 \item{name}{Name of the log in memory (default:
 \code{getOption("pipfun.log.default")}).}
 
-\item{path}{File path to save the log to. If missing, defaults to
-\verb{\{name\}.qs}.}
+\item{board}{pins board}
 
-\item{compress}{Whether to compress the file (default: TRUE).}
+\item{pin_name}{name of pin that will be used to load the log. By default it is the same as \code{name}.}
+
+\item{path}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{path} is no longer supported.
+Use \code{board} argument now. If value passed to \code{path} is not a pins board, it
+will through an error.}
+
+\item{...}{
+  Arguments passed on to \code{\link[pins:pin_read]{pins::pin_write}}
+  \describe{
+    \item{\code{title}}{A title for the pin; most important for shared boards so that
+others can understand what the pin contains. If omitted, a brief
+description of the contents will be automatically generated.}
+    \item{\code{description}}{A detailed description of the pin contents.}
+    \item{\code{metadata}}{A list containing additional metadata to store with the pin.
+When retrieving the pin, this will be stored in the \code{user} key, to
+avoid potential clashes with the metadata that pins itself uses.}
+    \item{\code{tags}}{A character vector of tags for the pin; most important for
+discoverability on shared boards.}
+  }}
 }
 \value{
 Invisible \code{TRUE} if successful.
