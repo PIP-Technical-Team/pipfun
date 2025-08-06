@@ -1,4 +1,4 @@
-# pipfun (development version)
+# pipfun 0.3.7
 * deprecate `path` in `log_save()`. Now we use pins boards. 
 * Fix issue with logging system and its helpers.
 
