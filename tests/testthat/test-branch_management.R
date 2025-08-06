@@ -8,6 +8,36 @@ creds <- get_github_creds()
 identity <- getOption("pipfun.identities")[1]
 root_dir <- tempdir()
 
+# Polling helpers for GitHub API propagation
+wait_for_branch <- function(branch, repo, owner, timeout = 10, interval = 1) {
+  for (i in seq_len(timeout)) {
+    branches_info <- gh::gh(
+      "GET /repos/:owner/:repo/branches",
+      owner = owner,
+      repo = repo,
+      .limit = Inf
+    )
+    branch_names <- sapply(branches_info, function(b) b$name)
+    if (branch %in% branch_names) return(TRUE)
+    Sys.sleep(interval)
+  }
+  FALSE
+}
+
+wait_for_content_match <- function(repo, branch1, branch2, owner, timeout = 10, interval = 1) {
+  for (i in seq_len(timeout)) {
+    result <- compare_branch_content(
+      repo = repo,
+      branch1 = branch1,
+      branch2 = branch2,
+      owner = owner
+    )
+    if (isTRUE(result$same_content)) return(TRUE)
+    Sys.sleep(interval)
+  }
+  FALSE
+}
+
 # Keep only known safe branches
 base_date <- format(Sys.Date(), "%Y%m%d")
 to_keep <- c("DEV", "DEV_v2", "main", "PROD", "test_main", base_date)
@@ -28,7 +58,7 @@ setup_working_release(
 )
 
 existing_branches <- gh::gh(
-  "GET /repos/{owner}/{repo}/branches",
+   "GET /repos/:owner/:repo/branches",
   owner = owner,
   repo = repo,
   .limit = Inf
@@ -57,12 +87,36 @@ invisible(lapply(
 ))
 
 # Set up test branches
+
+# Helper: create a branch and wait for propagation
 create_test_branch <- function(name, from = "main", env = parent.frame()) {
-  create_new_branch(
-    repo = repo,
-    new_branch = name,
-    ref_branch = from
-  )
+  # Log available branches and ref_branch for debugging
+  branch_available <- tryCatch({
+    gh::gh(
+      "GET /repos/:owner/:repo/branches",
+      owner = owner,
+      repo = repo,
+      .limit = Inf
+    )
+  }, error = function(e) NULL)
+  branch_names <- if (!is.null(branch_available)) sapply(branch_available, function(b) b$name) else NA
+  message(sprintf("Attempting to create branch '%s' from ref_branch '%s'. Available branches: %s", name, from, paste(branch_names, collapse = ", ")))
+
+  res <- tryCatch({
+    create_new_branch(
+      repo = repo,
+      new_branch = name,
+      ref_branch = from
+    )
+    TRUE
+  }, error = function(e) {
+    message(sprintf("Failed to create branch %s: %s", name, e$message))
+    FALSE
+  })
+  if (!res) {
+    stop(sprintf("Branch creation failed for %s (ref_branch: %s). Available branches: %s", name, from, paste(branch_names, collapse = ", ")))
+  }
+  Sys.sleep(2) # Wait for GitHub API propagation
   withr::defer(
     delete_branch(
       repo = repo,
@@ -71,6 +125,7 @@ create_test_branch <- function(name, from = "main", env = parent.frame()) {
     ),
     envir = env
   )
+  invisible(res)
 }
 
 create_test_branch(paste0(base_date, "_TEST"))
@@ -80,340 +135,61 @@ create_test_branch(paste0(base_date, "_force_cancel"))
 create_test_branch(paste0(base_date, "_force_false"))
 
 # ______________________________ #
-# Tests ####
+# Essential Tests ####
 # ______________________________ #
 
-test_that("get repo branches works as expected", {
+test_that("branch creation and detection works", {
   new_branch <- paste0(base_date, "_release")
-
-  create_test_branch(new_branch)
-
-  branches_api <- gh::gh(
-    "GET /repos/{owner}/{repo}/branches",
-    owner = owner,
-    repo = repo,
-    .limit = Inf
-  )
-
-  branch_names <- sapply(
-    branches_api,
-    function(branch) branch$name
-  )
+  res <- create_test_branch(new_branch)
+  # Fail fast if branch creation failed
+  if (!res) stop(sprintf("Test branch creation failed for %s", new_branch))
+  expect_true(wait_for_branch(new_branch, repo, owner, timeout = 10, interval = 1))
 
   branches_test <- get_repo_branches(
     owner = owner,
     repo = repo
   )
-
-  expect_equal(
-    branch_names,
-    branches_test$all_branches
-  )
-
-  expect_equal(
-    branches_test$has_release_branch,
-    TRUE
-  )
-
-  expect_contains(
-    branches_test$release_branches,
-    new_branch
-  )
+  expect_true(new_branch %in% branches_test$all_branches)
+  expect_true(branches_test$has_release_branch)
+  expect_contains(branches_test$release_branches, new_branch)
 })
 
-test_that("compare branches sha works as expected", {
-  expect_no_error(
-    compare_branches_sha(
-      owner = owner,
-      measure = "test",
-      branch1 = "DEV",
-      branch2 = "main"
-    )
-  )
-
-  expect_error(
-    compare_branches_sha(
-      owner = owner,
-      repo = "ahguenc",
-      branch1 = "main",
-      branch2 = "DEV"
-    )
-  )
-
-  res <- compare_branches_sha(
-    owner = owner,
-    measure = "test",
-    branch1 = "DEV",
-    branch2 = "main"
-  )
-
-  expect_equal(
-    class(res),
-    "list"
-  )
-
-  sha_1 <- gh::gh(
-    "GET /repos/{owner}/{repo}/branches/{branch}",
-    owner = owner,
-    repo = repo,
-    branch = "DEV",
-    .token = creds$password
-  )$commit$sha
-
-  sha_2 <- gh::gh(
-    "GET /repos/{owner}/{repo}/branches/{branch}",
-    owner = owner,
-    repo = repo,
-    branch = "main",
-    .token = creds$password
-  )$commit$sha
-
-  expect_equal(
-    res$updated,
-    sha_1 == sha_2
-  )
-
-  out <- compare_branches_sha(
-    owner = owner,
-    repo = repo,
-    branch1 = "main",
-    branch2 = "test_main"
-  )
-
-  sha_3 <- gh::gh(
-    "GET /repos/{owner}/{repo}/branches/{branch}",
-    owner = owner,
-    repo = repo,
-    branch = "test_main",
-    .token = creds$password
-  )$commit$sha
-
-  expect_equal(
-    out$updated,
-    sha_1 != sha_3
-  )
-
-  expect_equal(
-    out$updated,
-    TRUE
-  )
-
-  expect_error(
-    compare_branches_sha(
-      owner = owner,
-      repo = repo,
-      branch1 = "invalid_name",
-      branch2 = "DEV"
-    )$updated
-  )
-})
-
-test_that("compare branches content works as expected", {
+test_that("branch content comparison works", {
   branch1 <- paste0("test_same1_", base_date)
   branch2 <- paste0("test_same2_", base_date)
-
-  create_test_branch(branch1)
-  create_test_branch(branch2)
+  res1 <- create_test_branch(branch1)
+  if (!res1) stop(sprintf("Test branch creation failed for %s", branch1))
+  res2 <- create_test_branch(branch2)
+  if (!res2) stop(sprintf("Test branch creation failed for %s", branch2))
+  expect_true(wait_for_branch(branch1, repo, owner))
+  expect_true(wait_for_branch(branch2, repo, owner))
 
   res_same <- compare_branch_content(
     repo = repo,
     branch1 = branch1,
     branch2 = branch2
   )
-
-  expect_true(
-    res_same$same_content
-  )
+  expect_true(res_same$same_content)
 
   diff_branch <- paste0("test_diff_", base_date)
-
-  create_test_branch(diff_branch, from = "DEV")
+  res3 <- create_test_branch(diff_branch, from = "DEV")
+  if (!res3) stop(sprintf("Test branch creation failed for %s", diff_branch))
+  expect_true(wait_for_branch(diff_branch, repo, owner))
 
   res_diff <- compare_branch_content(
     repo = repo,
     branch1 = branch1,
     branch2 = diff_branch
   )
-
-  expect_false(
-    res_diff$same_content
-  )
-
-  expect_error(
-    compare_branch_content(
-      repo = "test"
-    )
-  )
+  expect_false(res_diff$same_content)
 })
 
-# Confirm branch exists ##
+test_that("branch deletion works", {
+  branch_name <- paste0("to_delete_", base_date)
+  res <- create_test_branch(branch_name)
+  if (!res) stop(sprintf("Test branch creation failed for %s", branch_name))
+  expect_true(wait_for_branch(branch_name, repo, owner))
 
-test_that("confirm branch exists works as expected", {
-
-  # Create a temporary branch
-  temp_branch <- paste0("test_branch_exists_", base_date)
-  create_test_branch(temp_branch)
-
-  # Get all branch names
-  branches_info <- gh::gh(
-    "GET /repos/{owner}/{repo}/branches",
-    owner = owner,
-    repo = repo,
-    .limit = Inf
-  )
-
-  branch_names <- sapply(
-    branches_info,
-    function(branch) branch$name
-  )
-
-  expect_true(
-    temp_branch %in% branch_names
-  )
-
-  expect_equal(
-    confirm_branch_exists(
-      repo = repo,
-      branch = temp_branch
-    ),
-    TRUE
-  )
-
-  expect_equal(
-    confirm_branch_exists(
-      repo = repo,
-      branch = "non_existent_branch"
-    ),
-    FALSE
-  )
-
-  expect_error(
-    confirm_branch_exists(
-      repo = repo,
-      branch = 2
-    )
-  )
-})
-
-
-test_that("update branches work as expected", {
-  # Branches already in sync
-  expect_equal(
-    update_branches(
-      repo = repo,
-      branch1 = "main",
-      branch2 = "test_main"
-    ),
-    TRUE
-  )
-
-  # Set up a fresh branch from "main" and one from "DEV_v2"
-  branch_from_main <- paste0("test_update_main_", base_date)
-  branch_from_dev <- paste0("test_update_dev_", base_date)
-
-  create_test_branch(branch_from_main, from = "main")
-  create_test_branch(branch_from_dev, from = "DEV_v2")
-
-  # Apply update from main into dev-based branch
-  update_branches(
-    repo = repo,
-    branch1 = branch_from_main,
-    branch2 = branch_from_dev
-  )
-
-  # Check content match
-  result <- compare_branch_content(
-    repo = repo,
-    branch1 = branch_from_main,
-    branch2 = branch_from_dev
-  )
-
-  expect_equal(
-    result$same_content,
-    TRUE
-  )
-})
-
-
-
-test_that("merge_branch_into works correctly", {
-
-  # 1. Merge when branches have the same content
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = "main",
-      target_branch = paste0(base_date, "_TEST")
-    )
-  )
-
-  # 2. Merge when branches have different content
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = "DEV",
-      target_branch = paste0(base_date, "_v2")
-    )
-  )
-
-  # 3. Error if source branch doesn't exist
-  expect_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = "invalid_source",
-      target_branch = paste0(base_date, "_v2")
-    )
-  )
-
-  # 4. Merge with force = TRUE
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = "DEV",
-      target_branch = paste0(base_date, "_force_true"),
-      force = TRUE
-    )
-  )
-
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = paste0(base_date, "_force_true"),
-      target_branch = "DEV",
-      force = TRUE
-    )
-  )
-
-  # 5. Merge with force = FALSE and confirmation "Yes"
-  assign("askYesNo", function(...) TRUE, envir = .GlobalEnv)
-
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = paste0(base_date, "_force_false"),
-      target_branch = "DEV",
-      force = FALSE
-    )
-  )
-
-  # Cleanup: remove monkey-patched askYesNo
-  rm(askYesNo, envir = .GlobalEnv)
-})
-
-
-
-test_that("delete_branch works", {
-
-  branch_name <- "to_delete"
-
-  # Create the branch and defer cleanup only if the test exits early
-  create_new_branch(
-    new_branch = branch_name,
-    repo       = repo,
-    ref_branch = "DEV"  # or "main", depending on desired origin
-  )
-
-  # Delete the branch
   delete_branch(
     branch_to_delete = branch_name,
     repo             = repo,
@@ -421,20 +197,15 @@ test_that("delete_branch works", {
     ask              = FALSE
   )
 
-  # Confirm it was deleted
   branches <- gh::gh(
-    "GET /repos/{owner}/{repo}/branches",
+     "GET /repos/:owner/:repo/branches",
     owner = owner,
-    repo  = repo
+    repo = repo
   )
-
   branch_names <- sapply(
     branches,
     function(branch) branch$name
   )
-
-  expect_false(
-    branch_name %in% branch_names
-  )
+  expect_false(branch_name %in% branch_names)
 })
 

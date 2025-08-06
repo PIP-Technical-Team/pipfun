@@ -477,7 +477,7 @@ check_pip_release_inputs <- function(call_args) {
                      You provided {.strong {release}}")
   }
 
-  if (exists("working_dir")){
+  if (exists("working_dir")) {
     if (!fs::dir_exists(working_dir))
       cli::cli_alert_danger("Directory {.file {working_dir}} does not exist. Please check")
   }
