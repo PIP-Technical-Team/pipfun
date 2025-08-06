@@ -1,4 +1,4 @@
-# pipfun (development version)
+# pipfun 0.3.8
 * new board structure of aux data and metadata. now it has to boards: aux_data and aux_metadata.
 
 # pipfun 0.3.7
