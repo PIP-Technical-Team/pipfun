@@ -1,3 +1,6 @@
+# pipfun 0.3.9
+* Add `dlw_metadata` to pip boards.
+
 # pipfun 0.3.8
 * new board structure of aux data and metadata. now it has to boards: aux_data and aux_metadata.
 
