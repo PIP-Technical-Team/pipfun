@@ -136,8 +136,10 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
   dlw_dir <- fs::path(main_dir, "dlw_repository") |>
     fs::dir_create(recurse = TRUE)
 
-  dlw_data_dir      <- fs::path(dlw_dir, "dlw_data")
-  dlw_inventory_dir <- fs::path(dlw_dir, "dlw_inventory")
+  dlw_data_dir      <- fs::path(dlw_dir, "dlw_data") |>
+    fs::dir_create(recurse = TRUE)
+  dlw_inventory_dir <- fs::path(dlw_dir, "dlw_inventory") |>
+    fs::dir_create(recurse = TRUE)
   dlw_metadata_dir  <- fs::path(dlw_dir, "dlw_metadata", rt) |>
     fs::dir_create(recurse = TRUE)
 
@@ -149,7 +151,8 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
   pip_dir <- fs::path(main_dir, "pip_repository") |>
     fs::dir_create(recurse = TRUE)
 
-  pip_data_dir      <- fs::path(pip_dir, "pip_data", "surveys")
+  pip_data_dir      <- fs::path(pip_dir, "pip_data", "surveys")|>
+    fs::dir_create(recurse = TRUE)
   pip_metadata_dir  <- fs::path(pip_dir, "pip_data", "surveys_metadata", rt) |>
     fs::dir_create(recurse = TRUE)
 
