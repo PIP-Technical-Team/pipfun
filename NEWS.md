@@ -1,3 +1,7 @@
+# pipfun 0.3.10
+* Add `pip_master_inventory` to pip boards.
+
+
 # pipfun 0.3.9
 * Add `dlw_metadata` to pip boards.
 

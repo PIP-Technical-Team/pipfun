@@ -153,15 +153,21 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
 
   pip_data_dir      <- fs::path(pip_dir, "pip_data", "surveys")|>
     fs::dir_create(recurse = TRUE)
+
+  pip_master_inventory_dir  <-
+    fs::path(pip_dir, "pip_data", "master_inventory")|>
+    fs::dir_create(recurse = TRUE)
+
   pip_metadata_dir  <- fs::path(pip_dir, "pip_data", "surveys_metadata", rt) |>
     fs::dir_create(recurse = TRUE)
 
   pip_inventory_dir <- fs::path(pip_dir, "pip_inventory", rt) |>
     fs::dir_create(recurse = TRUE)
 
-  pip_data      <- pins::board_folder(pip_data_dir, TRUE)
-  pip_metadata  <- pins::board_folder(pip_metadata_dir, TRUE)
-  pip_inventory <- pins::board_folder(pip_inventory_dir, TRUE)
+  pip_data             <- pins::board_folder(pip_data_dir, TRUE)
+  pip_metadata         <- pins::board_folder(pip_metadata_dir, TRUE)
+  pip_inventory        <- pins::board_folder(pip_inventory_dir, TRUE)
+  pip_master_inventory <- pins::board_folder(pip_master_inventory_dir, TRUE)
 
 
   boards <- list(aux_data      = aux_data,
@@ -171,7 +177,9 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
                  dlw_inventory = dlw_inventory,
                  pip_data      = pip_data,
                  pip_metadata  = pip_metadata,
-                 pip_inventory = pip_inventory)
+                 pip_inventory = pip_inventory,
+                 pip_master_inventory = pip_master_inventory)
+
   class(boards) <- "pip_boards"
   boards
 }
