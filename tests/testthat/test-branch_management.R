@@ -1,6 +1,3 @@
-# ----------------------------------------- #
-# Preliminary operations ####
-# ----------------------------------------- #
 library(withr)
 owner <- getOption("pipfun.ghowner")
 repo <- "aux_test"
@@ -83,43 +80,46 @@ create_test_branch(paste0(base_date, "_force_false"))
 # Tests ####
 # ______________________________ #
 
-test_that("get repo branches works as expected", {
-  new_branch <- paste0(base_date, "_release")
+test_that("returns empty results when no branches", {
 
-  create_test_branch(new_branch)
+  mockery::stub(get_repo_branches, "gh::gh", list())
 
-  branches_api <- gh::gh(
-    "GET /repos/{owner}/{repo}/branches",
-    owner = owner,
-    repo = repo,
-    .limit = Inf
-  )
-
-  branch_names <- sapply(
-    branches_api,
-    function(branch) branch$name
-  )
-
-  branches_test <- get_repo_branches(
-    owner = owner,
-    repo = repo
-  )
-
-  expect_equal(
-    branch_names,
-    branches_test$all_branches
-  )
-
-  expect_equal(
-    branches_test$has_release_branch,
-    TRUE
-  )
-
-  expect_contains(
-    branches_test$release_branches,
-    new_branch
-  )
+  res <- get_repo_branches(owner = "foo", repo = "bar")
+  expect_equal(res$all_branches, list())
+  expect_equal(res$release_branches, character(0))
+  expect_false(res$has_release_branch)
 })
+
+test_that("handles branches without release pattern", {
+  mockery::stub(get_repo_branches, "gh::gh", \(...) list(list(name = "main"), list(name = "dev")))
+
+  res <- get_repo_branches(owner = "foo", repo = "bar")
+  expect_equal(res$all_branches, c("main", "dev"))
+  expect_equal(res$release_branches, character(0))
+  expect_false(res$has_release_branch)
+})
+
+test_that("detects release pattern branches", {
+  mockery::stub(get_repo_branches, "gh::gh", \(...) list(list(name = "20250101"), list(name = "feature-x")))
+  res <- get_repo_branches(owner = "foo", repo = "bar")
+
+  expect_equal(res$all_branches, c("20250101", "feature-x"))
+  expect_equal(res$release_branches, "20250101")
+  expect_true(res$has_release_branch)
+})
+
+test_that("handles multiple release branches", {
+  mockery::stub(get_repo_branches, "gh::gh", \(...) list(
+    list(name = "20230101"),
+    list(name = "20241231"),
+    list(name = "main")
+  ))
+
+  res <- get_repo_branches(owner = "foo", repo = "bar")
+  expect_equal(res$release_branches, c("20230101", "20241231"))
+  expect_true(res$has_release_branch)
+})
+
 
 test_that("compare branches sha works as expected", {
   expect_no_error(
@@ -214,7 +214,8 @@ test_that("compare branches content works as expected", {
 
   create_test_branch(branch1)
   create_test_branch(branch2)
-
+  # Adding sleep condition to give some time for branches to reflect
+  Sys.sleep(3)
   res_same <- compare_branch_content(
     repo = repo,
     branch1 = branch1,
@@ -228,6 +229,8 @@ test_that("compare branches content works as expected", {
   diff_branch <- paste0("test_diff_", base_date)
 
   create_test_branch(diff_branch, from = "DEV")
+  # Adding sleep condition to give some time for branches to reflect
+  Sys.sleep(3)
 
   res_diff <- compare_branch_content(
     repo = repo,
@@ -248,159 +251,127 @@ test_that("compare branches content works as expected", {
 
 # Confirm branch exists ##
 
-test_that("confirm branch exists works as expected", {
-
-  # Create a temporary branch
-  temp_branch <- paste0("test_branch_exists_", base_date)
-  create_test_branch(temp_branch)
-
-  # Get all branch names
-  branches_info <- gh::gh(
-    "GET /repos/{owner}/{repo}/branches",
-    owner = owner,
-    repo = repo,
-    .limit = Inf
+test_that("returns TRUE when branch exists", {
+  mockery::stub(
+    confirm_branch_exists,
+    'gh::gh',
+    function(...) list(name = "main")
   )
+  res <- confirm_branch_exists(branch = "main", measure = "test")
+  expect_true(res)
+})
 
-  branch_names <- sapply(
-    branches_info,
-    function(branch) branch$name
+test_that("returns FALSE when branch does not exist (404)", {
+  mockery::stub(
+    confirm_branch_exists,
+    'gh::gh',
+    function(...) stop("404 Not Found")
   )
+  res <- confirm_branch_exists(branch = "nonexistent", measure = "test")
+  expect_false(res)
+})
 
-  expect_true(
-    temp_branch %in% branch_names
+test_that("propagates non-404 errors", {
+  mockery::stub(
+    confirm_branch_exists,
+    'gh::gh',
+    function(...) stop("500 Internal Server Error")
   )
+  expect_error(
+    confirm_branch_exists(branch = "main", measure = "test"),
+    "500"
+  )
+})
 
-  expect_equal(
-    confirm_branch_exists(
-      repo = repo,
-      branch = temp_branch
-    ),
-    TRUE
-  )
+test_that("defensive checks work for wrong argument types", {
+  expect_error(confirm_branch_exists(branch = 123, measure = "test"), "is.character")
+  expect_error(confirm_branch_exists(branch = c("a", "b"), measure = "test"), "length")
+  expect_error(confirm_branch_exists(branch = "main", measure = "test", owner = 1), "is.character")
+  expect_error(confirm_branch_exists(branch = "main", measure = "test", repo = 2), "is.character")
+})
 
-  expect_equal(
-    confirm_branch_exists(
-      repo = repo,
-      branch = "non_existent_branch"
-    ),
-    FALSE
-  )
+test_that("returns TRUE when branches already have same content", {
+  # mock compare_branches_sha
+  mockery::stub(update_branches, "compare_branches_sha", function(...) list(sha_1 = "abc123"))
+  # mock compare_branch_content
+  mockery::stub(update_branches, "compare_branch_content", function(...) list(same_content = TRUE))
+  # mock gh::gh (should not be called)
+  gh_mock <- mockery::mock()
+  mockery::stub(update_branches, "gh::gh", gh_mock)
+
+  res <- update_branches(owner = "me", repo = "repo", branch1 = "main", branch2 = "dev")
+  expect_true(res)
+  expect_equal(mock_args(gh_mock), list()) # never called
+})
+
+test_that("updates branch when content differs and force=TRUE", {
+  mockery::stub(update_branches, "compare_branches_sha", function(...) list(sha_1 = "abc123"))
+  mockery::stub(update_branches, "compare_branch_content", function(...) list(same_content = FALSE))
+  gh_mock <- mock(TRUE)
+  mockery::stub(update_branches, "gh::gh", gh_mock)
+
+  res <- update_branches(owner = "me", repo = "repo", branch1 = "main", branch2 = "dev", force = TRUE)
+  expect_true(res)
+  expect_called(gh_mock, 1)
+})
+
+test_that("aborts when force=FALSE and user answers No", {
+  mockery::stub(update_branches, "compare_branches_sha", function(...) list(sha_1 = "abc123"))
+  mockery::stub(update_branches, "compare_branch_content", function(...) list(same_content = FALSE))
+  mockery::stub(update_branches, "utils::askYesNo", function(...) FALSE)
 
   expect_error(
-    confirm_branch_exists(
-      repo = repo,
-      branch = 2
-    )
+    update_branches(owner = "me", repo = "repo", branch1 = "main", branch2 = "dev", force = FALSE),
+    "Update interrupted"
   )
 })
 
+test_that("returns FALSE if gh::gh() fails", {
+  mockery::stub(update_branches, "compare_branches_sha", function(...) list(sha_1 = "abc123"))
+  mockery::stub(update_branches, "compare_branch_content", function(...) list(same_content = FALSE))
+  mockery::stub(update_branches, "gh::gh", function(...) stop("Some API error"))
 
-test_that("update branches work as expected", {
-  # Branches already in sync
-  expect_equal(
-    update_branches(
-      repo = repo,
-      branch1 = "main",
-      branch2 = "test_main"
-    ),
-    TRUE
-  )
-
-  # Set up a fresh branch from "main" and one from "DEV_v2"
-  branch_from_main <- paste0("test_update_main_", base_date)
-  branch_from_dev <- paste0("test_update_dev_", base_date)
-
-  create_test_branch(branch_from_main, from = "main")
-  create_test_branch(branch_from_dev, from = "DEV_v2")
-
-  # Apply update from main into dev-based branch
-  update_branches(
-    repo = repo,
-    branch1 = branch_from_main,
-    branch2 = branch_from_dev
-  )
-
-  # Check content match
-  result <- compare_branch_content(
-    repo = repo,
-    branch1 = branch_from_main,
-    branch2 = branch_from_dev
-  )
-
-  expect_equal(
-    result$same_content,
-    TRUE
-  )
+  res <- update_branches(owner = "me", repo = "repo", branch1 = "main", branch2 = "dev", force = TRUE)
+  expect_false(res)
 })
 
+test_that("returns TRUE when branches already have same content", {
+  stub(merge_branch_into, "compare_branch_content", function(...) list(same_content = TRUE))
+  gh_mock <- mock()
+  stub(merge_branch_into, "gh::gh", gh_mock)
 
+  res <- merge_branch_into(owner = "me", repo = "repo", source_branch = "main", target_branch = "dev")
+  expect_true(res)
+  expect_equal(mock_args(gh_mock), list()) # gh::gh never called
+})
 
-test_that("merge_branch_into works correctly", {
+test_that("merges when content differs and force=TRUE", {
+  stub(merge_branch_into, "compare_branch_content", function(...) list(same_content = FALSE))
+  gh_mock <- mock(TRUE)
+  stub(merge_branch_into, "gh::gh", gh_mock)
 
-  # 1. Merge when branches have the same content
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = "main",
-      target_branch = paste0(base_date, "_TEST")
-    )
-  )
+  res <- merge_branch_into(owner = "me", repo = "repo", source_branch = "main", target_branch = "dev", force = TRUE)
+  expect_true(res)
+  expect_called(gh_mock, 1)
+})
 
-  # 2. Merge when branches have different content
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = "DEV",
-      target_branch = paste0(base_date, "_v2")
-    )
-  )
+test_that("aborts when force=FALSE and user answers No", {
+  stub(merge_branch_into, "compare_branch_content", function(...) list(same_content = FALSE))
+  stub(merge_branch_into, "utils::askYesNo", function(...) FALSE)
 
-  # 3. Error if source branch doesn't exist
   expect_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = "invalid_source",
-      target_branch = paste0(base_date, "_v2")
-    )
+    merge_branch_into(owner = "me", repo = "repo", source_branch = "main", target_branch = "dev", force = FALSE),
+    "Merge interrupted"
   )
-
-  # 4. Merge with force = TRUE
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = "DEV",
-      target_branch = paste0(base_date, "_force_true"),
-      force = TRUE
-    )
-  )
-
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = paste0(base_date, "_force_true"),
-      target_branch = "DEV",
-      force = TRUE
-    )
-  )
-
-  # 5. Merge with force = FALSE and confirmation "Yes"
-  assign("askYesNo", function(...) TRUE, envir = .GlobalEnv)
-
-  expect_no_error(
-    merge_branch_into(
-      repo = repo,
-      source_branch = paste0(base_date, "_force_false"),
-      target_branch = "DEV",
-      force = FALSE
-    )
-  )
-
-  # Cleanup: remove monkey-patched askYesNo
-  rm(askYesNo, envir = .GlobalEnv)
 })
 
+test_that("returns FALSE if gh::gh() fails", {
+  stub(merge_branch_into, "compare_branch_content", function(...) list(same_content = FALSE))
+  stub(merge_branch_into, "gh::gh", function(...) stop("Some API error"))
 
+  res <- merge_branch_into(owner = "me", repo = "repo", source_branch = "main", target_branch = "dev", force = TRUE)
+  expect_false(res)
+})
 
 test_that("delete_branch works", {
 
@@ -412,7 +383,7 @@ test_that("delete_branch works", {
     repo       = repo,
     ref_branch = "DEV"  # or "main", depending on desired origin
   )
-
+  Sys.sleep(3)
   # Delete the branch
   delete_branch(
     branch_to_delete = branch_name,
@@ -420,7 +391,7 @@ test_that("delete_branch works", {
     owner            = owner,
     ask              = FALSE
   )
-
+  Sys.sleep(5)
   # Confirm it was deleted
   branches <- gh::gh(
     "GET /repos/{owner}/{repo}/branches",
