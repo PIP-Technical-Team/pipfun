@@ -1,4 +1,4 @@
-# pipfun (development version)
+# pipfun 0.3.11
 * Fix tests of branch management. 
 
 # pipfun 0.3.10
