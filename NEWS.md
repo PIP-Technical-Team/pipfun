@@ -1,3 +1,5 @@
+# pipfun 0.0.3
+
 # pipfun 0.0.2
 
 * Add `check_pkg_active()` to check if package is active
