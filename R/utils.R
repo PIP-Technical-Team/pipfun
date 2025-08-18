@@ -11,7 +11,13 @@
 #' }
 convert_df_to_base64 <- function(df) {
   if(!is.data.frame(df)) {
-    cli::cli_abort("df is not a dataframe")
+    cli::cli_inform("df is not a dataframe")
+
+    df |>
+      charToRaw() |>
+      base64enc::base64encode() |>
+      return()
+
   }
   df |>
     utils::write.table(quote = FALSE,
