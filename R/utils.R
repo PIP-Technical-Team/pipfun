@@ -13,10 +13,11 @@ convert_df_to_base64 <- function(df) {
   if(!is.data.frame(df)) {
     cli::cli_inform("df is not a dataframe")
 
-    df |>
+    b64 <- df |>
       charToRaw() |>
-      base64enc::base64encode() |>
-      return()
+      base64enc::base64encode()
+
+    return(b64)
 
   }
   df |>
