@@ -252,7 +252,8 @@ load_from_disk <- function(temp_file, ext, ...) {
   if (ext  %in% c("xls", "xlsx"))
     return(readxl::read_excel(temp_file, ...))
 
-  if (ext == "dta") return(haven::read_dta(temp_file, ...))
+  if (ext == "dta") return(haven::read_dta(temp_file,
+                                           encoding = "latin1", ...))
 
   if (ext == "qs") return(qs::qread(temp_file, ...))
 
