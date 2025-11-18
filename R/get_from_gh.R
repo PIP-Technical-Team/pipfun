@@ -275,12 +275,6 @@ get_file_info_from_gh <- function(owner= getOption("pipfun.ghowner"),
 
 
   creds = get_github_creds()
-
-  # alternative
-  # gh::gh("GET /repos/:owner/:repo/contents/:path",
-  #        owner = owner, repo = repo, path = path, ref = ref,
-  #        .token = Sys.getenv("GITHUB_PAT"))
-
   mt <- gh::gh(
     "GET /repos/{owner}/{repo}/contents/{file_path}",
     owner     = owner,
@@ -289,10 +283,6 @@ get_file_info_from_gh <- function(owner= getOption("pipfun.ghowner"),
     .params   = list(ref = branch),
     .token = creds$password
   )
-
-  #debug
-  print("mt")
-  print(mt)
 
   # Fix names for folders
 

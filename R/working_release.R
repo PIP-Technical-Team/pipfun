@@ -26,47 +26,44 @@
 #' try(setup_working_release())
 #' }
 setup_working_release <- function(release  = NULL,
-                                 identity  = getOption("pipfun.identities"),
-                                 force     = FALSE,
-                                 owner     = getOption("pipfun.ghowner"),
-                                 repo      = "pip_info",
-                                 file_path = "releases.csv",
-                                 branch    = "releases",
-                                 verbose   = getOption("pipfun.verbose"),
-                                 ppp       = getOption("pipfun.ppps"),
-                                 creds     = NULL,
-                                 main_dir  = getOption("pipfun.main_dir"),
-                                 ...) {
+                                  identity  = getOption("pipfun.identities"),
+                                  force     = FALSE,
+                                  owner     = getOption("pipfun.ghowner"),
+                                  repo      = "pip_info",
+                                  file_path = "releases.csv",
+                                  branch    = "releases",
+                                  verbose   = getOption("pipfun.verbose"),
+                                  ppp       = getOption("pipfun.ppps"),
+                                  creds     = NULL,
+                                  main_dir  = getOption("pipfun.main_dir"),
+                                  ...) {
+
   identity <- match.arg(identity)
-  ppp      <- ppp[1]
+  ppp <- ppp[1]
   if (!ppp %in% getOption("pipfun.ppps")) {
     cli::cli_abort(c("Wrong PPP value",
                      i = "PPP values must be {.or {getOption(\"pipfun.ppps\")}}"))
   }
 
+  pr <- if (is.null(release)) {
+    get_latest_pip_release(identity = identity,
+                           owner     = owner,
+                           repo      = repo,
+                           file_path = file_path,
+                           branch    = branch,
+                           verbose   = verbose,
+                           creds     = creds)
+  } else {
+    get_pip_releases(owner     = owner,
+                     repo      = repo,
+                     file_path = file_path,
+                     branch    = branch,
+                     verbose   = verbose,
+                     creds     = creds) |>
+      find_release(release = release, identity = identity)
+  }
 
-  pr <-
-    if (is.null(release)) {
-      get_latest_pip_release(identity = identity,
-                             owner     = owner,
-                             repo      = repo,
-                             file_path = file_path,
-                             branch    = branch,
-                             verbose   = verbose,
-                             creds     = creds)
-    } else {
-      get_pip_releases(owner     = owner,
-                       repo      = repo,
-                       file_path = file_path,
-                       branch    = branch,
-                       verbose   = verbose,
-                       creds     = creds) |>
-        find_release(release = release,
-                     identity = identity)
-    }
-
-  # create globals
-  # for now. Dirs should be created elsewhere
+  # create globals (no dir creation here)
   gls <- pip_create_globals(create_dir = FALSE,
                             vintage    = list(release = release,
                                               ppp_year = ppp,
@@ -74,22 +71,24 @@ setup_working_release <- function(release  = NULL,
                             verbose = verbose,
                             ...)
 
-  # setup working release
+  # setup working release info
   wr <- list(release  = pr[, release],
              identity = pr[, identity],
              ppp      = ppp)
 
-  boards <- set_pip_boards(main_dir = main_dir,
-                           release = pr[, release],
-                           identity = pr[, identity])
+  # get directory paths (no pins)
+  boards_paths <- set_pip_boards(main_dir = main_dir,
+                                 release = pr[, release],
+                                 identity = pr[, identity])
 
+  # save to .pipenv
   rlang::env_poke(.pipenv, "wrk_release", wr)
   rlang::env_poke(.pipenv, "gls", gls)
-  rlang::env_poke(.pipenv, "pins_boards", boards)
+  rlang::env_poke(.pipenv, "boards_paths", boards_paths)  # updated
 
   if (verbose) {
     cli::cli_alert_info("PIP working release setup to {.field {wr$release}-{wr$identity}}")
-    print(boards)
+    print(boards_paths)
   }
 
   invisible(wr)
