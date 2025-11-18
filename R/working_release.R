@@ -98,44 +98,33 @@ setup_working_release <- function(release  = NULL,
 
 
 
-#' set pins board
+#' Set PIP directory paths
 #'
-#' set all the directory paths that contain pins boards for pip. It should be
-#' used inside [setup_working_release] but it could be used interactively for
-#' testing purposes.
+#' This function creates all necessary directories for a PIP release
+#' and returns a named list of paths.
 #'
 #' @inheritParams setup_working_release
-#'
-#' @returns lists of pins boards
+#' @returns Named list of directory paths
 #' @export
-#'
-#' @examples
-#' set_pip_boards()
 set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
                            release  = NULL,
                            identity  = getOption("pipfun.identities")) {
 
   identity <- match.arg(identity)
   if (is.null(release)) {
-    release <- get_latest_pip_release() |>
-      _[, release]
+    release <- get_latest_pip_release() |> _[, release]
   }
 
-  rt      <- glue("{release}_{identity}")
+  rt <- glue("{release}_{identity}")
 
-  # Aux data ---------
+  # Aux data
   aux_internal <- c("aux_data", "aux_metadata")
-  aux_dir <- fs::path(main_dir, "aux_repository", aux_internal) |>
-    fs::path(rt) |>
+  aux_dir <- fs::path(main_dir, "aux_repository", aux_internal, rt) |>
     fs::dir_create()
 
-  aux_data <- pins::board_folder(aux_dir[1], TRUE)
-  aux_metadata <- pins::board_folder(aux_dir[2], TRUE)
-
-  # DLW data ---------
-  dlw_dir <- fs::path(main_dir, "dlw_repository") |>
+  # DLW data
+  dlw_dir           <- fs::path(main_dir, "dlw_repository") |>
     fs::dir_create(recurse = TRUE)
-
   dlw_data_dir      <- fs::path(dlw_dir, "dlw_data") |>
     fs::dir_create(recurse = TRUE)
   dlw_inventory_dir <- fs::path(dlw_dir, "dlw_inventory") |>
@@ -143,46 +132,35 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
   dlw_metadata_dir  <- fs::path(dlw_dir, "dlw_metadata", rt) |>
     fs::dir_create(recurse = TRUE)
 
-  dlw_data      <- pins::board_folder(dlw_data_dir, TRUE)
-  dlw_inventory <- pins::board_folder(dlw_inventory_dir, TRUE)
-  dlw_metadata  <- pins::board_folder(dlw_metadata_dir, TRUE)
-
-  # PIP data ------
-  pip_dir <- fs::path(main_dir, "pip_repository") |>
+  # PIP data
+  pip_dir                  <- fs::path(main_dir, "pip_repository") |>
+    fs::dir_create(recurse = TRUE)
+  pip_data_dir             <- fs::path(pip_dir, "pip_data", "surveys") |>
+    fs::dir_create(recurse = TRUE)
+  pip_master_inventory_dir <- fs::path(pip_dir, "pip_data", "master_inventory") |>
+    fs::dir_create(recurse = TRUE)
+  pip_metadata_dir         <- fs::path(pip_dir, "pip_data", "surveys_metadata", rt) |>
+    fs::dir_create(recurse = TRUE)
+  pip_inventory_dir        <- fs::path(pip_dir, "pip_inventory", rt) |>
     fs::dir_create(recurse = TRUE)
 
-  pip_data_dir      <- fs::path(pip_dir, "pip_data", "surveys")|>
-    fs::dir_create(recurse = TRUE)
+  # Return named list of paths
+  boards_paths <- list(
+    aux_data      = aux_dir[1],
+    aux_metadata  = aux_dir[2],
+    dlw_data      = dlw_data_dir,
+    dlw_inventory = dlw_inventory_dir,
+    dlw_metadata  = dlw_metadata_dir,
+    pip_data      = pip_data_dir,
+    pip_metadata  = pip_metadata_dir,
+    pip_inventory = pip_inventory_dir,
+    pip_master_inventory = pip_master_inventory_dir
+  )
 
-  pip_master_inventory_dir  <-
-    fs::path(pip_dir, "pip_data", "master_inventory")|>
-    fs::dir_create(recurse = TRUE)
-
-  pip_metadata_dir  <- fs::path(pip_dir, "pip_data", "surveys_metadata", rt) |>
-    fs::dir_create(recurse = TRUE)
-
-  pip_inventory_dir <- fs::path(pip_dir, "pip_inventory", rt) |>
-    fs::dir_create(recurse = TRUE)
-
-  pip_data             <- pins::board_folder(pip_data_dir, TRUE)
-  pip_metadata         <- pins::board_folder(pip_metadata_dir, TRUE)
-  pip_inventory        <- pins::board_folder(pip_inventory_dir, TRUE)
-  pip_master_inventory <- pins::board_folder(pip_master_inventory_dir, TRUE)
-
-
-  boards <- list(aux_data      = aux_data,
-                 aux_metadata  = aux_metadata,
-                 dlw_data      = dlw_data,
-                 dlw_metadata  = dlw_metadata,
-                 dlw_inventory = dlw_inventory,
-                 pip_data      = pip_data,
-                 pip_metadata  = pip_metadata,
-                 pip_inventory = pip_inventory,
-                 pip_master_inventory = pip_master_inventory)
-
-  class(boards) <- "pip_boards"
-  boards
+  class(boards_paths) <- "pip_boards_paths"
+  boards_paths
 }
+
 
 #' get working release in PIP functions
 #'

@@ -290,6 +290,10 @@ get_file_info_from_gh <- function(owner= getOption("pipfun.ghowner"),
     .token = creds$password
   )
 
+  #debug
+  print("mt")
+  print(mt)
+
   # Fix names for folders
 
   if(is.null(names(mt))){
