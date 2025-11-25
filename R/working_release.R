@@ -77,18 +77,19 @@ setup_working_release <- function(release  = NULL,
              ppp      = ppp)
 
   # get directory paths (no pins)
-  boards_paths <- set_pip_boards(main_dir = main_dir,
+  folder_paths <- set_pip_folders(main_dir = main_dir,
                                  release = pr[, release],
                                  identity = pr[, identity])
 
   # save to .pipenv
+  rlang::env_poke(.pipenv, "stamp_root", main_dir)
   rlang::env_poke(.pipenv, "wrk_release", wr)
   rlang::env_poke(.pipenv, "gls", gls)
-  rlang::env_poke(.pipenv, "boards_paths", boards_paths)  # updated
+  rlang::env_poke(.pipenv, "folder_paths", folder_paths)  # updated
 
   if (verbose) {
     cli::cli_alert_info("PIP working release setup to {.field {wr$release}-{wr$identity}}")
-    print(boards_paths)
+    print(folder_paths)
   }
 
   invisible(wr)
@@ -105,9 +106,9 @@ setup_working_release <- function(release  = NULL,
 #' @inheritParams setup_working_release
 #' @returns Named list of directory paths
 #' @export
-set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
-                           release  = NULL,
-                           identity  = getOption("pipfun.identities")) {
+set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
+                            release  = NULL,
+                            identity  = getOption("pipfun.identities")) {
 
   identity <- match.arg(identity)
   if (is.null(release)) {
@@ -143,8 +144,17 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
   pip_inventory_dir        <- fs::path(pip_dir, "pip_inventory", rt) |>
     fs::dir_create(recurse = TRUE)
 
+  # Determine stamp project root (the overall PIP data directory)
+  stamp_root <- main_dir
+
+  # Initialize stamp if needed
+  if (!fs::dir_exists(fs::path(stamp_root, ".stamp"))) {
+    stamp::st_init(root = stamp_root)
+  }
+
   # Return named list of paths
-  boards_paths <- list(
+  folder_paths <- list(
+    stamp_root    = stamp_root,
     aux_data      = aux_dir[1],
     aux_metadata  = aux_dir[2],
     dlw_data      = dlw_data_dir,
@@ -156,8 +166,8 @@ set_pip_boards <- function(main_dir  = getOption("pipfun.main_dir"),
     pip_master_inventory = pip_master_inventory_dir
   )
 
-  class(boards_paths) <- "pip_boards_paths"
-  boards_paths
+  class(folder_paths) <- "pip_folder_paths"
+  folder_paths
 }
 
 
