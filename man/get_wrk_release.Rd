@@ -2,31 +2,17 @@
 % Please edit documentation in R/working_release.R
 \name{get_wrk_release}
 \alias{get_wrk_release}
-\alias{get_pins_boards}
 \title{get working release in PIP functions}
 \usage{
 get_wrk_release(name = "wrk_release", verbose = getOption("pipfun.verbose"))
-
-get_pins_boards(
-  board = NULL,
-  name = "pins_boards",
-  verbose = getOption("pipfun.verbose")
-)
 }
 \arguments{
-\item{name}{character: Name of the pins boards that you want to assign to the
-parent.frame() that call this function. default is "pins_boards" and you
-should leave it like that. this is just an argument for developers.}
-
-\item{verbose}{logical: whether to display additional information}
-
-\item{board}{character: name of the PIP board you want to filter}
+\item{name}{character: Name of the working release object. default is
+"wrk_release" and you should leave it like that}
 }
 \value{
 assign \code{name} object to \code{parent.frame()} which is the function it is
 being called from
-
-list of pins boards
 }
 \description{
 You can place this function at the beginning of any of your PIP function to

@@ -176,7 +176,6 @@ set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
 #' You can place this function at the beginning of any of your PIP function to
 #' work with the working release
 #'
-#' @inheritParams setup_working_release
 #' @param name character: Name of the working release object. default is
 #'   "wrk_release" and you should leave it like that
 #'
@@ -210,36 +209,45 @@ get_wrk_release <- function(name = "wrk_release",
 
 
 
-#' Get PIP pins boards from pipenv environment
-#' @param board character: name of the PIP board you want to filter
-#' @param name character: Name of the pins boards that you want to assign to the
-#'   parent.frame() that call this function. default is "pins_boards" and you
-#'   should leave it like that. this is just an argument for developers.
-#' @inheritParams setup_working_release
+#' Get PIP folder paths from .pipenv
 #'
-#' @returns list of pins boards
+#' This function retrieves the folder paths that were set up for a PIP release.
+#'
+#' @param folder character: optional, name of a specific folder to retrieve.
+#'   If NULL (default), returns all folder paths.
+#' @param name character: name of the object to assign to the calling environment.
+#'   Default is `"pip_folders"`.
+#' @param verbose logical: whether to print info about the folders retrieved. Default is FALSE
+#'
+#' @return A named list of folder paths or a single folder path if `folder` is specified.
 #' @export
-#' @rdname get_wrk_release
-get_pins_boards <- function(board = NULL,
-                            name = "pins_boards",
-                           verbose  = getOption("pipfun.verbose")) {
-  pins_boards <- get_from_pipenv("pins_boards")
-  if (is.null(pins_boards)) {
+get_pip_folders <- function(folder = NULL,
+                            name = "pip_folders",
+                            verbose = FALSE) {
+
+  pip_folders <- get_from_pipenv("folder_paths")
+
+  if (is.null(pip_folders)) {
     cli::cli_abort(
-      c(x = "PIP pins boards have not been set up",
+      c(x = "PIP folder paths have not been set up",
         i = "You need to set a working release with {.code pipfun::setup_working_release()}"))
-  } else {
-    if (verbose) pins_boards
   }
 
-  assign(name, pins_boards, envir = parent.frame())
-
-  if (is.null(board)) return(invisible(pins_boards))
-
-  if (!(board %in% names(pins_boards))) {
-    cli::cli_abort("{.field {board}} is not available in {.field pins_board}")
+  if (verbose) {
+    cli::cli_alert_info("Retrieved PIP folder paths")
+    print(pip_folders)
   }
 
-  pins_boards[[board]]
+  # Assign to parent.frame for developer convenience
+  assign(name,
+         pip_folders,
+         envir = parent.frame())
 
+  if (is.null(folder)) return(invisible(pip_folders))
+
+  if (!(folder %in% names(pip_folders))) {
+    cli::cli_abort("{.field {folder}} is not available in {.field pip_folders}")
+  }
+
+  invisible(pip_folders[[folder]])
 }
