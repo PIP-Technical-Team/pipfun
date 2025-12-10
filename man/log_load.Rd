@@ -2,52 +2,39 @@
 % Please edit documentation in R/log.R
 \name{log_load}
 \alias{log_load}
-\title{Load a log from a .qs file}
+\title{Load a log from disk}
 \usage{
 log_load(
-  board,
-  pin_name = name,
+  dir,
+  id,
+  name = id,
   version = NULL,
-  hash = NULL,
-  path = deprecated(),
-  name = deprecated(),
+  format = "qs2",
   overwrite = FALSE,
-  ...
+  verbose = TRUE
 )
 }
 \arguments{
-\item{board}{pins board}
+\item{dir}{Directory where the log is stored.}
 
-\item{pin_name}{name of pin that will be used to load the log. By default it
-is the same as \code{name}.}
+\item{id}{File identifier (without extension). Defaults to \code{name}.}
 
-\item{version}{Retrieve a specific version of a pin. Use \code{\link[pins:pin_versions]{pin_versions()}} to
-find out which versions are available and when they were created.}
+\item{name}{Name to assign to the log in memory (default: \code{id}).}
 
-\item{hash}{Specify a hash to verify that you get exactly the dataset that
-you expect. You can find the hash of an existing pin by looking for
-\code{pin_hash} in \code{\link[pins:pin_meta]{pin_meta()}}.}
+\item{version}{Optional version identifier passed to \code{stamp::st_load()}.
+Use \code{"available"} to list available versions.}
 
-\item{path}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{path} is no longer supported.
-Use \code{board} argument now. If value passed to \code{path} is not a pins board, it
-will through an error.}
+\item{format}{File format (default: "qs2").}
 
-\item{name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{name} has been superseded by
-\code{pin_name}. It is nor inferred from filename any more.}
+\item{overwrite}{Logical: whether to overwrite an existing log in
+\code{.piplogenv}. Default is FALSE.}
 
-\item{overwrite}{logical: whether to override the log in \code{.piplogenv} with
-the same \code{pin_name}. Default is FALSE.}
-
-\item{...}{
-  Arguments passed on to \code{\link[pins:pin_read]{pins::pin_read}}
-  \describe{
-    \item{\code{}}{}
-  }}
+\item{verbose}{Logical: whether to announce loading progress.}
 }
 \value{
 Invisibly returns the name of the loaded log.
 }
 \description{
-Loads a previously saved log into \code{.piplogenv}, optionally under a different
-name.
+Loads a previously saved piplog from disk using {stamp}, optionally under a
+different name.
 }

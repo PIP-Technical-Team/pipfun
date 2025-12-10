@@ -220,8 +220,14 @@ log_save <- function(
 
   log <- rlang::env_get(.piplogenv, name)
 
+  # Restore class if dropped by serialization
+  if (is.data.table(log)) {
+    setattr(log, "class", unique(c("piplog", class(log))))
+  }
+
+  # Final validation
   if (!inherits(log, "piplog")) {
-    cli::cli_abort("Object {.field {name}} is not a valid piplog.")
+    cli::cli_abort("File does not contain a valid {.cls piplog} object.")
   }
 
   # ---- Build stamp path ----
@@ -295,18 +301,28 @@ log_load <- function(
   }
 
   # ---- Load log ----
+  ver <- if (is.null(version)) "latest" else version
+
   if (verbose) {
     cli::cli_alert_info(
-      "Loading {.path {file}} (version = {.strong {version %||% 'latest'}})"
+      "Loading {.path {file}} (version = {.strong {ver}})"
     )
   }
+
 
   log <- stamp::st_load(file, version = version)
 
   # ---- Validate object ----
+  # Restore class if dropped by serialization
+  if (is.data.table(log)) {
+    setattr(log, "class", unique(c("piplog", class(log))))
+  }
+
+  # Final validation
   if (!inherits(log, "piplog")) {
     cli::cli_abort("File does not contain a valid {.cls piplog} object.")
   }
+
 
   # ---- Handle overwrite ----
   if (rlang::env_has(.piplogenv, name) && !isTRUE(overwrite)) {

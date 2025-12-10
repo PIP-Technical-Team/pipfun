@@ -6,9 +6,11 @@
 \usage{
 log_save(
   name = getOption("pipfun.log.default", "default"),
-  board = NULL,
-  pin_name = name,
-  path = deprecated(),
+  dir,
+  id = name,
+  format = "qs2",
+  metadata = list(),
+  code = NULL,
   ...
 )
 }
@@ -16,31 +18,22 @@ log_save(
 \item{name}{Name of the log in memory (default:
 \code{getOption("pipfun.log.default")}).}
 
-\item{board}{pins board}
+\item{dir}{Directory where the log should be saved.}
 
-\item{pin_name}{name of pin that will be used to load the log. By default it is the same as \code{name}.}
+\item{id}{File identifier (without extension). Defaults to \code{name}.}
 
-\item{path}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{path} is no longer supported.
-Use \code{board} argument now. If value passed to \code{path} is not a pins board, it
-will through an error.}
+\item{format}{File format (default: "qs2").}
 
-\item{...}{
-  Arguments passed on to \code{\link[pins:pin_read]{pins::pin_write}}
-  \describe{
-    \item{\code{title}}{A title for the pin; most important for shared boards so that
-others can understand what the pin contains. If omitted, a brief
-description of the contents will be automatically generated.}
-    \item{\code{description}}{A detailed description of the pin contents.}
-    \item{\code{metadata}}{A list containing additional metadata to store with the pin.
-When retrieving the pin, this will be stored in the \code{user} key, to
-avoid potential clashes with the metadata that pins itself uses.}
-    \item{\code{tags}}{A character vector of tags for the pin; most important for
-discoverability on shared boards.}
-  }}
+\item{metadata}{Optional named list of metadata to attach.}
+
+\item{code}{Optional code object whose hash will be stored.}
+
+\item{...}{Forwarded to \code{stamp::st_save()}.}
 }
 \value{
-Invisible \code{TRUE} if successful.
+Invisibly, the result returned by \code{stamp::st_save()}.
 }
 \description{
-Saves a log stored in \code{.piplogenv} to a \code{.qs} file for persistence.
+Saves a log stored in \code{.piplogenv} to disk using {stamp}, with metadata
+and versioning support.
 }
