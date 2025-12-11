@@ -184,132 +184,157 @@ log_init <- function(name = getOption("pipfun.log.default"),
 
 #' Save a log to disk
 #'
-#' Saves a log stored in `.piplogenv` to a `.qs` file for persistence.
+#' Saves a log stored in `.piplogenv` to disk using {stamp}, with metadata
+#' and versioning support.
 #'
 #' @param name Name of the log in memory (default:
 #'   `getOption("pipfun.log.default")`).
-#' @param path `r lifecycle::badge("deprecated")` `path` is no longer supported.
-#'   Use `board` argument now. If value passed to `path` is not a pins board, it
-#'   will through an error.
-#' @param board pins board
-#' @param pin_name name of pin that will be used to load the log. By default it is the same as `name`.
-#' @inheritDotParams pins::pin_write title description metadata tags
+#' @param dir Directory where the log should be saved.
+#' @param id File identifier (without extension). Defaults to `name`.
+#' @param format File format (default: "qs2").
+#' @param metadata Optional named list of metadata to attach.
+#' @param code Optional code object whose hash will be stored.
+#' @param ... Forwarded to `stamp::st_save()`.
 #'
-#'
-#' @return Invisible `TRUE` if successful.
+#' @return Invisibly, the result returned by `stamp::st_save()`.
 #' @export
-log_save <- function(name     = getOption("pipfun.log.default", "default"),
-                     board    = NULL,
-                     pin_name = name,
-                     path     =  deprecated(),
-                     ...) {
+log_save <- function(
+    name     = getOption("pipfun.log.default", "default"),
+    dir,
+    id       = name,
+    format   = "qs2",
+    metadata = list(),
+    code     = NULL,
+    ...
+) {
 
-  if (lifecycle::is_present(path)) {
-    lifecycle::deprecate_warn(
-      when = "0.3.7",
-      what = "log_save(path)",
-      with = "log_save(board)",
-      details = "all the logs will be saved as pins, so you need to use a pins board rather than a directory path"
-    )
-    board <- path
+  # ---- Validate directory ----
+  if (missing(dir) || !fs::dir_exists(dir)) {
+    cli::cli_abort("Provided directory path does not exist: {.path {dir}}")
   }
 
-  if (!inherits(board, "pins_board")) {
-    cli::cli_abort("{.arg board} must be a pins_board class object")
-  }
-
-
-  if (!exists(name, envir = .piplogenv)) {
+  # ---- Validate log ----
+  if (!rlang::env_has(.piplogenv, name)) {
     cli::cli_abort("Log {.field {name}} does not exist in memory.")
   }
 
-  log <- get(name, envir = .piplogenv)
+  log <- rlang::env_get(.piplogenv, name)
 
-  if (!inherits(log, "piplog")) {
-    cli::cli_abort("Object {.field {name}} is not a valid piplog.")
+  # Restore class if dropped by serialization
+  if (is.data.table(log)) {
+    setattr(log, "class", unique(c("piplog", class(log))))
   }
 
-  pins::pin_write(board     = board,
-                  x         = log,
-                  name      = pin_name,
-                  type      = "qs",
-                  versioned = TRUE,
-                  ...)
+  # Final validation
+  if (!inherits(log, "piplog")) {
+    cli::cli_abort("File does not contain a valid {.cls piplog} object.")
+  }
 
-  invisible(TRUE)
+  # ---- Build stamp path ----
+  file <- fs::path(dir, id, ext = format)
+  sp   <- stamp::st_path(file, format = format)
+
+  # ---- Save with stamp ----
+  out <- stamp::st_save(
+    x        = log,
+    file     = sp,
+    metadata = c(
+      list(
+        class    = "piplog",
+        log_name = name,
+        saved_at = Sys.time()
+      ),
+      metadata
+    ),
+    code   = code,
+    format = format,
+    ...
+  )
+
+  invisible(out)
 }
 
 
-#' Load a log from a .qs file
+#' Load a log from disk
 #'
-#' Loads a previously saved log into `.piplogenv`, optionally under a different
-#' name.
+#' Loads a previously saved piplog from disk using {stamp}, optionally under a
+#' different name.
 #'
-#' @param board pins board
-#' @param pin_name name of pin that will be used to load the log. By default it
-#'   is the same as `name`.
-#' @inheritParams pins::pin_read
-#' @param name `r lifecycle::badge("deprecated")` `name` has been superseded by
-#'   `pin_name`. It is nor inferred from filename any more.
-#' @param path `r lifecycle::badge("deprecated")` `path` is no longer supported.
-#'   Use `board` argument now. If value passed to `path` is not a pins board, it
-#'   will through an error.
-#' @inheritDotParams pins::pin_read
-#'
-#' @param overwrite logical: whether to override the log in `.piplogenv` with
-#'   the same `pin_name`. Default is FALSE.
+#' @param dir Directory where the log is stored.
+#' @param id File identifier (without extension). Defaults to `name`.
+#' @param name Name to assign to the log in memory (default: `id`).
+#' @param version Optional version identifier passed to `stamp::st_load()`.
+#'   Use `"available"` to list available versions.
+#' @param format File format (default: "qs2").
+#' @param overwrite Logical: whether to overwrite an existing log in
+#'   `.piplogenv`. Default is FALSE.
+#' @param verbose Logical: whether to announce loading progress.
 #'
 #' @return Invisibly returns the name of the loaded log.
 #' @export
-log_load <- function(board,
-                     pin_name  = name,
-                     version   = NULL,
-                     hash      = NULL,
-                     path      = deprecated(),
-                     name      = deprecated(),
-                     overwrite = FALSE,
-                     ...) {
+log_load <- function(
+    dir,
+    id,
+    name     = id,
+    version  = NULL,
+    format   = "qs2",
+    overwrite = FALSE,
+    verbose   = TRUE
+) {
 
-  if (lifecycle::is_present(path)) {
-    lifecycle::deprecate_warn(
-      when = "0.3.7",
-      what = "log_save(path)",
-      with = "log_save(board)",
-      details = "all the logs will be saved as pins, so you need to use a pins board rather than a directory path"
+  # ---- Validate directory ----
+  if (missing(dir) || !fs::dir_exists(dir)) {
+    cli::cli_abort("Artifact folder {.path {dir}} does not exist.")
+  }
+
+  # ---- Build path ----
+  file <- fs::path(dir, id, ext = format)
+
+  # ---- List available versions ----
+  if (identical(version, "available")) {
+    vr <- stamp::st_versions(file)
+    if (nrow(vr) == 0) {
+      cli::cli_abort("No versions found in {.path {file}}.")
+    }
+    vr[, vintage := (.I - 1) * -1]
+    return(vr[])
+  }
+
+  # ---- Load log ----
+  ver <- if (is.null(version)) "latest" else version
+
+  if (verbose) {
+    cli::cli_alert_info(
+      "Loading {.path {file}} (version = {.strong {ver}})"
     )
-    board <- path
-  }
-  if (lifecycle::is_present(name)) {
-    lifecycle::deprecate_warn(
-      when = "0.3.7",
-      what = "log_save(name)",
-      with = "log_save(pin_name)"
-    )
-    pin_name <- name
   }
 
-  if (!inherits(board, "pins_board")) {
-    cli::cli_abort("{.arg board} must be a pins_board class object")
+
+  log <- stamp::st_load(file, version = version)
+
+  # ---- Validate object ----
+  # Restore class if dropped by serialization
+  if (is.data.table(log)) {
+    setattr(log, "class", unique(c("piplog", class(log))))
   }
 
-  log <- pins::pin_read(board = board,
-                        name = pin_name,
-                        version = version,
-                        hash = hash,
-                        ...)
-
+  # Final validation
   if (!inherits(log, "piplog")) {
     cli::cli_abort("File does not contain a valid {.cls piplog} object.")
   }
 
 
-  if (rlang::env_has(.piplogenv, pin_name) && !overwrite) {
-    cli::cli_abort("A log named {.field {pin_name}} already exists in memory. Use {.code overwrite = TRUE} to replace it.")
+  # ---- Handle overwrite ----
+  if (rlang::env_has(.piplogenv, name) && !isTRUE(overwrite)) {
+    cli::cli_abort(
+      "A log named {.field {name}} already exists in memory.
+       Use {.code overwrite = TRUE} to replace it."
+    )
   }
 
-  rlang::env_poke(.piplogenv, pin_name, log)
+  rlang::env_poke(.piplogenv, name, log)
 
-  invisible(pin_name)
+  invisible(name)
 }
 
 #' Reset or delete a log from memory

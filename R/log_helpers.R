@@ -312,3 +312,40 @@ inspect_args <- function(.env = parent.frame()) {
   structure(resolved, class = "inspect_args")
 }
 
+#' List available versions of a saved log
+#'
+#' Lists all saved versions of a log stored on disk using {stamp}.
+#'
+#' @param dir Directory where the log is stored.
+#' @param id File identifier (without extension).
+#' @param format File format (default: "qs2").
+#'
+#' @return A data.table of available versions.
+#' @export
+log_versions <- function(
+    dir,
+    id,
+    format = "qs2"
+) {
+
+  # ---- Validate directory ----
+  if (missing(dir) || !fs::dir_exists(dir)) {
+    cli::cli_abort("Artifact folder {.path {dir}} does not exist.")
+  }
+
+  # ---- Build file path ----
+  file <- fs::path(dir, id, ext = format)
+
+  # ---- Get versions ----
+  vr <- stamp::st_versions(file)
+
+  if (nrow(vr) == 0) {
+    cli::cli_abort("No versions found for {.path {file}}.")
+  }
+
+  # ---- Add convenience ordering (latest = 0) ----
+  vr[, vintage := (.I - 1) * -1]
+
+  vr[]
+}
+
