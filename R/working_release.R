@@ -260,71 +260,40 @@ get_pip_folders <- function(folder = NULL,
 
 #' Initialize stamp aliases for PIP folders
 #'
-#' Creates an independent .stamp in each folder (if missing) and registers a
-#' short, human-friendly alias for each folder.
-#'
-#' @param folder_paths Named list produced by set_pip_folders()
-#' @param alias_map Optional named character vector mapping folder names ->
-#'   alias strings. If NULL, a sensible default short mapping is used.
-#' @return Named list mapping folder_keys -> alias (invisible)
+#' @param folder_paths Named list from set_pip_folders()
+#' @param alias_map Named character vector: folder_name -> alias
+#' @return Invisible named character vector of aliases
 #' @export
-set_pip_aliases <- function(folder_paths,
-                            alias_map = NULL) {
+init_pip_aliases <- function(folder_paths,
+                             alias_map = NULL) {
 
-  if (is.null(folder_paths) || !is.list(folder_paths)) {
-    cli::cli_abort("folder_paths must be the named list returned by set_pip_folders()")
-  }
+  stopifnot(is.list(folder_paths))
 
-  # default short alias mapping
-  default_map <- c(
-    aux_data = "aux",
-    aux_metadata = "aux_meta",
-    dlw_data = "dlw",
+  default_aliases <- c(
+    aux_data      = "aux",
+    aux_metadata  = "aux_meta",
+    dlw_data      = "dlw",
     dlw_inventory = "dlw_inv",
-    dlw_metadata = "dlw_meta",
-    pip_data = "pip",
-    pip_metadata = "pip_meta",
+    dlw_metadata  = "dlw_meta",
+    pip_data      = "pip",
+    pip_metadata  = "pip_meta",
     pip_inventory = "pip_inv",
     pip_master_inventory = "pip_master"
   )
 
   if (is.null(alias_map)) {
-    alias_map <- default_map
+    alias_map <- default_aliases
   }
 
-  # ensure alias_map is named and contains needed keys
-  missing_keys <- setdiff(names(default_map), names(alias_map))
-  if (length(missing_keys) > 0) {
-    # fill missing with defaults
-    alias_map[missing_keys] <- default_map[missing_keys]
+  # only aliases for folders that actually exist
+  alias_map <- alias_map[names(alias_map) %in% names(folder_paths)]
+
+  for (nm in names(alias_map)) {
+    root  <- folder_paths[[nm]]
+    alias <- alias_map[[nm]]
+
+    stamp::st_init(root = root, alias = alias)
   }
 
-  # Only operate on keys actually present in folder_paths
-  target_keys <- intersect(names(alias_map), names(folder_paths))
-
-   aliases_out <- list()
-  for (k in target_keys) {
-    root_path <- folder_paths[[k]]
-    alias <- as.character(alias_map[[k]])
-
-    if (!fs::dir_exists(root_path)) {
-      cli::cli_warn("Target folder {.path {root_path}} for alias {.val {alias}} does not exist; skipping.")
-      next
-    }
-
-    # create .stamp for this folder only if missing (non-destructive).
-    # Let stamp::st_init surface errors on alias conflicts so caller sees them.
-    if (!fs::dir_exists(fs::path(root_path, ".stamp"))) {
-      stamp::st_init(root = root_path, alias = alias)
-    } else {
-      # still register the alias in our returned mapping (st_init already run earlier)
-      # If an alias with same name was registered for a different folder, st_init would error.
-      # If a different alias points to same folder, stamp::st_init() warns; we accept that.
-      rlang::warn = NULL
-    }
-
-    aliases_out[[k]] <- alias
-  }
-
-  invisible(aliases_out)
+  invisible(alias_map)
 }
