@@ -218,46 +218,49 @@ test_that("log_exists() works as expected", {
 
 
 # Save and load --------
+test_that("log_save and log_load work with stamp alias", {
+  root <- fs::path(tempdir(), "pipfun_test_alias")
+  fs::dir_create(root)
+  stamp::st_init(root, alias = "A")
 
-# Replace the pins-based persistence test with a dir-based persistence test
-test_that("log_save() and log_load() work as expected with directory + stamp", {
-  skip_on_ci()
-  skip_if_not_installed("qs")
-  skip_if_not_installed("stamp")
+  id <- fs::path(root, "demo_log")         # artifact path (extension added by functions)
 
-  name <- "persist_test"
-  id   <- "persist_test_file"
-  tmp  <- tempfile("logdir_")
-  dir.create(tmp)
+  # prepare and save log
+  log_init("demo", overwrite = TRUE)
+  log_add("info", "smoke test", name = "demo")
+  log_save(name = "demo", id = id, alias = "A", format = "qs2")
 
-  # Create and populate log
-  log_init(name, overwrite = TRUE)
-  log_info(message = "Saving this log", name = name)
+  # versions exist under the correct extension and alias
+  vr <- stamp::st_versions(fs::path_ext_set(id, "qs2"), alias = "A")
+  expect_true(nrow(vr) > 0)
 
-  # Save to disk using stamp (dir + id)
-  out <- log_save(name = name, dir = tmp, id = id, format = "qs2")
-  expect_true(!is.null(out)) # stamp::st_save returns metadata-like object
+  # load into a new name
+  log_reset("demo")
+  log_load(id = id, name = "demo_loaded", alias = "A", format = "qs2")
+  expect_true(rlang::env_has(.piplogenv, "demo_loaded"))
+  expect_s3_class(rlang::env_get(.piplogenv, "demo_loaded"), "piplog")
 
-  # Clear from memory
-  res <- log_reset(name)
-  expect_true(isTRUE(res))
-  expect_false(rlang::env_has(.piplogenv, name))
-
-  # Load back from disk into memory under new name == id
-  loaded_name <- log_load(dir = tmp, id = id, name = id, overwrite = TRUE, verbose = FALSE)
-  expect_identical(loaded_name, id)
-  expect_true(rlang::env_has(.piplogenv, id))
-
-  # Check contents
-  log <- rlang::env_get(.piplogenv, id)
-  expect_s3_class(log, "piplog")
-  expect_gte(nrow(log), 1L)
-  expect_true(any(grepl("Saving this log", log$message)))
-
-  # Clean up
-  log_reset(id)
-  unlink(tmp, recursive = TRUE, force = TRUE)
+  # list available versions via log_load(..., version = "available")
+  avail <- log_load(id = id, version = "available", alias = "A", format = "qs2")
+  expect_true(NROW(avail) > 0)
 })
+
+test_that("log_load respects overwrite flag", {
+  root <- fs::path(tempdir(), "pipfun_test_alias_overwrite")
+  fs::dir_create(root)
+  stamp::st_init(root, alias = "B")
+
+  id <- fs::path(root, "demo2")
+  log_init("demo2", overwrite = TRUE)
+  log_add("info", "for overwrite", name = "demo2")
+  log_save(name = "demo2", id = id, alias = "B", format = "qs2")
+
+  # create an in-memory log with the target name and ensure load errors without overwrite
+  log_init("already_here", overwrite = TRUE)
+  expect_error(log_load(id = id, name = "already_here", alias = "B", overwrite = FALSE))
+})
+
+
 # log_has_errors ----------------------------------------------------------
 
 test_that("log_has_errors() returns correct logical or filtered log", {
