@@ -284,7 +284,8 @@ get_pip_folders <- function(folder = NULL,
 #' @return Invisible named character vector of aliases
 #' @export
 init_pip_aliases <- function(folder_paths,
-                             alias_map = NULL) {
+                             alias_map = NULL,
+                             verbose = getOption("pipfun.verbose")) {
 
   default_aliases <- c(
     aux_data      = "aux",
@@ -302,17 +303,64 @@ init_pip_aliases <- function(folder_paths,
     alias_map <- default_aliases
   }
 
+  # Keep only aliases that correspond to actual folders
   alias_map <- alias_map[names(alias_map) %in% names(folder_paths)]
 
+  # Existing aliases in this stamp project
+  existing_aliases <- tryCatch(
+    stamp::st_aliases(),
+    error = function(e) character(0)
+  )
+
   for (nm in names(alias_map)) {
+
+    alias <- alias_map[[nm]]
+    root  <- fs::path_norm(folder_paths[[nm]])
+
+    if (alias %in% names(existing_aliases)) {
+
+      existing_root <- fs::path_norm(existing_aliases[[alias]])
+
+      if (identical(root, existing_root)) {
+
+        if (verbose) {
+          cli::cli_alert_info(
+            "Alias {.field {alias}} already registered for this folder — skipping"
+          )
+        }
+
+        next
+      }
+
+      cli::cli_abort(c(
+        x = "Alias conflict detected",
+        i = glue::glue(
+          "Alias {.field {alias}} is already registered for:\n  {existing_root}"
+        ),
+        i = glue::glue(
+          "You are trying to re-register it for:\n  {root}"
+        ),
+        i = "This usually happens when switching PIP releases in the same R session.",
+        i = "Restart R or use a different alias scheme if you need multiple releases."
+      ))
+    }
+
+    # Alias not registered → safe to initialize
     stamp::st_init(
-      root  = folder_paths[[nm]],
-      alias = alias_map[[nm]]
+      root  = root,
+      alias = alias
     )
+
+    if (verbose) {
+      cli::cli_alert_success(
+        "Registered alias {.field {alias}} → {.path {root}}"
+      )
+    }
   }
 
-  alias_map
+  invisible(alias_map)
 }
+
 
 #' Get PIP aliases from .pipenv
 #'
