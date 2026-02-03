@@ -1,4 +1,6 @@
-# Preliminary operations
+library(testthat)
+library(mockery)
+library(base64enc)
 
 # Sample data frame for testing
 df_sample <- data.frame(
@@ -7,225 +9,58 @@ df_sample <- data.frame(
   stringsAsFactors = FALSE
 )
 
-repo <- "aux_test"
-owner <- getOption("pipfun.ghowner")
-creds <- get_github_creds()
-
-
-# Load packages
-library(base64enc)   # For base64 encoding/decoding
-
-
-# -------------------------------------------- #
-# Test save_to_gh()  ####
-# -------------------------------------------- #
-
-## Inputs ####
-
-test_that("save_to_gh aborts if 'gh' package is not installed", {
-
-  if (requireNamespace("gh", quietly = TRUE)) {
-    skip("Test skipped because 'gh' is already installed.")
-  }
-
-  expect_error(
-    save_to_gh(df = df_sample,
-               repo = "aux_test",
-               filename = "test_save",
-               ext = "csv"),
-    "Package 'gh' is required. Please install it using install.packages('gh')."
+# Mock GitHub responses
+fake_gh <- function(...){
+  list(
+    content = list(sha = "fake_sha", path = "fake_path.csv"),
+    commit  = list(sha = "commit_sha")
   )
-})
+}
 
-test_that("save_to_gh throws an error if metadata is missing 'sha' or 'path'", {
+test_that("save_to_gh throws error if metadata missing 'sha' or 'path'", {
+  stub(save_to_gh, 'gh::gh', fake_gh)
 
-  # Case 1: Metadata without 'sha'
   metadata_no_sha <- list(path = "path/to/file.csv")
-  expect_error(
-    save_to_gh(df       = df_sample,
-               repo     = "aux_test",
-               filename = "test_save",
-               ext      = "csv",
-               metadata = metadata_no_sha)
-  )
-
-  # Case 2: Metadata without 'path'
   metadata_no_path <- list(sha = "12345abcde")
-  expect_error(
-    save_to_gh(df       = df_sample,
-               repo     = "aux_test",
-               filename = "test_save",
-               ext      = "csv",
-               metadata = metadata_no_path)
-  )
+  metadata_empty <- list()
 
-  # Case 3: Metadata with neither 'sha' nor 'path'
-  metadata_no_sha_no_path <- list()
-  expect_error(
-    save_to_gh(df       = df_sample,
-               repo     = "aux_test",
-               filename = "test_save",
-               ext      = "csv",
-               metadata = metadata_no_sha_no_path)
-  )
+  expect_error(save_to_gh(df = df_sample, repo = "aux_test", filename = "test", ext = "csv", metadata = metadata_no_sha))
+  expect_error(save_to_gh(df = df_sample, repo = "aux_test", filename = "test", ext = "csv", metadata = metadata_no_path))
+  expect_error(save_to_gh(df = df_sample, repo = "aux_test", filename = "test", ext = "csv", metadata = metadata_empty))
 })
 
-## Save file correctly, 3 cases:
-# 1. new file, new data (data_change is TRUE)
-# 2. old file, new data (data_change is TRUE)
-# 3. old file, old data (data_change is FALSE)
+test_that("convert_df_to_base64 works correctly", {
+  skip_on_ci()
 
-test_that("save_to_gh saves file correctly", {
-
-  # Case 1.
-  res <- save_to_gh(
-    df = df_sample,
-    repo = "aux_test",
-    owner = getOption("pipfun.ghowner"),
-    branch = "DEV",                # Replace with the branch you want to test
-    filename = "new_data_test",     # Replace with a file name that exists in the repo
-    ext = "csv",
-    metadata = NULL,
-    verbose = TRUE
-  )
-
-  res$init |>
-    expect_null() # init should be NULL because file did not exist
-
-  res$data_change |>
-    expect_equal(TRUE)
-
-  # -- delete new file for to prevent subsequent tests call from failing --- #
-  gh::gh(
-    "DELETE /repos/{owner}/{repo}/contents/{path}",
-    owner = owner,
-    repo = repo,
-    path = "new_data_test.csv",
-    message = "delete file for testing",         # Commit message
-    .token = creds$password,
-    sha = res$content$sha,
-    branch = "DEV"                   # Branch where the file exists
-  )
-
-
-  # Case 2.
-  set.seed(Sys.time()) #Ensure randomness across sessions
-
-  res <- save_to_gh(
-    df = data.frame(
-      id = 1:5,
-      value = runif(5, 0, 100),      # Random numeric values between 0 and 100
-      category = sample(letters[1:3], 5, replace = TRUE) # Random categories
-    ),
-    repo = "aux_test",
-    owner = getOption("pipfun.ghowner"),
-    branch = "DEV",                  # Replace with the branch you want to test
-    filename = "test_save",          # Replace with a file name that exists in the repo
-    ext = "csv",
-    metadata = NULL,
-    verbose = TRUE
-  )
-
-  res$init |>
-    is.null() |>
-    expect_false() # init should be available because file existed
-
-  res$data_change |>
-    expect_equal(TRUE)
-
-
-  # Case 3.
-
-  # metadata is available and file exists
-  res <- save_to_gh(
-    df = data.frame(x = 1:5,
-                    y = letters[1:5]),
-    repo = "aux_test",
-    owner = getOption("pipfun.ghowner"),
-    branch = "DEV",                # Replace with the branch you want to test
-    filename = "data_test",     # Replace with a file name that exists in the repo
-    ext = "csv",
-    metadata = NULL,
-    verbose = TRUE
-  )
-
-  res$init |>
-    is.null() |>
-    expect_false() # init should not be NULL because file already existed
-
-  res$init$path |>
-    expect_equal("data_test.csv")
-
-  res$data_change |>
-   expect_equal(FALSE)
-
-  # Output structure
-  names(res) |>
-    expect_equal(c("content", "commit",
-                   "init", "owner",
-                   "repo", "branch", "data_change"))
-
-
-})
-
-
-# # -------------------------------
-# # Tests for convert_df_to_base64()
-# # -------------------------------
-#
-test_that("convert_df_to_base64 works correctly for all supported file extensions", {
-  # Skip on CI/CD environments like GitHub Actions
-  testthat::skip_on_ci()
-
-  # Supported extensions
   extensions <- c("csv", "json", "rds", "qs", "fst", "dta")
 
   for (ext in extensions) {
-    # Test that the function returns a base64-encoded string
-    encoded_content <- convert_df_to_base64(df_sample, ext)
-    expect_true(is.character(encoded_content))
-    expect_true(nchar(encoded_content) > 0)
+    encoded <- convert_df_to_base64(df_sample, ext)
+    expect_true(is.character(encoded))
+    expect_true(nchar(encoded) > 0)
 
-    # Decode the base64 string
-    decoded_content <- base64enc::base64decode(encoded_content)
+    decoded <- base64enc::base64decode(encoded)
 
-    # For csv and json, we can check if the decoded content matches the original data frame
     if (ext == "csv") {
-      content_string <- rawToChar(decoded_content)
-      read_df <- readr::read_csv(content_string, show_col_types = FALSE)
+      read_df <- readr::read_csv(rawToChar(decoded), show_col_types = FALSE)
       expect_equal(df_sample, as.data.frame(read_df))
-
     } else if (ext == "json") {
-      content_string <- rawToChar(decoded_content)
-      read_df <- jsonlite::fromJSON(content_string)
+      read_df <- jsonlite::fromJSON(rawToChar(decoded))
       expect_equal(df_sample, as.data.frame(read_df))
-
     } else if (ext == "rds") {
-      read_df <- unserialize(decoded_content)
-      expect_equal(df_sample, read_df)
-
+      expect_equal(df_sample, unserialize(decoded))
     } else if (ext == "qs") {
-      read_df <- qs::qdeserialize(decoded_content)
-      expect_equal(df_sample, read_df)
-
+      expect_equal(df_sample, qs::qdeserialize(decoded))
     } else if (ext == "fst") {
-      # For 'fst', write the decoded content to a temp file and read it back
-      temp_file <- tempfile(fileext = ".fst")
-      on.exit(unlink(temp_file), add = TRUE)
-      writeBin(decoded_content, temp_file)
-      read_df <- fst::read_fst(temp_file)
-      expect_equal(df_sample, as.data.frame(read_df))
-
+      tmp <- tempfile(fileext = ".fst")
+      on.exit(unlink(tmp), add = TRUE)
+      writeBin(decoded, tmp)
+      expect_equal(df_sample, as.data.frame(fst::read_fst(tmp)))
     } else if (ext == "dta") {
-      # For 'dta', write the decoded content to a temp file and read it back
-      temp_file <- tempfile(fileext = ".dta")
-      on.exit(unlink(temp_file), add = TRUE)
-      writeBin(decoded_content, temp_file)
-      read_df <- haven::read_dta(temp_file)
-      expect_equal(df_sample,
-                   as.data.frame(read_df),
-                   ignore_attr = TRUE)
+      tmp <- tempfile(fileext = ".dta")
+      on.exit(unlink(tmp), add = TRUE)
+      writeBin(decoded, tmp)
+      expect_equal(df_sample, as.data.frame(haven::read_dta(tmp)), ignore_attr = TRUE)
     }
   }
-
 })

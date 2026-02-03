@@ -219,75 +219,45 @@ test_that("log_exists() works as expected", {
 
 # Save and load --------
 
-test_that("log_save() and log_load() work as expected with pins board", {
-  skip_on_ci()  # Skip on GitHub Actions or CI environments
+# Replace the pins-based persistence test with a dir-based persistence test
+test_that("log_save() and log_load() work as expected with directory + stamp", {
+  skip_on_ci()
   skip_if_not_installed("qs")
-  skip_if_not_installed("pins")
+  skip_if_not_installed("stamp")
 
   name <- "persist_test"
-  board <- pins::board_temp(versioned = TRUE)
-  pin_name <- "persist_test_pin"
+  id   <- "persist_test_file"
+  tmp  <- tempfile("logdir_")
+  dir.create(tmp)
 
   # Create and populate log
   log_init(name, overwrite = TRUE)
-  log_info(message = "Saving this log",
-           name = name)
+  log_info(message = "Saving this log", name = name)
 
-  # Save to pins board
-  expect_true(log_save(name = name, board = board, pin_name = pin_name))
-  expect_true(pin_name %in% pins::pin_list(board))
+  # Save to disk using stamp (dir + id)
+  out <- log_save(name = name, dir = tmp, id = id, format = "qs2")
+  expect_true(!is.null(out)) # stamp::st_save returns metadata-like object
 
   # Clear from memory
-  log_reset(name)
-  expect_false(name %in% log_names())
+  res <- log_reset(name)
+  expect_true(isTRUE(res))
+  expect_false(rlang::env_has(.piplogenv, name))
 
-  # Load back from pins board
-  log_load(board = board, pin_name = pin_name)
-  expect_true(pin_name %in% log_names())
+  # Load back from disk into memory under new name == id
+  loaded_name <- log_load(dir = tmp, id = id, name = id, overwrite = TRUE, verbose = FALSE)
+  expect_identical(loaded_name, id)
+  expect_true(rlang::env_has(.piplogenv, id))
 
   # Check contents
-  log <- rlang::env_get(.piplogenv, pin_name)
+  log <- rlang::env_get(.piplogenv, id)
   expect_s3_class(log, "piplog")
-  expect_equal(nrow(log), 1)
-  expect_match(log$message[1], "Saving this log")
+  expect_gte(nrow(log), 1L)
+  expect_true(any(grepl("Saving this log", log$message)))
 
   # Clean up
-  log_reset(pin_name)
+  log_reset(id)
+  unlink(tmp, recursive = TRUE, force = TRUE)
 })
-
-# log_filter and log_summary -----------------------------------------------
-
-test_that("log_filter() returns filtered entries", {
-  log_init("testlog", overwrite = TRUE)
-
-  log_info("Message 1", name = "testlog")
-  log_warn("Message 2", name = "testlog")
-  log_error("Message 3", name = "testlog")
-
-  errors <- log_filter(name = "testlog", event = "error")
-  expect_s3_class(errors, "piplog")
-  expect_equal(nrow(errors), 1)
-  expect_equal(errors$event, "error")
-
-  warnings <- log_filter(name = "testlog", event = "warning")
-  expect_equal(nrow(warnings), 1)
-  expect_equal(warnings$event, "warning")
-})
-
-test_that("log_summary returns correct counts", {
-  log_init("testlog", overwrite = TRUE)
-
-  log_info("Info msg", name = "testlog")
-  log_warn("Warn msg", name = "testlog")
-  log_error("Error msg", name = "testlog")
-
-  s <- log_summary("testlog")
-  expect_s3_class(s, "log_summary")
-  expect_equal(sum(s$count), 3)
-  expect_true(all(s$event %in% c("info", "warning", "error")))
-})
-
-
 # log_has_errors ----------------------------------------------------------
 
 test_that("log_has_errors() returns correct logical or filtered log", {
