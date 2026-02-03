@@ -313,3 +313,54 @@ init_pip_aliases <- function(folder_paths,
 
   alias_map
 }
+
+#' Get PIP aliases from .pipenv
+#'
+#' Retrieve the alias mapping that was registered during setup_working_release().
+#'
+#' @param folder character: optional, name of a specific folder alias to retrieve.
+#'   If NULL (default), returns all aliases.
+#' @param name character: name of the object to assign to the calling environment.
+#'   Default is `"pip_aliases"`.
+#' @param verbose logical: whether to print info about the aliases retrieved.
+#'   Default is FALSE.
+#'
+#' @return Named character vector (invisible) of aliases or a single alias string
+#'   if `folder` is specified.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' setup_working_release()
+#' get_pip_aliases()             # returns all aliases
+#' get_pip_aliases("aux_data")   # returns alias for aux_data
+#' }
+get_pip_aliases <- function(folder = NULL,
+                            name = "pip_aliases",
+                            verbose = FALSE) {
+
+  pip_aliases <- get_from_pipenv("pip_aliases")
+
+  if (is.null(pip_aliases)) {
+    cli::cli_abort(
+      c(x = "PIP aliases have not been set up",
+        i = "Run {.code pipfun::setup_working_release()} to register aliases")
+    )
+  }
+
+  if (verbose) {
+    cli::cli_alert_info("Retrieved PIP aliases")
+    print(pip_aliases)
+  }
+
+  # Assign to parent.frame for developer convenience
+  assign(name, pip_aliases, envir = parent.frame())
+
+  if (is.null(folder)) return(invisible(pip_aliases))
+
+  if (!(folder %in% names(pip_aliases))) {
+    cli::cli_abort("{.field {folder}} is not available in {.field pip_aliases}")
+  }
+
+  invisible(pip_aliases[[folder]])
+}
