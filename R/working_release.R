@@ -332,17 +332,9 @@ init_pip_aliases <- function(folder_paths,
         next
       }
 
-      cli::cli_abort(c(
-        x = "Alias conflict detected",
-        i = glue::glue(
-          "Alias {.field {alias}} is already registered for:\n  {existing_root}"
-        ),
-        i = glue::glue(
-          "You are trying to re-register it for:\n  {root}"
-        ),
-        i = "This usually happens when switching PIP releases in the same R session.",
-        i = "Restart R or use a different alias scheme if you need multiple releases."
-      ))
+      cli::cli_abort(
+        "Alias conflict detected. This usually happens when switching PIP releases in the same R session. 
+      Restart R or use a different alias.")
     }
 
     stamp::st_init(

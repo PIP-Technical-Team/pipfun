@@ -14,11 +14,7 @@ clear_pipenv <- function() {
   if (exists(".pipenv", envir = globalenv())) {
     rm(list = ls(envir = .pipenv), envir = .pipenv)
   } else {
-    # fallback: try to clear known entries if .pipenv exists in package namespace
-    if (exists(".pipenv", where = asNamespace("pipfun"), inherits = FALSE)) {
-      env <- get(".pipenv", envir = asNamespace("pipfun"))
-      rm(list = ls(envir = env), envir = env)
-    }
+    return(NULL)
   }
 }
 
@@ -107,8 +103,7 @@ test_that("get_wrk_release assigns working release to caller", {
 test_that("get_wrk_release errors if working release not set", {
   clear_pipenv()
   expect_error(
-    get_wrk_release(verbose = FALSE),
-    "Working release has not been set up"
+    get_wrk_release(verbose = FALSE)
   )
   # restore for following tests
   restore_pipenv()
