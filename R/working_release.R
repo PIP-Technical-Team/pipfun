@@ -280,14 +280,12 @@ get_pip_folders <- function(folder = NULL,
 #' Initialize stamp aliases for PIP folders
 #'
 #' @param folder_paths Named list from set_pip_folders()
-#' @param alias_map Named character vector: folder_name -> alias
 #' @return Invisible named character vector of aliases
 #' @export
 init_pip_aliases <- function(folder_paths,
-                             alias_map = NULL,
                              verbose = getOption("pipfun.verbose")) {
 
-  default_aliases <- c(
+  alias_map <- c(
     aux_data      = "aux",
     aux_metadata  = "aux_meta",
     dlw_data      = "dlw",
@@ -299,16 +297,9 @@ init_pip_aliases <- function(folder_paths,
     pip_master_inventory = "pip_master"
   )
 
-  if (is.null(alias_map)) {
-    alias_map <- default_aliases
-  }
-
-  # Keep only aliases that correspond to actual folders
-  alias_map <- alias_map[names(alias_map) %in% names(folder_paths)]
-
   # Existing aliases in this stamp project
   existing_aliases <- tryCatch(
-    stamp::st_aliases(),
+    stamp::st_alias_list(),
     error = function(e) character(0)
   )
 
@@ -316,36 +307,36 @@ init_pip_aliases <- function(folder_paths,
 
     alias <- alias_map[[nm]]
     root  <- fs::path_norm(folder_paths[[nm]])
+    #root <- folder_paths$stamp_root
 
-    if (alias %in% names(existing_aliases)) {
+    # if (alias %in% (existing_aliases$alias)) {
 
-      existing_root <- fs::path_norm(existing_aliases[[alias]])
+    #   existing_root <- fs::path_norm(existing_aliases[[alias]])
 
-      if (identical(root, existing_root)) {
+    #   if (identical(root, existing_root)) {
 
-        if (verbose) {
-          cli::cli_alert_info(
-            "Alias {.field {alias}} already registered for this folder — skipping"
-          )
-        }
+    #     if (verbose) {
+    #       cli::cli_alert_info(
+    #         "Alias {.field {alias}} already registered for this folder — skipping"
+    #       )
+    #     }
 
-        next
-      }
+    #     next
+    #   }
 
-      cli::cli_abort(c(
-        x = "Alias conflict detected",
-        i = glue::glue(
-          "Alias {.field {alias}} is already registered for:\n  {existing_root}"
-        ),
-        i = glue::glue(
-          "You are trying to re-register it for:\n  {root}"
-        ),
-        i = "This usually happens when switching PIP releases in the same R session.",
-        i = "Restart R or use a different alias scheme if you need multiple releases."
-      ))
-    }
+    #   cli::cli_abort(c(
+    #     x = "Alias conflict detected",
+    #     i = glue::glue(
+    #       "Alias {.field {alias}} is already registered for:\n  {existing_root}"
+    #     ),
+    #     i = glue::glue(
+    #       "You are trying to re-register it for:\n  {root}"
+    #     ),
+    #     i = "This usually happens when switching PIP releases in the same R session.",
+    #     i = "Restart R or use a different alias scheme if you need multiple releases."
+    #   ))
+    # }
 
-    # Alias not registered → safe to initialize
     stamp::st_init(
       root  = root,
       alias = alias
