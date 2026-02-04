@@ -300,7 +300,15 @@ init_pip_aliases <- function(folder_paths,
   # Existing aliases in this stamp project
   existing_aliases <- tryCatch(
     stamp::st_alias_list(),
-    error = function(e) character(0)
+    error = function(e) {
+      data.frame(
+        alias = character(),
+        root = character(),
+        state_dir = character(),
+        stamp_path = character(),
+        stringsAsFactors = FALSE
+      )
+    }
   )
 
   for (nm in names(alias_map)) {
@@ -309,33 +317,33 @@ init_pip_aliases <- function(folder_paths,
     root  <- fs::path_norm(folder_paths[[nm]])
     #root <- folder_paths$stamp_root
 
-    # if (alias %in% (existing_aliases$alias)) {
+    if (alias %in% (existing_aliases$alias)) {
 
-    #   existing_root <- fs::path_norm(existing_aliases[[alias]])
+      existing_root <- existing_aliases[existing_aliases$alias == alias, ]$root
 
-    #   if (identical(root, existing_root)) {
+      if (identical(root, existing_root)) {
 
-    #     if (verbose) {
-    #       cli::cli_alert_info(
-    #         "Alias {.field {alias}} already registered for this folder — skipping"
-    #       )
-    #     }
+        if (verbose) {
+          cli::cli_alert_info(
+            "Alias {.field {alias}} already registered for this folder — skipping"
+          )
+        }
 
-    #     next
-    #   }
+        next
+      }
 
-    #   cli::cli_abort(c(
-    #     x = "Alias conflict detected",
-    #     i = glue::glue(
-    #       "Alias {.field {alias}} is already registered for:\n  {existing_root}"
-    #     ),
-    #     i = glue::glue(
-    #       "You are trying to re-register it for:\n  {root}"
-    #     ),
-    #     i = "This usually happens when switching PIP releases in the same R session.",
-    #     i = "Restart R or use a different alias scheme if you need multiple releases."
-    #   ))
-    # }
+      cli::cli_abort(c(
+        x = "Alias conflict detected",
+        i = glue::glue(
+          "Alias {.field {alias}} is already registered for:\n  {existing_root}"
+        ),
+        i = glue::glue(
+          "You are trying to re-register it for:\n  {root}"
+        ),
+        i = "This usually happens when switching PIP releases in the same R session.",
+        i = "Restart R or use a different alias scheme if you need multiple releases."
+      ))
+    }
 
     stamp::st_init(
       root  = root,
@@ -391,9 +399,6 @@ get_pip_aliases <- function(folder = NULL,
     cli::cli_alert_info("Retrieved PIP aliases")
     print(pip_aliases)
   }
-
-  # Assign to parent.frame for developer convenience
-  assign(name, pip_aliases, envir = parent.frame())
 
   if (is.null(folder)) return(invisible(pip_aliases))
 
