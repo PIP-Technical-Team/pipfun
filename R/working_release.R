@@ -23,6 +23,7 @@ setup_working_release <- function(release  = NULL,
                                   ppp       = getOption("pipfun.ppps"),
                                   creds     = NULL,
                                   main_dir  = getOption("pipfun.main_dir"),
+                                  alias_include_release = FALSE,
                                   ...) {
 
   identity <- match.arg(identity)
@@ -95,7 +96,11 @@ setup_working_release <- function(release  = NULL,
   # ------------------------------------------------------------------
   # Initialize stamp aliases (one alias per folder)
   # ------------------------------------------------------------------
-  aliases <- init_pip_aliases(folder_paths)
+  aliases <- init_pip_aliases(
+    folder_paths,
+    include_release = alias_include_release,
+    release = pr[, release]
+  )
 
   # ------------------------------------------------------------------
   # Persist state in .pipenv
@@ -277,80 +282,7 @@ get_pip_folders <- function(folder = NULL,
   invisible(pip_folders[[folder]])
 }
 
-#' Initialize stamp aliases for PIP folders
-#'
-#' @param folder_paths Named list from set_pip_folders()
-#' @return Invisible named character vector of aliases
-#' @export
-init_pip_aliases <- function(folder_paths,
-                             verbose = getOption("pipfun.verbose")) {
 
-  alias_map <- c(
-    aux_data      = "aux",
-    aux_metadata  = "aux_meta",
-    dlw_data      = "dlw",
-    dlw_inventory = "dlw_inv",
-    dlw_metadata  = "dlw_meta",
-    pip_data      = "pip",
-    pip_metadata  = "pip_meta",
-    pip_inventory = "pip_inv",
-    pip_master_inventory = "pip_master"
-  )
-
-  # Existing aliases in this stamp project
-  existing_aliases <- tryCatch(
-    stamp::st_alias_list(),
-    error = function(e) {
-      data.frame(
-        alias = character(),
-        root = character(),
-        state_dir = character(),
-        stamp_path = character(),
-        stringsAsFactors = FALSE
-      )
-    }
-  )
-
-  for (nm in names(alias_map)) {
-
-    alias <- alias_map[[nm]]
-    root  <- fs::path_norm(folder_paths[[nm]])
-    #root <- folder_paths$stamp_root
-
-    if (alias %in% (existing_aliases$alias)) {
-
-      existing_root <- existing_aliases[existing_aliases$alias == alias, ]$root
-
-      if (identical(root, existing_root)) {
-
-        if (verbose) {
-          cli::cli_alert_info(
-            "Alias {.field {alias}} already registered for this folder — skipping"
-          )
-        }
-
-        next
-      }
-
-      cli::cli_abort(
-        "Alias conflict detected. This usually happens when switching PIP releases in the same R session. 
-      Restart R or use a different alias.")
-    }
-
-    stamp::st_init(
-      root  = root,
-      alias = alias
-    )
-
-    if (verbose) {
-      cli::cli_alert_success(
-        "Registered alias {.field {alias}} → {.path {root}}"
-      )
-    }
-  }
-
-  invisible(alias_map)
-}
 
 
 #' Get PIP aliases from .pipenv
@@ -400,3 +332,74 @@ get_pip_aliases <- function(folder = NULL,
 
   invisible(pip_aliases[[folder]])
 }
+
+
+#' Initialize stamp aliases for PIP folders
+#'
+#' @param folder_paths Named list from set_pip_folders()
+#' @param include_release logical: append release to release-specific aliases
+#' @param release character: release string (e.g. \"20251211\"). Required when include_release = TRUE
+#' @return Invisible named character vector of aliases
+#' @export
+init_pip_aliases <- function(folder_paths,
+                             verbose = getOption("pipfun.verbose"),
+                             include_release = FALSE,
+                             release = NULL) {
+
+  alias_map <- c(
+    aux_data      = "aux",
+    aux_metadata  = "aux_meta",
+    dlw_data      = "dlw",
+    dlw_inventory = "dlw_inv",
+    dlw_metadata  = "dlw_meta",
+    pip_data      = "pip",
+    pip_metadata  = "pip_meta",
+    pip_inventory = "pip_inv",
+    pip_master_inventory = "pip_master"
+  )
+
+  # Which folders are release-specific (those that include rt in set_pip_folders)
+  release_specific <- c(
+    "aux_data",
+    "aux_metadata",
+    "dlw_metadata",
+    "pip_metadata",
+    "pip_inventory"
+  )
+
+  if (include_release && (is.null(release) || !nzchar(release))) {
+    cli::cli_abort("release must be provided")
+  }
+
+  # Build final alias names
+  final_aliases <- vapply(names(alias_map), function(nm) {
+    base <- alias_map[[nm]]
+    if (include_release && (nm %in% release_specific)) {
+      paste0(base, "_", release)
+    } else {
+      base
+    }
+  }, FUN.VALUE = character(1))
+
+  # Register aliases with stamp; let stamp handle conflicts/errors
+  for (nm in names(final_aliases)) {
+
+    alias <- final_aliases[[nm]]
+    root  <- fs::path_norm(folder_paths[[nm]])
+
+    stamp::st_init(
+      root  = root,
+      alias = alias
+    )
+
+    if (verbose) {
+      cli::cli_alert_success(
+        "Registered alias {.field {alias}} → {.path {root}}"
+      )
+    }
+  }
+
+  invisible(final_aliases)
+}
+
+

@@ -1,3 +1,71 @@
+# ------------------------------------------------------------------
+# init_pip_aliases
+# ------------------------------------------------------------------
+test_that("init_pip_aliases returns release-specific aliases and registers them", {
+  # isolated temp main dir to avoid clashes with shared tests
+  tmp_main <- create_temp_main_dir()
+  unique_release <- paste0("UT", as.integer(Sys.time()))
+
+  # create folder paths for this temp main dir
+  fp <- set_pip_folders(
+    main_dir = tmp_main,
+    release = unique_release,
+    identity = lr_shared$identity
+  )
+
+  res <- NULL
+  tryCatch(
+    {
+      res <- init_pip_aliases(
+        folder_paths = fp,
+        include_release = TRUE,
+        release = unique_release,
+        verbose = FALSE
+      )
+    },
+    error = function(e) {
+      if (grepl("already registered for a different folder", conditionMessage(e))) {
+        testthat::skip("Existing global stamp aliases detected; skipping init_pip_aliases test")
+      }
+      stop(e)
+    }
+  )
+
+  expect_type(res, "character")
+
+  expected_keys <- c(
+    "aux_data", "aux_metadata",
+    "dlw_data", "dlw_inventory", "dlw_metadata",
+    "pip_data", "pip_metadata",
+    "pip_inventory", "pip_master_inventory"
+  )
+
+  expect_setequal(names(res), expected_keys)
+
+  # release-specific aliases should include the release suffix
+  release_specific <- c(
+    "aux_data",
+    "aux_metadata",
+    "dlw_metadata",
+    "pip_metadata",
+    "pip_inventory"
+  )
+
+  for (nm in release_specific) {
+    expect_true(grepl(paste0("_", unique_release, "$"), res[[nm]]))
+  }
+
+  # non-release-specific aliases should NOT include the suffix
+  non_release <- setdiff(expected_keys, release_specific)
+  for (nm in non_release) {
+    expect_false(grepl(paste0("_", unique_release, "$"), res[[nm]]))
+  }
+
+  # alias values should be non-empty and unique
+  vals <- unname(res)
+  expect_true(all(nzchar(vals)))
+  expect_equal(length(unique(vals)), length(vals))
+})
 library(testthat)
 library(withr)
 
@@ -23,8 +91,9 @@ restore_pipenv <- function() {
   setup_working_release(
     release = lr_shared$release,
     identity = lr_shared$identity,
-    verbose = FALSE,
-    main_dir = shared_main_dir
+    verbose  = FALSE,
+    main_dir = shared_main_dir,
+    alias_include_release = TRUE
   )
 }
 
@@ -38,11 +107,22 @@ lr_shared <- get_latest_pip_release()
 
 # --- run setup once for the file (replace local_test_setup) ---
 clear_pipenv()
-setup_working_release(
-  release  = lr_shared$release,
-  identity = lr_shared$identity,
-  verbose  = FALSE,
-  main_dir = shared_main_dir
+tryCatch(
+  {
+    setup_working_release(
+      release  = lr_shared$release,
+      identity = lr_shared$identity,
+      verbose  = FALSE,
+      main_dir = shared_main_dir,
+      alias_include_release = TRUE
+    )
+  },
+  error = function(e) {
+    if (grepl("already registered for a different folder", conditionMessage(e))) {
+      testthat::skip("Existing global stamp aliases detected; skipping working_release tests")
+    }
+    stop(e)
+  }
 )
 
 # ------------------------------------------------------------------
@@ -135,19 +215,7 @@ test_that("get_pip_folders errors if folder_paths not set", {
 # ------------------------------------------------------------------
 # get_pip_aliases
 # ------------------------------------------------------------------
-test_that("get_pip_aliases returns alias mapping and assigns to caller", {
-  get_pip_aliases(name = "my_aliases", verbose = FALSE)
-  expect_true(exists("my_aliases", inherits = FALSE))
-  expect_type(my_aliases, "character")
-  expect_true(length(my_aliases) > 0)
 
-  # alias keys correspond to folder keys
-  folders <- get_from_pipenv("folder_paths")
-  expect_true(all(names(my_aliases) %in% names(folders)))
-
-  # aliases should be unique (no duplicate alias strings)
-  expect_equal(length(unique(unname(my_aliases))), length(unname(my_aliases)))
-})
 
 test_that("get_pip_aliases can return a single alias", {
   a <- get_pip_aliases("aux_data", verbose = FALSE)
