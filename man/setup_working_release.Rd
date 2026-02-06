@@ -16,6 +16,7 @@ setup_working_release(
   ppp = getOption("pipfun.ppps"),
   creds = NULL,
   main_dir = getOption("pipfun.main_dir"),
+  alias_include_release = FALSE,
   ...
 )
 }
@@ -36,10 +37,7 @@ setup_working_release(
 
 \item{creds}{list. Basically, it is \code{get_github_creds()}}
 
-\item{main_dir}{character: directory  path where all PIP data is stored. By
-default it is available in \code{getOption("pipfun.main_dir")}, but it is
-basically a combination of \code{Sys.getenv("PIP_ROOT_DIR")} and
-\code{getOption("pipfun.working_dir")}.}
+\item{main_dir}{character: directory path where all PIP data is stored.}
 
 \item{...}{
   Arguments passed on to \code{\link[=pip_create_globals]{pip_create_globals}}
@@ -57,19 +55,9 @@ which is two years before the current year}
   }}
 }
 \value{
-invisible table with release information and list object in the
-\code{.pipenv} environment
+Invisible list with working release information
 }
 \description{
-This functions sets all the necessary information into the \code{.pipenv}
-environment to be used by other PIP packages. It does not create releases.
-}
-\examples{
-\dontrun{
-# latest PROD release
-setup_working_release()
-
-# error if set up again
-try(setup_working_release())
-}
+Sets the working PIP release and initializes stamp aliases
+for all PIP folders associated with that release.
 }

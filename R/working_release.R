@@ -340,7 +340,7 @@ get_pip_aliases <- function(folder = NULL,
 #' @param include_release logical: append release to release-specific aliases
 #' @param release character: release string (e.g. \"20251211\"). Required when include_release = TRUE
 #' @return Invisible named character vector of aliases
-#' @export
+#' @keywords internal
 init_pip_aliases <- function(folder_paths,
                              verbose = getOption("pipfun.verbose"),
                              include_release = FALSE,
@@ -367,7 +367,7 @@ init_pip_aliases <- function(folder_paths,
     "pip_inventory"
   )
 
-  if (include_release && (is.null(release) || !nzchar(release))) {
+  if (include_release && (is.null(release))) {
     cli::cli_abort("release must be provided")
   }
 

@@ -1,71 +1,3 @@
-# ------------------------------------------------------------------
-# init_pip_aliases
-# ------------------------------------------------------------------
-test_that("init_pip_aliases returns release-specific aliases and registers them", {
-  # isolated temp main dir to avoid clashes with shared tests
-  tmp_main <- create_temp_main_dir()
-  unique_release <- paste0("UT", as.integer(Sys.time()))
-
-  # create folder paths for this temp main dir
-  fp <- set_pip_folders(
-    main_dir = tmp_main,
-    release = unique_release,
-    identity = lr_shared$identity
-  )
-
-  res <- NULL
-  tryCatch(
-    {
-      res <- init_pip_aliases(
-        folder_paths = fp,
-        include_release = TRUE,
-        release = unique_release,
-        verbose = FALSE
-      )
-    },
-    error = function(e) {
-      if (grepl("already registered for a different folder", conditionMessage(e))) {
-        testthat::skip("Existing global stamp aliases detected; skipping init_pip_aliases test")
-      }
-      stop(e)
-    }
-  )
-
-  expect_type(res, "character")
-
-  expected_keys <- c(
-    "aux_data", "aux_metadata",
-    "dlw_data", "dlw_inventory", "dlw_metadata",
-    "pip_data", "pip_metadata",
-    "pip_inventory", "pip_master_inventory"
-  )
-
-  expect_setequal(names(res), expected_keys)
-
-  # release-specific aliases should include the release suffix
-  release_specific <- c(
-    "aux_data",
-    "aux_metadata",
-    "dlw_metadata",
-    "pip_metadata",
-    "pip_inventory"
-  )
-
-  for (nm in release_specific) {
-    expect_true(grepl(paste0("_", unique_release, "$"), res[[nm]]))
-  }
-
-  # non-release-specific aliases should NOT include the suffix
-  non_release <- setdiff(expected_keys, release_specific)
-  for (nm in non_release) {
-    expect_false(grepl(paste0("_", unique_release, "$"), res[[nm]]))
-  }
-
-  # alias values should be non-empty and unique
-  vals <- unname(res)
-  expect_true(all(nzchar(vals)))
-  expect_equal(length(unique(vals)), length(vals))
-})
 library(testthat)
 library(withr)
 
@@ -230,4 +162,74 @@ test_that("get_pip_aliases errors if pip_aliases not set", {
     "PIP aliases have not been set up"
   )
   restore_pipenv()
+})
+
+
+# ------------------------------------------------------------------
+# init_pip_aliases
+# ------------------------------------------------------------------
+test_that("init_pip_aliases returns release-specific aliases and registers them", {
+  # isolated temp main dir to avoid clashes with shared tests
+  tmp_main <- create_temp_main_dir()
+  unique_release <- paste0("UT", as.integer(Sys.time()))
+
+  # create folder paths for this temp main dir
+  fp <- set_pip_folders(
+    main_dir = tmp_main,
+    release = unique_release,
+    identity = lr_shared$identity
+  )
+
+  res <- NULL
+  tryCatch(
+    {
+      res <- init_pip_aliases(
+        folder_paths = fp,
+        include_release = TRUE,
+        release = unique_release,
+        verbose = FALSE
+      )
+    },
+    error = function(e) {
+      if (grepl("already registered for a different folder", conditionMessage(e))) {
+        testthat::skip("Existing global stamp aliases detected; skipping init_pip_aliases test")
+      }
+      stop(e)
+    }
+  )
+
+  expect_type(res, "character")
+
+  expected_keys <- c(
+    "aux_data", "aux_metadata",
+    "dlw_data", "dlw_inventory", "dlw_metadata",
+    "pip_data", "pip_metadata",
+    "pip_inventory", "pip_master_inventory"
+  )
+
+  expect_setequal(names(res), expected_keys)
+
+  # release-specific aliases should include the release suffix
+  release_specific <- c(
+    "aux_data",
+    "aux_metadata",
+    "dlw_metadata",
+    "pip_metadata",
+    "pip_inventory"
+  )
+
+  for (nm in release_specific) {
+    expect_true(grepl(paste0("_", unique_release, "$"), res[[nm]]))
+  }
+
+  # non-release-specific aliases should NOT include the suffix
+  non_release <- setdiff(expected_keys, release_specific)
+  for (nm in non_release) {
+    expect_false(grepl(paste0("_", unique_release, "$"), res[[nm]]))
+  }
+
+  # alias values should be non-empty and unique
+  vals <- unname(res)
+  expect_true(all(nzchar(vals)))
+  expect_equal(length(unique(vals)), length(vals))
 })

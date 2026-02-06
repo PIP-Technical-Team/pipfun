@@ -6,21 +6,18 @@
 \usage{
 log_save(
   name = getOption("pipfun.log.default", "default"),
-  dir,
   id = name,
   format = "qs2",
   metadata = list(),
   code = NULL,
+  alias = NULL,
   ...
 )
 }
 \arguments{
-\item{name}{Name of the log in memory (default:
-\code{getOption("pipfun.log.default")}).}
+\item{name}{Name of the log in memory (default: getOption("pipfun.log.default")).}
 
-\item{dir}{Directory where the log should be saved.}
-
-\item{id}{File identifier (without extension). Defaults to \code{name}.}
+\item{id}{File identifier or path (extension optional). Defaults to \code{name}.}
 
 \item{format}{File format (default: "qs2").}
 
@@ -28,12 +25,14 @@ log_save(
 
 \item{code}{Optional code object whose hash will be stored.}
 
+\item{alias}{Optional stamp alias to select which catalog/versions to use.}
+
 \item{...}{Forwarded to \code{stamp::st_save()}.}
 }
 \value{
 Invisibly, the result returned by \code{stamp::st_save()}.
 }
 \description{
-Saves a log stored in \code{.piplogenv} to disk using {stamp}, with metadata
-and versioning support.
+Saves a log stored in \code{.piplogenv} using {stamp}; \code{id} is the artifact path
+(extension will be added if missing). Pass \code{alias} to select a stamp alias.
 }
