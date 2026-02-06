@@ -1,30 +1,17 @@
 #' Loads PIP release into .pipenv
 #'
-#' This functions sets all the necessary information into the `.pipenv`
-#' environment to be used by other PIP packages. It does not create releases.
+#' Sets the working PIP release and initializes stamp aliases
+#' for all PIP folders associated with that release.
 #'
 #' @inheritParams find_release
 #' @inheritParams get_pip_releases
 #' @inheritParams download_and_read_file
 #' @inheritDotParams pip_create_globals -vintage -create_dir
 #' @param ppp numeric: PPP year to use.
-#' @param main_dir character: directory  path where all PIP data is stored. By
-#'   default it is available in `getOption("pipfun.main_dir")`, but it is
-#'   basically a combination of `Sys.getenv("PIP_ROOT_DIR")` and
-#'   `getOption("pipfun.working_dir")`.
+#' @param main_dir character: directory path where all PIP data is stored.
 #'
-#' @return invisible table with release information and list object in the
-#'   `.pipenv` environment
+#' @return Invisible list with working release information
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' # latest PROD release
-#' setup_working_release()
-#'
-#' # error if set up again
-#' try(setup_working_release())
-#' }
 setup_working_release <- function(release  = NULL,
                                   identity  = getOption("pipfun.identities"),
                                   force     = FALSE,
@@ -36,64 +23,107 @@ setup_working_release <- function(release  = NULL,
                                   ppp       = getOption("pipfun.ppps"),
                                   creds     = NULL,
                                   main_dir  = getOption("pipfun.main_dir"),
+                                  alias_include_release = FALSE,
                                   ...) {
 
   identity <- match.arg(identity)
   ppp <- ppp[1]
+
   if (!ppp %in% getOption("pipfun.ppps")) {
-    cli::cli_abort(c("Wrong PPP value",
-                     i = "PPP values must be {.or {getOption(\"pipfun.ppps\")}}"))
+    cli::cli_abort(c(
+      x = "Wrong PPP value",
+      i = "PPP values must be one of {.or {getOption(\"pipfun.ppps\")}}"
+    ))
   }
 
+  # ------------------------------------------------------------------
+  # Resolve release metadata
+  # ------------------------------------------------------------------
   pr <- if (is.null(release)) {
-    get_latest_pip_release(identity = identity,
-                           owner     = owner,
-                           repo      = repo,
-                           file_path = file_path,
-                           branch    = branch,
-                           verbose   = verbose,
-                           creds     = creds)
+    get_latest_pip_release(
+      identity  = identity,
+      owner     = owner,
+      repo      = repo,
+      file_path = file_path,
+      branch    = branch,
+      verbose   = verbose,
+      creds     = creds
+    )
   } else {
-    get_pip_releases(owner     = owner,
-                     repo      = repo,
-                     file_path = file_path,
-                     branch    = branch,
-                     verbose   = verbose,
-                     creds     = creds) |>
+    get_pip_releases(
+      owner     = owner,
+      repo      = repo,
+      file_path = file_path,
+      branch    = branch,
+      verbose   = verbose,
+      creds     = creds
+    ) |>
       find_release(release = release, identity = identity)
   }
 
-  # create globals (no dir creation here)
-  gls <- pip_create_globals(create_dir = FALSE,
-                            vintage    = list(release = release,
-                                              ppp_year = ppp,
-                                              identity = identity),
-                            verbose = verbose,
-                            ...)
+  # ------------------------------------------------------------------
+  # Create globals (no directory creation here)
+  # ------------------------------------------------------------------
+  gls <- pip_create_globals(
+    create_dir = FALSE,
+    vintage = list(
+      release  = release,
+      ppp_year = ppp,
+      identity = identity
+    ),
+    verbose = verbose,
+    ...
+  )
 
-  # setup working release info
-  wr <- list(release  = pr[, release],
-             identity = pr[, identity],
-             ppp      = ppp)
+  # ------------------------------------------------------------------
+  # Working release descriptor
+  # ------------------------------------------------------------------
+  wr <- list(
+    release  = pr[, release],
+    identity = pr[, identity],
+    ppp      = ppp
+  )
 
-  # get directory paths (no pins)
-  folder_paths <- set_pip_folders(main_dir = main_dir,
-                                 release = pr[, release],
-                                 identity = pr[, identity])
+  # ------------------------------------------------------------------
+  # Create folders (pure filesystem step)
+  # ------------------------------------------------------------------
+  folder_paths <- set_pip_folders(
+    main_dir = main_dir,
+    release  = pr[, release],
+    identity = pr[, identity]
+  )
 
-  # save to .pipenv
+  # ------------------------------------------------------------------
+  # Initialize stamp aliases (one alias per folder)
+  # ------------------------------------------------------------------
+  aliases <- init_pip_aliases(
+    folder_paths,
+    include_release = alias_include_release,
+    release = pr[, release]
+  )
+
+  # ------------------------------------------------------------------
+  # Persist state in .pipenv
+  # ------------------------------------------------------------------
   rlang::env_poke(.pipenv, "stamp_root", main_dir)
   rlang::env_poke(.pipenv, "wrk_release", wr)
   rlang::env_poke(.pipenv, "gls", gls)
-  rlang::env_poke(.pipenv, "folder_paths", folder_paths)  # updated
+  rlang::env_poke(.pipenv, "folder_paths", folder_paths)
+  rlang::env_poke(.pipenv, "pip_aliases", aliases)
 
   if (verbose) {
-    cli::cli_alert_info("PIP working release setup to {.field {wr$release}-{wr$identity}}")
+    cli::cli_alert_info(
+      "PIP working release set to {.field {wr$release}-{wr$identity}}"
+    )
     print(folder_paths)
+    cli::cli_alert_info("Registered PIP aliases:")
+    print(aliases)
   }
 
   invisible(wr)
 }
+
+
 
 
 
@@ -251,3 +281,125 @@ get_pip_folders <- function(folder = NULL,
 
   invisible(pip_folders[[folder]])
 }
+
+
+
+
+#' Get PIP aliases from .pipenv
+#'
+#' Retrieve the alias mapping that was registered during setup_working_release().
+#'
+#' @param folder character: optional, name of a specific folder alias to retrieve.
+#'   If NULL (default), returns all aliases.
+#' @param name character: name of the object to assign to the calling environment.
+#'   Default is `"pip_aliases"`.
+#' @param verbose logical: whether to print info about the aliases retrieved.
+#'   Default is FALSE.
+#'
+#' @return Named character vector (invisible) of aliases or a single alias string
+#'   if `folder` is specified.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' setup_working_release()
+#' get_pip_aliases()             # returns all aliases
+#' get_pip_aliases("aux_data")   # returns alias for aux_data
+#' }
+get_pip_aliases <- function(folder = NULL,
+                            name = "pip_aliases",
+                            verbose = FALSE) {
+
+  pip_aliases <- get_from_pipenv("pip_aliases")
+
+  if (is.null(pip_aliases)) {
+    cli::cli_abort(
+      c(x = "PIP aliases have not been set up",
+        i = "Run {.code pipfun::setup_working_release()} to register aliases")
+    )
+  }
+
+  if (verbose) {
+    cli::cli_alert_info("Retrieved PIP aliases")
+    print(pip_aliases)
+  }
+
+  if (is.null(folder)) return(invisible(pip_aliases))
+
+  if (!(folder %in% names(pip_aliases))) {
+    cli::cli_abort("{.field {folder}} is not available in {.field pip_aliases}")
+  }
+
+  invisible(pip_aliases[[folder]])
+}
+
+
+#' Initialize stamp aliases for PIP folders
+#'
+#' @param folder_paths Named list from set_pip_folders()
+#' @param include_release logical: append release to release-specific aliases
+#' @param release character: release string (e.g. \"20251211\"). Required when include_release = TRUE
+#' @return Invisible named character vector of aliases
+#' @keywords internal
+init_pip_aliases <- function(folder_paths,
+                             verbose = getOption("pipfun.verbose"),
+                             include_release = FALSE,
+                             release = NULL) {
+
+  alias_map <- c(
+    aux_data      = "aux",
+    aux_metadata  = "aux_meta",
+    dlw_data      = "dlw",
+    dlw_inventory = "dlw_inv",
+    dlw_metadata  = "dlw_meta",
+    pip_data      = "pip",
+    pip_metadata  = "pip_meta",
+    pip_inventory = "pip_inv",
+    pip_master_inventory = "pip_master"
+  )
+
+  # Which folders are release-specific (those that include rt in set_pip_folders)
+  release_specific <- c(
+    "aux_data",
+    "aux_metadata",
+    "dlw_metadata",
+    "pip_metadata",
+    "pip_inventory"
+  )
+
+  if (include_release && (is.null(release))) {
+    cli::cli_abort("release must be provided")
+  }
+
+  # Build final alias names
+  final_aliases <- vapply(names(alias_map), function(nm) {
+    base <- alias_map[[nm]]
+    if (include_release && (nm %in% release_specific)) {
+      paste0(base, "_", release)
+    } else {
+      base
+    }
+  }, FUN.VALUE = character(1))
+
+  # Register aliases with stamp; let stamp handle conflicts/errors
+  for (nm in names(final_aliases)) {
+
+    alias <- final_aliases[[nm]]
+    root  <- fs::path_norm(folder_paths[[nm]])
+
+    stamp::st_init(
+      root  = root,
+      alias = alias
+    )
+
+    if (verbose) {
+      cli::cli_alert_success(
+        "Registered alias {.field {alias}} → {.path {root}}"
+      )
+    }
+  }
+
+  invisible(final_aliases)
+}
+
+

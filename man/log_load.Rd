@@ -5,36 +5,34 @@
 \title{Load a log from disk}
 \usage{
 log_load(
-  dir,
   id,
   name = id,
   version = NULL,
   format = "qs2",
   overwrite = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  alias = NULL
 )
 }
 \arguments{
-\item{dir}{Directory where the log is stored.}
-
-\item{id}{File identifier (without extension). Defaults to \code{name}.}
+\item{id}{File identifier or path (extension optional).}
 
 \item{name}{Name to assign to the log in memory (default: \code{id}).}
 
-\item{version}{Optional version identifier passed to \code{stamp::st_load()}.
-Use \code{"available"} to list available versions.}
+\item{version}{Optional version identifier passed to \code{stamp::st_load()}.}
 
 \item{format}{File format (default: "qs2").}
 
-\item{overwrite}{Logical: whether to overwrite an existing log in
-\code{.piplogenv}. Default is FALSE.}
+\item{overwrite}{Logical: whether to overwrite an existing log in memory.}
 
 \item{verbose}{Logical: whether to announce loading progress.}
+
+\item{alias}{Optional stamp alias to select which catalog/versions to use.}
 }
 \value{
 Invisibly returns the name of the loaded log.
 }
 \description{
-Loads a previously saved piplog from disk using {stamp}, optionally under a
-different name.
+Loads a previously saved piplog using {stamp}. \code{id} is the artifact path
+(extension will be added if missing). Pass \code{alias} to select a stamp alias.
 }

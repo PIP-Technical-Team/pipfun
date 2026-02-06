@@ -11,10 +11,7 @@ set_pip_folders(
 )
 }
 \arguments{
-\item{main_dir}{character: directory  path where all PIP data is stored. By
-default it is available in \code{getOption("pipfun.main_dir")}, but it is
-basically a combination of \code{Sys.getenv("PIP_ROOT_DIR")} and
-\code{getOption("pipfun.working_dir")}.}
+\item{main_dir}{character: directory path where all PIP data is stored.}
 
 \item{identity}{character: one of "PROD", "INT", or "TEST"}
 }

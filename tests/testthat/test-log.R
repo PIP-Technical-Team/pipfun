@@ -218,73 +218,46 @@ test_that("log_exists() works as expected", {
 
 
 # Save and load --------
+test_that("log_save and log_load work with stamp alias", {
+  root <- fs::path(tempdir(), "pipfun_test_alias")
+  fs::dir_create(root)
+  stamp::st_init(root, alias = "A")
 
-test_that("log_save() and log_load() work as expected with pins board", {
-  skip_on_ci()  # Skip on GitHub Actions or CI environments
-  skip_if_not_installed("qs")
-  skip_if_not_installed("pins")
+  id <- fs::path(root, "demo_log")         # artifact path (extension added by functions)
 
-  name <- "persist_test"
-  board <- pins::board_temp(versioned = TRUE)
-  pin_name <- "persist_test_pin"
+  # prepare and save log
+  log_init("demo", overwrite = TRUE)
+  log_add("info", "smoke test", name = "demo")
+  log_save(name = "demo", id = id, alias = "A", format = "qs2")
 
-  # Create and populate log
-  log_init(name, overwrite = TRUE)
-  log_info(message = "Saving this log",
-           name = name)
+  # versions exist under the correct extension and alias
+  vr <- stamp::st_versions(fs::path_ext_set(id, "qs2"), alias = "A")
+  expect_true(nrow(vr) > 0)
 
-  # Save to pins board
-  expect_true(log_save(name = name, board = board, pin_name = pin_name))
-  expect_true(pin_name %in% pins::pin_list(board))
+  # load into a new name
+  log_reset("demo")
+  log_load(id = id, name = "demo_loaded", alias = "A", format = "qs2")
+  expect_true(rlang::env_has(.piplogenv, "demo_loaded"))
+  expect_s3_class(rlang::env_get(.piplogenv, "demo_loaded"), "piplog")
 
-  # Clear from memory
-  log_reset(name)
-  expect_false(name %in% log_names())
-
-  # Load back from pins board
-  log_load(board = board, pin_name = pin_name)
-  expect_true(pin_name %in% log_names())
-
-  # Check contents
-  log <- rlang::env_get(.piplogenv, pin_name)
-  expect_s3_class(log, "piplog")
-  expect_equal(nrow(log), 1)
-  expect_match(log$message[1], "Saving this log")
-
-  # Clean up
-  log_reset(pin_name)
+  # list available versions via log_load(..., version = "available")
+  avail <- log_load(id = id, version = "available", alias = "A", format = "qs2")
+  expect_true(NROW(avail) > 0)
 })
 
-# log_filter and log_summary -----------------------------------------------
+test_that("log_load respects overwrite flag", {
+  root <- fs::path(tempdir(), "pipfun_test_alias_overwrite")
+  fs::dir_create(root)
+  stamp::st_init(root, alias = "B")
 
-test_that("log_filter() returns filtered entries", {
-  log_init("testlog", overwrite = TRUE)
+  id <- fs::path(root, "demo2")
+  log_init("demo2", overwrite = TRUE)
+  log_add("info", "for overwrite", name = "demo2")
+  log_save(name = "demo2", id = id, alias = "B", format = "qs2")
 
-  log_info("Message 1", name = "testlog")
-  log_warn("Message 2", name = "testlog")
-  log_error("Message 3", name = "testlog")
-
-  errors <- log_filter(name = "testlog", event = "error")
-  expect_s3_class(errors, "piplog")
-  expect_equal(nrow(errors), 1)
-  expect_equal(errors$event, "error")
-
-  warnings <- log_filter(name = "testlog", event = "warning")
-  expect_equal(nrow(warnings), 1)
-  expect_equal(warnings$event, "warning")
-})
-
-test_that("log_summary returns correct counts", {
-  log_init("testlog", overwrite = TRUE)
-
-  log_info("Info msg", name = "testlog")
-  log_warn("Warn msg", name = "testlog")
-  log_error("Error msg", name = "testlog")
-
-  s <- log_summary("testlog")
-  expect_s3_class(s, "log_summary")
-  expect_equal(sum(s$count), 3)
-  expect_true(all(s$event %in% c("info", "warning", "error")))
+  # create an in-memory log with the target name and ensure load errors without overwrite
+  log_init("already_here", overwrite = TRUE)
+  expect_error(log_load(id = id, name = "already_here", alias = "B", overwrite = FALSE))
 })
 
 

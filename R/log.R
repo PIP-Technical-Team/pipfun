@@ -182,160 +182,6 @@ log_init <- function(name = getOption("pipfun.log.default"),
 }
 
 
-#' Save a log to disk
-#'
-#' Saves a log stored in `.piplogenv` to disk using {stamp}, with metadata
-#' and versioning support.
-#'
-#' @param name Name of the log in memory (default:
-#'   `getOption("pipfun.log.default")`).
-#' @param dir Directory where the log should be saved.
-#' @param id File identifier (without extension). Defaults to `name`.
-#' @param format File format (default: "qs2").
-#' @param metadata Optional named list of metadata to attach.
-#' @param code Optional code object whose hash will be stored.
-#' @param ... Forwarded to `stamp::st_save()`.
-#'
-#' @return Invisibly, the result returned by `stamp::st_save()`.
-#' @export
-log_save <- function(
-    name     = getOption("pipfun.log.default", "default"),
-    dir,
-    id       = name,
-    format   = "qs2",
-    metadata = list(),
-    code     = NULL,
-    ...
-) {
-
-  # ---- Validate directory ----
-  if (missing(dir) || !fs::dir_exists(dir)) {
-    cli::cli_abort("Provided directory path does not exist: {.path {dir}}")
-  }
-
-  # ---- Validate log ----
-  if (!rlang::env_has(.piplogenv, name)) {
-    cli::cli_abort("Log {.field {name}} does not exist in memory.")
-  }
-
-  log <- rlang::env_get(.piplogenv, name)
-
-  # Restore class if dropped by serialization
-  if (is.data.table(log)) {
-    setattr(log, "class", unique(c("piplog", class(log))))
-  }
-
-  # Final validation
-  if (!inherits(log, "piplog")) {
-    cli::cli_abort("File does not contain a valid {.cls piplog} object.")
-  }
-
-  # ---- Build stamp path ----
-  file <- fs::path(dir, id, ext = format)
-  sp   <- stamp::st_path(file, format = format)
-
-  # ---- Save with stamp ----
-  out <- stamp::st_save(
-    x        = log,
-    file     = sp,
-    metadata = c(
-      list(
-        class    = "piplog",
-        log_name = name,
-        saved_at = Sys.time()
-      ),
-      metadata
-    ),
-    code   = code,
-    format = format,
-    ...
-  )
-
-  invisible(out)
-}
-
-
-#' Load a log from disk
-#'
-#' Loads a previously saved piplog from disk using {stamp}, optionally under a
-#' different name.
-#'
-#' @param dir Directory where the log is stored.
-#' @param id File identifier (without extension). Defaults to `name`.
-#' @param name Name to assign to the log in memory (default: `id`).
-#' @param version Optional version identifier passed to `stamp::st_load()`.
-#'   Use `"available"` to list available versions.
-#' @param format File format (default: "qs2").
-#' @param overwrite Logical: whether to overwrite an existing log in
-#'   `.piplogenv`. Default is FALSE.
-#' @param verbose Logical: whether to announce loading progress.
-#'
-#' @return Invisibly returns the name of the loaded log.
-#' @export
-log_load <- function(
-    dir,
-    id,
-    name     = id,
-    version  = NULL,
-    format   = "qs2",
-    overwrite = FALSE,
-    verbose   = TRUE
-) {
-
-  # ---- Validate directory ----
-  if (missing(dir) || !fs::dir_exists(dir)) {
-    cli::cli_abort("Artifact folder {.path {dir}} does not exist.")
-  }
-
-  # ---- Build path ----
-  file <- fs::path(dir, id, ext = format)
-
-  # ---- List available versions ----
-  if (identical(version, "available")) {
-    vr <- stamp::st_versions(file)
-    if (nrow(vr) == 0) {
-      cli::cli_abort("No versions found in {.path {file}}.")
-    }
-    vr[, vintage := (.I - 1) * -1]
-    return(vr[])
-  }
-
-  # ---- Load log ----
-  ver <- if (is.null(version)) "latest" else version
-
-  if (verbose) {
-    cli::cli_alert_info(
-      "Loading {.path {file}} (version = {.strong {ver}})"
-    )
-  }
-
-
-  log <- stamp::st_load(file, version = version)
-
-  # ---- Validate object ----
-  # Restore class if dropped by serialization
-  if (is.data.table(log)) {
-    setattr(log, "class", unique(c("piplog", class(log))))
-  }
-
-  # Final validation
-  if (!inherits(log, "piplog")) {
-    cli::cli_abort("File does not contain a valid {.cls piplog} object.")
-  }
-
-
-  # ---- Handle overwrite ----
-  if (rlang::env_has(.piplogenv, name) && !isTRUE(overwrite)) {
-    cli::cli_abort(
-      "A log named {.field {name}} already exists in memory.
-       Use {.code overwrite = TRUE} to replace it."
-    )
-  }
-
-  rlang::env_poke(.piplogenv, name, log)
-
-  invisible(name)
-}
 
 #' Reset or delete a log from memory
 #'
@@ -425,4 +271,145 @@ log_get <- function(name    = getOption("pipfun.log.default")) {
     }
   }
   invisible(log)
+}
+
+#' Save a log to disk
+#'
+#' Saves a log stored in `.piplogenv` using {stamp}; `id` is the artifact path
+#' (extension will be added if missing). Pass `alias` to select a stamp alias.
+#'
+#' @param name Name of the log in memory (default: getOption("pipfun.log.default")).
+#' @param id File identifier or path (extension optional). Defaults to `name`.
+#' @param format File format (default: "qs2").
+#' @param metadata Optional named list of metadata to attach.
+#' @param code Optional code object whose hash will be stored.
+#' @param alias Optional stamp alias to select which catalog/versions to use.
+#' @param ... Forwarded to `stamp::st_save()`.
+#'
+#' @return Invisibly, the result returned by `stamp::st_save()`.
+#' @export
+log_save <- function(
+    name     = getOption("pipfun.log.default", "default"),
+    id       = name,
+    format   = "qs2",
+    metadata = list(),
+    code     = NULL,
+    alias    = NULL,
+    ...
+) {
+  # Validate log exists
+  if (!rlang::env_has(.piplogenv, name)) {
+    cli::cli_abort("Log {.field {name}} does not exist in memory.")
+  }
+
+  log <- rlang::env_get(.piplogenv, name)
+
+  # Restore class if dropped by serialization
+  if (is.data.table(log)) {
+    setattr(log, "class", unique(c("piplog", class(log))))
+  }
+
+  if (!inherits(log, "piplog")) {
+    cli::cli_abort("Object is not a valid {.cls piplog}.")
+      }
+
+  # Ensure extension is present like pipload::pip_write
+  if (is.null(fs::path_ext(id)) || identical(fs::path_ext(id), "")) {
+    id <- fs::path_ext_set(path = id, ext = format)
+  }
+  file <- id
+
+  out <- stamp::st_save(
+    x        = log,
+    file     = file,
+    metadata = c(
+      list(
+        class    = "piplog",
+        log_name = name,
+        saved_at = Sys.time()
+      ),
+      metadata
+    ),
+    code   = code,
+    format = format,
+    alias  = alias,
+    ...
+  )
+
+  invisible(out)
+}
+
+#' Load a log from disk
+#'
+#' Loads a previously saved piplog using {stamp}. `id` is the artifact path
+#' (extension will be added if missing). Pass `alias` to select a stamp alias.
+#'
+#' @param id File identifier or path (extension optional).
+#' @param name Name to assign to the log in memory (default: `id`).
+#' @param version Optional version identifier passed to `stamp::st_load()`.
+#' @param format File format (default: "qs2").
+#' @param overwrite Logical: whether to overwrite an existing log in memory.
+#' @param verbose Logical: whether to announce loading progress.
+#' @param alias Optional stamp alias to select which catalog/versions to use.
+#'
+#' @return Invisibly returns the name of the loaded log.
+#' @export
+log_load <- function(
+    id,
+    name      = id,
+    version   = NULL,
+    format    = "qs2",
+    overwrite = FALSE,
+    verbose   = TRUE,
+    alias     = NULL
+) {
+  # Ensure extension is present like pipload::pip_read
+  if (is.null(fs::path_ext(id)) || identical(fs::path_ext(id), "")) {
+    id <- fs::path_ext_set(path = id, ext = format)
+  }
+  file <- id
+
+  # List available versions
+  if (identical(version, "available")) {
+    vr <- stamp::st_versions(file, alias = alias)
+    if (nrow(vr) == 0) {
+      cli::cli_abort("No versions found in {.path {file}}.")
+    }
+    vr[, vintage := (.I - 1) * -1]
+    return(vr[])
+  }
+
+   ver <- if (is.null(version)) "latest" else version
+
+  if (verbose) {
+    if (is.null(alias)) {
+      cli::cli_alert_info("Loading {.path {file}} (version = {.strong {ver}})")
+    } else {
+      cli::cli_alert_info("Loading {.path {file}} (version = {.strong {ver}}, alias = {.val {alias}})")
+    }
+  }
+
+  # Load log, forwarding alias
+  log <- stamp::st_load(file, version = version, alias = alias)
+
+  # Restore class if dropped
+  if (is.data.table(log)) {
+    setattr(log, "class", unique(c("piplog", class(log))))
+  }
+
+  if (!inherits(log, "piplog")) {
+    cli::cli_abort("File does not contain a valid {.cls piplog} object.")
+  }
+
+  # Handle overwrite
+  if (rlang::env_has(.piplogenv, name) && !isTRUE(overwrite)) {
+    cli::cli_abort(
+      "A log named {.field {name}} already exists in memory.
+       Use {.code overwrite = TRUE} to replace it."
+    )
+  }
+
+  rlang::env_poke(.piplogenv, name, log)
+
+  invisible(name)
 }
