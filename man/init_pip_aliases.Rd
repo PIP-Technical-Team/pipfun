@@ -2,7 +2,7 @@
 % Please edit documentation in R/working_release.R
 \name{init_pip_aliases}
 \alias{init_pip_aliases}
-\title{Initialize stamp aliases for PIP folders}
+\title{Initialize and register stamp aliases for PIP folders}
 \usage{
 init_pip_aliases(
   folder_paths,
@@ -12,16 +12,24 @@ init_pip_aliases(
 )
 }
 \arguments{
-\item{folder_paths}{Named list from set_pip_folders()}
+\item{folder_paths}{named list: output of \code{set_pip_folders()}.}
 
-\item{include_release}{logical: append release to release-specific aliases}
+\item{verbose}{logical: whether to print alias registration messages.}
 
-\item{release}{character: release string (e.g. \"20251211\"). Required when include_release = TRUE}
+\item{include_release}{logical: when \code{TRUE}, append \verb{_<release>} to
+aliases for folders that are release-specific.}
+
+\item{release}{character|null: release identifier used when
+\code{include_release = TRUE}. Required in that case.}
 }
 \value{
-Invisible named character vector of aliases
+Invisibly returns a named character vector of the final alias names.
+The vector's names correspond to the keys of \code{folder_paths}.
 }
 \description{
-Initialize stamp aliases for PIP folders
+Sets up short, human-friendly aliases for each of the repository
+folders returned by \code{set_pip_folders()} using the \code{stamp} package.
+When \code{include_release = TRUE}, release-specific aliases will include
+the release string (so aliases like \code{pip_meta_20251211} are created).
 }
 \keyword{internal}

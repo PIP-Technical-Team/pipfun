@@ -2,22 +2,25 @@
 % Please edit documentation in R/working_release.R
 \name{get_pip_folders}
 \alias{get_pip_folders}
-\title{Get PIP folder paths from .pipenv}
+\title{Retrieve folder paths registered for the active PIP working release}
 \usage{
 get_pip_folders(folder = NULL, name = "pip_folders", verbose = FALSE)
 }
 \arguments{
-\item{folder}{character: optional, name of a specific folder to retrieve.
-If NULL (default), returns all folder paths.}
+\item{folder}{character|null: optional specific folder name to return
+(e.g. \code{"aux_data"}). If \code{NULL} (default) the full named list is returned invisibly.}
 
-\item{name}{character: name of the object to assign to the calling environment.
-Default is \code{"pip_folders"}.}
+\item{name}{character: variable name to assign the full folder list to in
+the calling environment. Defaults to \code{"pip_folders"}.}
 
-\item{verbose}{logical: whether to print info about the folders retrieved. Default is FALSE}
+\item{verbose}{logical: if \code{TRUE}, prints information about the retrieved paths.}
 }
 \value{
-A named list of folder paths or a single folder path if \code{folder} is specified.
+Invisibly returns the named list of folder paths. If \code{folder} is
+provided, returns the single path (invisibly) for that folder.
 }
 \description{
-This function retrieves the folder paths that were set up for a PIP release.
+Fetches the \code{folder_paths} object stored in \code{.pipenv} and assigns it to
+the caller's environment (useful for interactive development). Optionally
+returns a single folder path when \code{folder} is supplied.
 }

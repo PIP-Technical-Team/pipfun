@@ -2,7 +2,7 @@
 % Please edit documentation in R/working_release.R
 \name{set_pip_folders}
 \alias{set_pip_folders}
-\title{Set PIP directory paths}
+\title{Create and return directory paths for a PIP release}
 \usage{
 set_pip_folders(
   main_dir = getOption("pipfun.main_dir"),
@@ -11,14 +11,31 @@ set_pip_folders(
 )
 }
 \arguments{
-\item{main_dir}{character: directory path where all PIP data is stored.}
+\item{main_dir}{character: top-level directory where PIP repositories are stored.}
 
-\item{identity}{character: one of "PROD", "INT", or "TEST"}
+\item{release}{character: release identifier (e.g. a date string). If
+\code{NULL}, the latest release is resolved via \code{get_latest_pip_release()}.}
+
+\item{identity}{character: identity token used as suffix. Default comes
+from \code{getOption("pipfun.identities")} and is validated with \code{match.arg()}.}
 }
 \value{
-Named list of directory paths
+A named list of paths (class \code{pip_folder_paths}) containing
+\code{stamp_root}, \code{aux_data}, \code{aux_metadata}, \code{dlw_data}, \code{dlw_inventory},
+\code{dlw_metadata}, \code{pip_data}, \code{pip_metadata}, \code{pip_inventory}, and
+\code{pip_master_inventory}.
 }
 \description{
-This function creates all necessary directories for a PIP release
-and returns a named list of paths.
+This function ensures the on-disk layout required by pipfun exists and
+returns a named list with the canonical paths. The function will create
+missing directories and initialize a \code{stamp} root at \code{main_dir} if one
+has not already been initialized. The \code{rt} suffix (release_identity)
+is appended to release-specific folders so multiple releases can coexist.
+}
+\examples{
+
+\\dontrun{
+set_pip_folders(main_dir = "~/pip_data", release = "20251211")
+}
+
 }

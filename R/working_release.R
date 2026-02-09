@@ -1,16 +1,56 @@
-#' Loads PIP release into .pipenv
+#' Set up a PIP working release in the local environment
 #'
-#' Sets the working PIP release and initializes stamp aliases
-#' for all PIP folders associated with that release.
+#' This function resolves a release (either the latest or a specified
+#' one), initializes package globals for that release, creates the
+#' required filesystem layout, registers stamp aliases for each
+#' repository folder, and persists the resulting state into the
+#' in-memory `.pipenv` environment used by the package.
 #'
-#' @inheritParams find_release
-#' @inheritParams get_pip_releases
-#' @inheritParams download_and_read_file
-#' @inheritDotParams pip_create_globals -vintage -create_dir
-#' @param ppp numeric: PPP year to use.
-#' @param main_dir character: directory path where all PIP data is stored.
+#' The function intentionally separates concerns:
+#' - release metadata resolution is handled via GitHub helper functions;
+#' - global variables are created without creating directories in
+#'   `pip_create_globals()` (so folder creation is explicit and
+#'   controlled here);
+#' - `stamp` aliases are registered for each repository folder so
+#'   downstream code can refer to those repositories by short alias.
 #'
-#' @return Invisible list with working release information
+#' @param release character|null: specific release identifier (e.g.
+#'   a date string) to use. If `NULL`, the latest release is resolved
+#'   via `get_latest_pip_release()`.
+#' @param identity character: identity token for the release. The
+#'   default is read from `getOption("pipfun.identities")`. One of the
+#'   allowed identity values must be supplied.
+#' @param force logical: currently reserved for future use (kept for
+#'   backward compatibility).
+#' @param owner character: GitHub owner that contains the pip_info repo.
+#' @param repo character: GitHub repository name that contains release
+#'   metadata. Defaults to `"pip_info"`.
+#' @param file_path character: path inside the repo to the releases file.
+#' @param branch character: branch name to read the releases file from.
+#' @param verbose logical: print progress messages when `TRUE`.
+#' @param ppp numeric: PPP year to use; defaults to the option
+#'   `pipfun.ppps` and is validated against it.
+#' @param creds optional GitHub credentials object passed to GitHub helpers.
+#' @param main_dir character: top-level directory where all PIP data
+#'   repositories live. Defaults to `getOption("pipfun.main_dir")`.
+#' @param alias_include_release logical: when `TRUE`, release-specific
+#'   aliases will include the release string (useful for coexisting
+#'   releases in a single stamp root).
+#' @param ... Additional arguments passed to `pip_create_globals()`.
+#'
+#' @return Invisibly returns a list with elements `release`, `identity`
+#'   and `ppp` describing the working release that was set. The function
+#'   also has side effects: it writes objects to the package `.pipenv`
+#'   environment (`stamp_root`, `wrk_release`, `gls`, `folder_paths`,
+#'   and `pip_aliases`).
+#'
+#' @examples
+#' 
+#' 
+#' \\dontrun{
+#' setup_working_release()
+#' }
+#'
 #' @export
 setup_working_release <- function(release  = NULL,
                                   identity  = getOption("pipfun.identities"),
@@ -26,6 +66,7 @@ setup_working_release <- function(release  = NULL,
                                   alias_include_release = FALSE,
                                   ...) {
 
+  # Validate and normalise inputs
   identity <- match.arg(identity)
   ppp <- ppp[1]
 
@@ -37,7 +78,8 @@ setup_working_release <- function(release  = NULL,
   }
 
   # ------------------------------------------------------------------
-  # Resolve release metadata
+  # Resolve release metadata (either latest or specified release)
+  # - We keep release resolution separate to make testing easier.
   # ------------------------------------------------------------------
   pr <- if (is.null(release)) {
     get_latest_pip_release(
@@ -57,12 +99,14 @@ setup_working_release <- function(release  = NULL,
       branch    = branch,
       verbose   = verbose,
       creds     = creds
-    ) |>
+    ) |> 
       find_release(release = release, identity = identity)
   }
 
   # ------------------------------------------------------------------
-  # Create globals (no directory creation here)
+  # Create globals (do not create directories here)
+  # - Passing create_dir = FALSE ensures folder creation is explicit
+  #   and remains under the control of this function.
   # ------------------------------------------------------------------
   gls <- pip_create_globals(
     create_dir = FALSE,
@@ -75,9 +119,7 @@ setup_working_release <- function(release  = NULL,
     ...
   )
 
-  # ------------------------------------------------------------------
-  # Working release descriptor
-  # ------------------------------------------------------------------
+  # Working release descriptor used by callers and persisted into .pipenv
   wr <- list(
     release  = pr[, release],
     identity = pr[, identity],
@@ -85,7 +127,9 @@ setup_working_release <- function(release  = NULL,
   )
 
   # ------------------------------------------------------------------
-  # Create folders (pure filesystem step)
+  # Create folders on disk for this release
+  # - set_pip_folders() will create any missing directories and
+  #   initialize stamp at the project root if necessary.
   # ------------------------------------------------------------------
   folder_paths <- set_pip_folders(
     main_dir = main_dir,
@@ -94,7 +138,8 @@ setup_working_release <- function(release  = NULL,
   )
 
   # ------------------------------------------------------------------
-  # Initialize stamp aliases (one alias per folder)
+  # Register stamp aliases for each repository folder so that code can
+  # reference data by alias (e.g. "aux", "pip_meta").
   # ------------------------------------------------------------------
   aliases <- init_pip_aliases(
     folder_paths,
@@ -103,7 +148,8 @@ setup_working_release <- function(release  = NULL,
   )
 
   # ------------------------------------------------------------------
-  # Persist state in .pipenv
+  # Persist state in the package .pipenv environment for quick access
+  # by other pipfun functions.
   # ------------------------------------------------------------------
   rlang::env_poke(.pipenv, "stamp_root", main_dir)
   rlang::env_poke(.pipenv, "wrk_release", wr)
@@ -128,31 +174,57 @@ setup_working_release <- function(release  = NULL,
 
 
 
-#' Set PIP directory paths
+#' Create and return directory paths for a PIP release
 #'
-#' This function creates all necessary directories for a PIP release
-#' and returns a named list of paths.
+#' This function ensures the on-disk layout required by pipfun exists and
+#' returns a named list with the canonical paths. The function will create
+#' missing directories and initialize a `stamp` root at `main_dir` if one
+#' has not already been initialized. The `rt` suffix (release_identity)
+#' is appended to release-specific folders so multiple releases can coexist.
 #'
-#' @inheritParams setup_working_release
-#' @returns Named list of directory paths
+#' @param main_dir character: top-level directory where PIP repositories are stored.
+#' @param release character: release identifier (e.g. a date string). If
+#'   `NULL`, the latest release is resolved via `get_latest_pip_release()`.
+#' @param identity character: identity token used as suffix. Default comes
+#'   from `getOption("pipfun.identities")` and is validated with `match.arg()`.
+#'
+#' @return A named list of paths (class `pip_folder_paths`) containing
+#'   `stamp_root`, `aux_data`, `aux_metadata`, `dlw_data`, `dlw_inventory`,
+#'   `dlw_metadata`, `pip_data`, `pip_metadata`, `pip_inventory`, and
+#'   `pip_master_inventory`.
+#'
+#' @examples
+#' 
+#' \\dontrun{
+#' set_pip_folders(main_dir = "~/pip_data", release = "20251211")
+#' }
+#'
 #' @export
 set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
                             release  = NULL,
                             identity  = getOption("pipfun.identities")) {
 
+  # Validate inputs
   identity <- match.arg(identity)
   if (is.null(release)) {
     release <- get_latest_pip_release() |> _[, release]
   }
 
+  # Release-specific trailing component used to isolate per-release dirs
   rt <- glue("{release}_{identity}")
 
-  # Aux data
+  # ------------------------------------------------------------------
+  # Create auxiliary repository directories (two internal folders)
+  # - returns a two-element vector for aux_internal paths
+  # ------------------------------------------------------------------
   aux_internal <- c("aux_data", "aux_metadata")
   aux_dir <- fs::path(main_dir, "aux_repository", aux_internal, rt) |>
     fs::dir_create()
 
-  # DLW data
+  # ------------------------------------------------------------------
+  # DLW (data-lake/work) repository layout
+  # - create top-level DLW directory and subfolders used by pipeline
+  # ------------------------------------------------------------------
   dlw_dir           <- fs::path(main_dir, "dlw_repository") |>
     fs::dir_create(recurse = TRUE)
   dlw_data_dir      <- fs::path(dlw_dir, "dlw_data") |>
@@ -162,7 +234,9 @@ set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
   dlw_metadata_dir  <- fs::path(dlw_dir, "dlw_metadata", rt) |>
     fs::dir_create(recurse = TRUE)
 
-  # PIP data
+  # ------------------------------------------------------------------
+  # PIP repository layout (surveys, metadata, inventories)
+  # ------------------------------------------------------------------
   pip_dir                  <- fs::path(main_dir, "pip_repository") |>
     fs::dir_create(recurse = TRUE)
   pip_data_dir             <- fs::path(pip_dir, "pip_data", "surveys") |>
@@ -174,15 +248,16 @@ set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
   pip_inventory_dir        <- fs::path(pip_dir, "pip_inventory", rt) |>
     fs::dir_create(recurse = TRUE)
 
-  # Determine stamp project root (the overall PIP data directory)
+  # The stamp project root is the top-level main_dir; stamp is used to
+  # register aliases and work with multiple repositories in one root.
   stamp_root <- main_dir
 
-  # Initialize stamp if needed
+  # Initialize stamp if needed. This creates `.stamp` under `stamp_root`.
   if (!fs::dir_exists(fs::path(stamp_root, ".stamp"))) {
     stamp::st_init(root = stamp_root)
   }
 
-  # Return named list of paths
+  # Return named list of canonical repository paths
   folder_paths <- list(
     stamp_root    = stamp_root,
     aux_data      = aux_dir[1],
@@ -201,29 +276,38 @@ set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
 }
 
 
-#' get working release in PIP functions
+#' Retrieve and assign the active working release
 #'
-#' You can place this function at the beginning of any of your PIP function to
-#' work with the working release
+#' Utility for functions that need access to the currently configured
+#' working release. The function fetches the `wrk_release` object from
+#' the package `.pipenv` environment and assigns it into the caller's
+#' frame under `name` (default: `wrk_release`). If no working release
+#' is set, the function aborts with an informative message.
 #'
-#' @param name character: Name of the working release object. default is
-#'   "wrk_release" and you should leave it like that
+#' @param name character: name to assign the working release object to in
+#'   the calling environment. Defaults to `"wrk_release"`.
+#' @param verbose logical: whether to print a short confirmation message
+#'   showing the active release.
 #'
-#' @return assign `name` object to `parent.frame()` which is the function it is
-#'   being called from
-#' @export
+#' @return Invisibly returns `NULL`. The primary effect is that a variable
+#'   called `name` is assigned in the calling frame containing the working
+#'   release list (with `release`, `identity`, and `ppp`).
 #'
 #' @examples
-#' \dontrun{
+#' 
+#' \\dontrun{
 #' hello <- function() {
-#' get_wrk_release()
-#' invisible(wrk_release)
+#'   get_wrk_release()
+#'   invisible(wrk_release)
 #' }
 #' setup_working_release()
 #' print(hello())
 #' }
+#'
+#' @export
 get_wrk_release <- function(name = "wrk_release",
                             verbose  = getOption("pipfun.verbose")) {
+  # Fetch the working release from the package environment
   wrk_release <- get_from_pipenv("wrk_release")
   if (is.null(wrk_release)) {
     cli::cli_abort(
@@ -233,23 +317,28 @@ get_wrk_release <- function(name = "wrk_release",
     if (verbose) cli::cli_alert_info("Your working release is {.field {wrk_release$release}}")
   }
 
+  # Assign into the caller's frame for immediate use by the calling function
   assign(name, wrk_release, envir = parent.frame())
 }
 
 
 
 
-#' Get PIP folder paths from .pipenv
+#' Retrieve folder paths registered for the active PIP working release
 #'
-#' This function retrieves the folder paths that were set up for a PIP release.
+#' Fetches the `folder_paths` object stored in `.pipenv` and assigns it to
+#' the caller's environment (useful for interactive development). Optionally
+#' returns a single folder path when `folder` is supplied.
 #'
-#' @param folder character: optional, name of a specific folder to retrieve.
-#'   If NULL (default), returns all folder paths.
-#' @param name character: name of the object to assign to the calling environment.
-#'   Default is `"pip_folders"`.
-#' @param verbose logical: whether to print info about the folders retrieved. Default is FALSE
+#' @param folder character|null: optional specific folder name to return
+#'   (e.g. `"aux_data"`). If `NULL` (default) the full named list is returned invisibly.
+#' @param name character: variable name to assign the full folder list to in
+#'   the calling environment. Defaults to `"pip_folders"`.
+#' @param verbose logical: if `TRUE`, prints information about the retrieved paths.
 #'
-#' @return A named list of folder paths or a single folder path if `folder` is specified.
+#' @return Invisibly returns the named list of folder paths. If `folder` is
+#'   provided, returns the single path (invisibly) for that folder.
+#'
 #' @export
 get_pip_folders <- function(folder = NULL,
                             name = "pip_folders",
@@ -268,7 +357,7 @@ get_pip_folders <- function(folder = NULL,
     print(pip_folders)
   }
 
-  # Assign to parent.frame for developer convenience
+  # Assign to calling environment for convenience (so devs can access `pip_folders`)
   assign(name,
          pip_folders,
          envir = parent.frame())
@@ -285,27 +374,30 @@ get_pip_folders <- function(folder = NULL,
 
 
 
-#' Get PIP aliases from .pipenv
+#' Retrieve stamp aliases registered for PIP folders
 #'
-#' Retrieve the alias mapping that was registered during setup_working_release().
+#' Returns the alias mapping that was created by `init_pip_aliases()` and
+#' persisted into `.pipenv`. Aliases map short names (e.g. `"aux"`) to
+#' actual folder paths registered with `stamp`.
 #'
-#' @param folder character: optional, name of a specific folder alias to retrieve.
-#'   If NULL (default), returns all aliases.
-#' @param name character: name of the object to assign to the calling environment.
-#'   Default is `"pip_aliases"`.
-#' @param verbose logical: whether to print info about the aliases retrieved.
-#'   Default is FALSE.
+#' @param folder character|null: optional folder name (key of aliases) to return.
+#'   If `NULL`, returns the full named character vector of aliases.
+#' @param name character: variable name to assign the aliases to in the
+#'   calling environment. Defaults to `"pip_aliases"`.
+#' @param verbose logical: if `TRUE`, prints a summary of aliases retrieved.
 #'
-#' @return Named character vector (invisible) of aliases or a single alias string
-#'   if `folder` is specified.
-#' @export
+#' @return Invisibly returns a named character vector of aliases. If `folder`
+#'   is provided, returns the single alias string (invisibly).
 #'
 #' @examples
-#' \dontrun{
+#' 
+#' \\dontrun{
 #' setup_working_release()
 #' get_pip_aliases()             # returns all aliases
-#' get_pip_aliases("aux_data")   # returns alias for aux_data
+#' get_pip_aliases("aux_data")  # returns alias for aux_data
 #' }
+#'
+#' @export
 get_pip_aliases <- function(folder = NULL,
                             name = "pip_aliases",
                             verbose = FALSE) {
@@ -334,18 +426,30 @@ get_pip_aliases <- function(folder = NULL,
 }
 
 
-#' Initialize stamp aliases for PIP folders
+#' Initialize and register stamp aliases for PIP folders
 #'
-#' @param folder_paths Named list from set_pip_folders()
-#' @param include_release logical: append release to release-specific aliases
-#' @param release character: release string (e.g. \"20251211\"). Required when include_release = TRUE
-#' @return Invisible named character vector of aliases
+#' Sets up short, human-friendly aliases for each of the repository
+#' folders returned by `set_pip_folders()` using the `stamp` package.
+#' When `include_release = TRUE`, release-specific aliases will include
+#' the release string (so aliases like `pip_meta_20251211` are created).
+#'
+#' @param folder_paths named list: output of `set_pip_folders()`.
+#' @param verbose logical: whether to print alias registration messages.
+#' @param include_release logical: when `TRUE`, append `_<release>` to
+#'   aliases for folders that are release-specific.
+#' @param release character|null: release identifier used when
+#'   `include_release = TRUE`. Required in that case.
+#'
+#' @return Invisibly returns a named character vector of the final alias names.
+#'   The vector's names correspond to the keys of `folder_paths`.
+#'
 #' @keywords internal
 init_pip_aliases <- function(folder_paths,
                              verbose = getOption("pipfun.verbose"),
                              include_release = FALSE,
                              release = NULL) {
 
+  # Map from folder key -> short base alias
   alias_map <- c(
     aux_data      = "aux",
     aux_metadata  = "aux_meta",
@@ -358,7 +462,7 @@ init_pip_aliases <- function(folder_paths,
     pip_master_inventory = "pip_master"
   )
 
-  # Which folders are release-specific (those that include rt in set_pip_folders)
+  # Folders whose aliases should be release-specific when requested
   release_specific <- c(
     "aux_data",
     "aux_metadata",
@@ -368,10 +472,10 @@ init_pip_aliases <- function(folder_paths,
   )
 
   if (include_release && (is.null(release))) {
-    cli::cli_abort("release must be provided")
+    cli::cli_abort("release must be provided when include_release = TRUE")
   }
 
-  # Build final alias names
+  # Build the final alias names (append release suffix for specific folders)
   final_aliases <- vapply(names(alias_map), function(nm) {
     base <- alias_map[[nm]]
     if (include_release && (nm %in% release_specific)) {
@@ -381,7 +485,8 @@ init_pip_aliases <- function(folder_paths,
     }
   }, FUN.VALUE = character(1))
 
-  # Register aliases with stamp; let stamp handle conflicts/errors
+  # Register aliases with stamp for each folder; stamp will report
+  # conflicts or errors as appropriate.
   for (nm in names(final_aliases)) {
 
     alias <- final_aliases[[nm]]

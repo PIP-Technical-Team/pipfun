@@ -2,31 +2,34 @@
 % Please edit documentation in R/working_release.R
 \name{get_pip_aliases}
 \alias{get_pip_aliases}
-\title{Get PIP aliases from .pipenv}
+\title{Retrieve stamp aliases registered for PIP folders}
 \usage{
 get_pip_aliases(folder = NULL, name = "pip_aliases", verbose = FALSE)
 }
 \arguments{
-\item{folder}{character: optional, name of a specific folder alias to retrieve.
-If NULL (default), returns all aliases.}
+\item{folder}{character|null: optional folder name (key of aliases) to return.
+If \code{NULL}, returns the full named character vector of aliases.}
 
-\item{name}{character: name of the object to assign to the calling environment.
-Default is \code{"pip_aliases"}.}
+\item{name}{character: variable name to assign the aliases to in the
+calling environment. Defaults to \code{"pip_aliases"}.}
 
-\item{verbose}{logical: whether to print info about the aliases retrieved.
-Default is FALSE.}
+\item{verbose}{logical: if \code{TRUE}, prints a summary of aliases retrieved.}
 }
 \value{
-Named character vector (invisible) of aliases or a single alias string
-if \code{folder} is specified.
+Invisibly returns a named character vector of aliases. If \code{folder}
+is provided, returns the single alias string (invisibly).
 }
 \description{
-Retrieve the alias mapping that was registered during setup_working_release().
+Returns the alias mapping that was created by \code{init_pip_aliases()} and
+persisted into \code{.pipenv}. Aliases map short names (e.g. \code{"aux"}) to
+actual folder paths registered with \code{stamp}.
 }
 \examples{
-\dontrun{
+
+\\dontrun{
 setup_working_release()
 get_pip_aliases()             # returns all aliases
-get_pip_aliases("aux_data")   # returns alias for aux_data
+get_pip_aliases("aux_data")  # returns alias for aux_data
 }
+
 }

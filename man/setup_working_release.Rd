@@ -2,7 +2,7 @@
 % Please edit documentation in R/working_release.R
 \name{setup_working_release}
 \alias{setup_working_release}
-\title{Loads PIP release into .pipenv}
+\title{Set up a PIP working release in the local environment}
 \usage{
 setup_working_release(
   release = NULL,
@@ -21,43 +21,72 @@ setup_working_release(
 )
 }
 \arguments{
-\item{identity}{character: one of "PROD", "INT", or "TEST"}
+\item{release}{character|null: specific release identifier (e.g.
+a date string) to use. If \code{NULL}, the latest release is resolved
+via \code{get_latest_pip_release()}.}
 
-\item{owner}{character: owner of repo}
+\item{identity}{character: identity token for the release. The
+default is read from \code{getOption("pipfun.identities")}. One of the
+allowed identity values must be supplied.}
 
-\item{repo}{character: repository name}
+\item{force}{logical: currently reserved for future use (kept for
+backward compatibility).}
 
-\item{file_path}{character: file or folder path}
+\item{owner}{character: GitHub owner that contains the pip_info repo.}
 
-\item{branch}{character: branch where the file or folder is}
+\item{repo}{character: GitHub repository name that contains release
+metadata. Defaults to \code{"pip_info"}.}
 
-\item{verbose}{logical: whether to display additional information}
+\item{file_path}{character: path inside the repo to the releases file.}
 
-\item{ppp}{numeric: PPP year to use.}
+\item{branch}{character: branch name to read the releases file from.}
 
-\item{creds}{list. Basically, it is \code{get_github_creds()}}
+\item{verbose}{logical: print progress messages when \code{TRUE}.}
 
-\item{main_dir}{character: directory path where all PIP data is stored.}
+\item{ppp}{numeric: PPP year to use; defaults to the option
+\code{pipfun.ppps} and is validated against it.}
 
-\item{...}{
-  Arguments passed on to \code{\link[=pip_create_globals]{pip_create_globals}}
-  \describe{
-    \item{\code{root_dir}}{character: root directory of the PIP data}
-    \item{\code{out_dir}}{character: Output Directory. Default is \code{root_dir}}
-    \item{\code{clean}}{logical: if TRUE it cleans all empty directories that have been
-created by mistake. Default is FALSE.}
-    \item{\code{max_year_country}}{numeric: Max year for country lineup. Default NULL,
-which is a heuristics that depends on the date this function is executed.}
-    \item{\code{max_year_aggregate}}{numeric: Max year for regional nowcast.Default
-NULL, which is the current year}
-    \item{\code{max_year_lineup}}{numeric: Max year for regional lineup.Default NULL,
-which is two years before the current year}
-  }}
+\item{creds}{optional GitHub credentials object passed to GitHub helpers.}
+
+\item{main_dir}{character: top-level directory where all PIP data
+repositories live. Defaults to \code{getOption("pipfun.main_dir")}.}
+
+\item{alias_include_release}{logical: when \code{TRUE}, release-specific
+aliases will include the release string (useful for coexisting
+releases in a single stamp root).}
+
+\item{...}{Additional arguments passed to \code{pip_create_globals()}.}
 }
 \value{
-Invisible list with working release information
+Invisibly returns a list with elements \code{release}, \code{identity}
+and \code{ppp} describing the working release that was set. The function
+also has side effects: it writes objects to the package \code{.pipenv}
+environment (\code{stamp_root}, \code{wrk_release}, \code{gls}, \code{folder_paths},
+and \code{pip_aliases}).
 }
 \description{
-Sets the working PIP release and initializes stamp aliases
-for all PIP folders associated with that release.
+This function resolves a release (either the latest or a specified
+one), initializes package globals for that release, creates the
+required filesystem layout, registers stamp aliases for each
+repository folder, and persists the resulting state into the
+in-memory \code{.pipenv} environment used by the package.
+}
+\details{
+The function intentionally separates concerns:
+\itemize{
+\item release metadata resolution is handled via GitHub helper functions;
+\item global variables are created without creating directories in
+\code{pip_create_globals()} (so folder creation is explicit and
+controlled here);
+\item \code{stamp} aliases are registered for each repository folder so
+downstream code can refer to those repositories by short alias.
+}
+}
+\examples{
+
+
+\\dontrun{
+setup_working_release()
+}
+
 }
