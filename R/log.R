@@ -352,7 +352,7 @@ log_save <- function(
 #' @param verbose Logical: whether to announce loading progress.
 #' @param alias Optional stamp alias to select which catalog/versions to use.
 #'
-#' @return Invisibly returns the name of the loaded log.
+#' @return The loaded `piplog` object, visibly.
 #' @export
 log_load <- function(
     id,
@@ -411,5 +411,5 @@ log_load <- function(
 
   rlang::env_poke(.piplogenv, name, log)
 
-  invisible(name)
+  log
 }
