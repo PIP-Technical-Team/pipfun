@@ -19,9 +19,9 @@ sync_release_branch(
 
 \item{ref_branch}{Character. The branch from which the release branch should be created or updated. Defaults to \code{"DEV"}}
 
-\item{release}{TBC}
+\item{target_branch}{Character. The name of the release branch to create or update. If \code{NULL}, it will be set to \code{paste0(release, "_", identity)}}
 
-\item{identity}{Character. The identity used for naming the new branch if created. One of \code{getOption("pipfun.identities")}}
+\item{verbose}{logical: whether to print messages about the process. Default is FALSE}
 }
 \value{
 Invisible \code{TRUE} if the process succeeds, otherwise an error message is displayed

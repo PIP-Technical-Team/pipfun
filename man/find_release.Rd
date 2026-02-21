@@ -9,6 +9,8 @@ find_release(pr = NULL, release, identity)
 \arguments{
 \item{pr}{PIP Releases table from \link{get_pip_releases}}
 
+\item{release}{character: release name in the form of "\%Y\%m\%d". Defaults to current date.}
+
 \item{identity}{character: one of "PROD", "INT", or "TEST"}
 }
 \value{

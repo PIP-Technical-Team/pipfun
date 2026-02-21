@@ -26,6 +26,10 @@ remove_pip_release(
 )
 }
 \arguments{
+\item{release}{character: release name in the form of "\%Y\%m\%d". Defaults to current date.}
+
+\item{identity}{character. Defaults to the first value of \code{getOption("pipfun.identities")}}
+
 \item{verbose}{A logical: whether to print detailed messages
 about the process. The default is \code{TRUE}}
 
@@ -44,6 +48,8 @@ about the process. The default is \code{TRUE}}
     \item{\code{branch}}{character: branch where the file or folder is}
     \item{\code{creds}}{list. Basically, it is \code{get_github_creds()}}
   }}
+
+\item{confirm_remove}{logical: whether to ask for confirmation before removing folders in \code{remove_pip_release()}. Defaults to \code{getOption("pipfun.confirm_remove")}}
 }
 \value{
 invisible TRUE if everything went fine

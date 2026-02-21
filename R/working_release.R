@@ -499,7 +499,7 @@ init_pip_aliases <- function(folder_paths,
 
     if (verbose) {
       cli::cli_alert_success(
-        "Registered alias {.field {alias}} → {.path {root}}"
+        "Registered alias {.field {alias}} -> {.path {root}}"
       )
     }
   }

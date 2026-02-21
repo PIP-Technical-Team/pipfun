@@ -3,6 +3,9 @@
 #' @inheritParams create_new_branch
 #' @inheritDotParams get_pip_releases
 #' @param root_dir character: Root directory for PIP data, defaults to `Sys.getenv("PIP_ROOT_DIR")`
+#' @param release character: release name in the form of "%Y%m%d". Defaults to current date.
+#' @param identity character. Defaults to the first value of `getOption("pipfun.identities")`
+#' @param confirm_remove logical: whether to ask for confirmation before removing folders in `remove_pip_release()`. Defaults to `getOption("pipfun.confirm_remove")`
 #' @param working_dir character: Working directory where files will be created. Defaults to a subdirectory of `root_dir`
 #' @param ppps numeric: vector of PPP years.
 #'
