@@ -22,13 +22,16 @@ log_add(
 
 \item{name}{Name of the log (default: \code{options("pipfun.log.default")}).}
 
-\item{args}{Optional list of captured arguments (default: auto-captured).}
+\item{args}{Optional list of captured arguments (default: auto-captured).
+If \code{NULL}, arguments are automatically extracted from the calling function.}
 
-\item{logmeta}{Optional named list of metadata to attach (merged with args).}
+\item{logmeta}{Optional named list of metadata to attach. Merged with \code{args}
+in the final log entry.}
 
-\item{output}{Optional result or return value.}
+\item{output}{Optional result or return value to store in the log.}
 
-\item{.trace}{Optional call stack or trace override.}
+\item{.trace}{Optional call stack or trace override. If \code{NULL}, uses
+\code{sys.call(-1)}.}
 
 \item{.env}{Internal use. Calling environment (default:
 \code{rlang::caller_env()}).}
@@ -44,7 +47,7 @@ more.
 \details{
 This function automatically captures all arguments from the calling function,
 including \code{...}. You can also manually add custom metadata using the
-\code{logmeta} argument.
+\code{logmeta} argument. The \code{logmeta} list is merged with captured \code{args}.
 }
 \examples{
 log_init("demo_log", overwrite = TRUE)

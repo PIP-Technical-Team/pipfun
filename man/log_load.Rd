@@ -19,20 +19,36 @@ log_load(
 
 \item{name}{Name to assign to the log in memory (default: \code{id}).}
 
-\item{version}{Optional version identifier passed to \code{stamp::st_load()}.}
+\item{version}{Optional version identifier or \code{"available"} to list versions.
+Passed to \code{stamp::st_load()}. Default loads the latest version.}
 
-\item{format}{File format (default: "qs2").}
+\item{format}{File format (default: \code{"qs2"}). Used to add extension if \code{id}
+lacks one.}
 
-\item{overwrite}{Logical: whether to overwrite an existing log in memory.}
+\item{overwrite}{Logical: whether to overwrite an existing log in memory
+with the same name (default: \code{FALSE}).}
 
-\item{verbose}{Logical: whether to announce loading progress.}
+\item{verbose}{Logical: whether to announce loading progress (default: \code{TRUE}).}
 
 \item{alias}{Optional stamp alias to select which catalog/versions to use.}
 }
 \value{
-Invisibly returns the name of the loaded log.
+The loaded \code{piplog} object (visibly), or if \code{version = "available"},
+a \code{data.table} of available versions with a \code{vintage} column.
 }
 \description{
-Loads a previously saved piplog using {stamp}. \code{id} is the artifact path
-(extension will be added if missing). Pass \code{alias} to select a stamp alias.
+Loads a previously saved \code{piplog} from disk using the {stamp} package.
+Validates the loaded object and restores it to \code{.piplogenv} with a given name.
+If \code{id} lacks an extension, one is added based on the \code{format} parameter.
+}
+\details{
+Use \code{version = "available"} to list all available versions of the log file
+without loading it.
+}
+\examples{
+\dontrun{
+log_load("results", name = "loaded_log")
+log_load("results", version = "available")  # List versions
+}
+
 }

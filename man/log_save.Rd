@@ -15,24 +15,39 @@ log_save(
 )
 }
 \arguments{
-\item{name}{Name of the log in memory (default: getOption("pipfun.log.default")).}
+\item{name}{Name of the log in memory (default:
+\code{getOption("pipfun.log.default", "default")}).}
 
 \item{id}{File identifier or path (extension optional). Defaults to \code{name}.}
 
-\item{format}{File format (default: "qs2").}
+\item{format}{File format (default: \code{"qs2"}). Used to add extension if \code{id}
+lacks one.}
 
-\item{metadata}{Optional named list of metadata to attach.}
+\item{metadata}{Optional named list of metadata to attach to the saved file.}
 
-\item{code}{Optional code object whose hash will be stored.}
+\item{code}{Optional code object whose hash will be stored in metadata.}
 
 \item{alias}{Optional stamp alias to select which catalog/versions to use.}
 
-\item{...}{Forwarded to \code{stamp::st_save()}.}
+\item{...}{Additional arguments forwarded to \code{stamp::st_save()}.}
 }
 \value{
 Invisibly, the result returned by \code{stamp::st_save()}.
 }
 \description{
-Saves a log stored in \code{.piplogenv} using {stamp}; \code{id} is the artifact path
-(extension will be added if missing). Pass \code{alias} to select a stamp alias.
+Saves a log from \code{.piplogenv} to disk using the {stamp} package. Optionally
+attach metadata and code hashes. If \code{id} lacks an extension, one is added
+based on the \code{format} parameter.
+}
+\details{
+The log is saved with metadata including its class (\code{"piplog"}), the log name,
+and the save timestamp. Additional metadata can be provided via the \code{metadata}
+parameter.
+}
+\examples{
+\dontrun{
+log_init("mylog")
+log_save("mylog", id = "results", metadata = list(run_id = "exp_001"))
+}
+
 }

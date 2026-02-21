@@ -6,15 +6,18 @@
 #'
 #' This function automatically captures all arguments from the calling function,
 #' including `...`. You can also manually add custom metadata using the
-#' `logmeta` argument.
+#' `logmeta` argument. The `logmeta` list is merged with captured `args`.
 #'
 #' @param event Type of event (e.g. `"error"`, `"info"`, `"warning"`).
 #' @param message Description of the log entry.
 #' @param name Name of the log (default: `options("pipfun.log.default")`).
 #' @param args Optional list of captured arguments (default: auto-captured).
-#' @param logmeta Optional named list of metadata to attach (merged with args).
-#' @param output Optional result or return value.
-#' @param .trace Optional call stack or trace override.
+#'   If `NULL`, arguments are automatically extracted from the calling function.
+#' @param logmeta Optional named list of metadata to attach. Merged with `args`
+#'   in the final log entry.
+#' @param output Optional result or return value to store in the log.
+#' @param .trace Optional call stack or trace override. If `NULL`, uses
+#'   `sys.call(-1)`.
 #' @param .env Internal use. Calling environment (default:
 #'   `rlang::caller_env()`).
 #'
@@ -141,16 +144,24 @@ log_add <- function(event,
 
 #' Initialize a new log
 #'
-#' Creates a new named log as a list to store log entries. If the log already
-#' exists, it will be reset (unless `overwrite = FALSE`).
+#' Creates a new named log as an empty `piplog` data.table to store log entries.
+#' If the log already exists, it will be reset (unless `overwrite = FALSE`).
 #'
-#' @param name Name of the log to create (default: "default").
-#' @param overwrite Whether to overwrite an existing log with the same name.
+#' @details
+#' The log is stored in the internal `.piplogenv` environment and can be
+#' retrieved with `log_get()`, filtered with `log_filter()`, saved with
+#' `log_save()`, or reset with `log_reset()`.
 #'
-#' @return Invisibly returns the initialized log name.
+#' @param name Name of the log to create (default: `getOption("pipfun.log.default")`).
+#' @param overwrite Whether to overwrite an existing log with the same name
+#'   (default: `getOption("pipfun.log_init.ow")`).
+#'
+#' @return Invisibly returns the initialized log name as a character string.
+#'
+#' @examples
 #' \dontrun{
 #' log_init("testlog")
-#' # This basically checks whther it already exists
+#' # This checks whether it already exists
 #' log_init("testlog", overwrite = FALSE)
 #' }
 #' @export
@@ -185,13 +196,21 @@ log_init <- function(name = getOption("pipfun.log.default"),
 
 #' Reset or delete a log from memory
 #'
-#' Clears a log from the internal environment. Use this to start over or free
-#' memory.
+#' Clears a named log from the internal `.piplogenv` environment. Use this to
+#' start fresh or free memory.
 #'
 #' @param name Name of the log to remove (default:
-#'   `getOption("pipfun.log.default")`).
+#'   `getOption("pipfun.log.default", "default")`).
 #'
-#' @return Invisibly returns TRUE if the log was removed.
+#' @return Invisibly returns `TRUE` if the log was successfully removed,
+#'   `FALSE` if the log did not exist.
+#'
+#' @examples
+#' \dontrun{
+#' log_init("mylog")
+#' log_reset("mylog")
+#' }
+#'
 #' @export
 log_reset <- function(name = getOption("pipfun.log.default", "default")) {
   if (!rlang::env_has(.piplogenv, name)) {
@@ -207,13 +226,27 @@ log_reset <- function(name = getOption("pipfun.log.default", "default")) {
 
 #' Filter log entries
 #'
-#' @param name Name of the log (default: `pipfun.log.default`)
-#' @param event Type of event to filter ("info", "warning", "error", etc.)
-#' @param fun Optional: function name(s) to filter
-#' @param after Optional: filter entries after this datetime
-#' @param before Optional: filter entries before this datetime
+#' Subsets a log by event type, function name, or time range. Returns a new
+#' `piplog` object without modifying the original.
 #'
-#' @return A filtered `piplog` object.
+#' @param name Name of the log (default: `getOption("pipfun.log.default")`)
+#' @param event Type of event to filter (e.g., `"info"`, `"warning"`, `"error"`).
+#'   Can be a character vector to match multiple event types.
+#' @param fun Optional: function name(s) to filter as a character vector.
+#' @param after Optional: filter entries after this datetime. Coerced to
+#'   `POSIXct` if needed.
+#' @param before Optional: filter entries before this datetime. Coerced to
+#'   `POSIXct` if needed.
+#'
+#' @return A filtered `piplog` object (a `data.table` with class `piplog`).
+#'   If no rows match the filters, returns an empty `piplog`.
+#'
+#' @examples
+#' \dontrun{
+#' log_filter(name = "mylog", event = "error")
+#' log_filter(name = "mylog", fun = "my_function", event = c("warning", "error"))
+#' }
+#'
 #' @export
 log_filter <- function(name    = getOption("pipfun.log.default"),
                        event   = NULL,
@@ -248,13 +281,25 @@ log_filter <- function(name    = getOption("pipfun.log.default"),
 }
 
 
-#' Get a particular log entries
+#' Get a log
 #'
-#' @param name Name of the log (default: `pipfun.log.default`)
+#' Retrieves a named log from the internal `.piplogenv` environment.
+#' Restores the `piplog` class if it was dropped by data.table operations.
 #'
-#' @return A raw `piplog` object.
+#' @param name Name of the log (default: `getOption("pipfun.log.default")`)
+#'
+#' @return Invisibly returns the `piplog` object as a `data.table` with all
+#'   log entries.
+#'
+#' @examples
+#' \dontrun{
+#' log_init("mylog")
+#' my_log <- log_get("mylog")
+#' }
+#'
 #' @export
 log_get <- function(name    = getOption("pipfun.log.default")) {
+
   if (!rlang::env_has(.piplogenv, name)) {
     cli::cli_abort("Log {.field {name}} does not exist.")
   }
@@ -275,18 +320,33 @@ log_get <- function(name    = getOption("pipfun.log.default")) {
 
 #' Save a log to disk
 #'
-#' Saves a log stored in `.piplogenv` using {stamp}; `id` is the artifact path
-#' (extension will be added if missing). Pass `alias` to select a stamp alias.
+#' Saves a log from `.piplogenv` to disk using the {stamp} package. Optionally
+#' attach metadata and code hashes. If `id` lacks an extension, one is added
+#' based on the `format` parameter.
 #'
-#' @param name Name of the log in memory (default: getOption("pipfun.log.default")).
+#' @details
+#' The log is saved with metadata including its class (`"piplog"`), the log name,
+#' and the save timestamp. Additional metadata can be provided via the `metadata`
+#' parameter.
+#'
+#' @param name Name of the log in memory (default:
+#'   `getOption("pipfun.log.default", "default")`).
 #' @param id File identifier or path (extension optional). Defaults to `name`.
-#' @param format File format (default: "qs2").
-#' @param metadata Optional named list of metadata to attach.
-#' @param code Optional code object whose hash will be stored.
+#' @param format File format (default: `"qs2"`). Used to add extension if `id`
+#'   lacks one.
+#' @param metadata Optional named list of metadata to attach to the saved file.
+#' @param code Optional code object whose hash will be stored in metadata.
 #' @param alias Optional stamp alias to select which catalog/versions to use.
-#' @param ... Forwarded to `stamp::st_save()`.
+#' @param ... Additional arguments forwarded to `stamp::st_save()`.
 #'
 #' @return Invisibly, the result returned by `stamp::st_save()`.
+#'
+#' @examples
+#' \dontrun{
+#' log_init("mylog")
+#' log_save("mylog", id = "results", metadata = list(run_id = "exp_001"))
+#' }
+#'
 #' @export
 log_save <- function(
     name     = getOption("pipfun.log.default", "default"),
@@ -341,18 +401,34 @@ log_save <- function(
 
 #' Load a log from disk
 #'
-#' Loads a previously saved piplog using {stamp}. `id` is the artifact path
-#' (extension will be added if missing). Pass `alias` to select a stamp alias.
+#' Loads a previously saved `piplog` from disk using the {stamp} package.
+#' Validates the loaded object and restores it to `.piplogenv` with a given name.
+#' If `id` lacks an extension, one is added based on the `format` parameter.
+#'
+#' @details
+#' Use `version = "available"` to list all available versions of the log file
+#' without loading it.
 #'
 #' @param id File identifier or path (extension optional).
 #' @param name Name to assign to the log in memory (default: `id`).
-#' @param version Optional version identifier passed to `stamp::st_load()`.
-#' @param format File format (default: "qs2").
-#' @param overwrite Logical: whether to overwrite an existing log in memory.
-#' @param verbose Logical: whether to announce loading progress.
+#' @param version Optional version identifier or `"available"` to list versions.
+#'   Passed to `stamp::st_load()`. Default loads the latest version.
+#' @param format File format (default: `"qs2"`). Used to add extension if `id`
+#'   lacks one.
+#' @param overwrite Logical: whether to overwrite an existing log in memory
+#'   with the same name (default: `FALSE`).
+#' @param verbose Logical: whether to announce loading progress (default: `TRUE`).
 #' @param alias Optional stamp alias to select which catalog/versions to use.
 #'
-#' @return The loaded `piplog` object, visibly.
+#' @return The loaded `piplog` object (visibly), or if `version = "available"`,
+#'   a `data.table` of available versions with a `vintage` column.
+#'
+#' @examples
+#' \dontrun{
+#' log_load("results", name = "loaded_log")
+#' log_load("results", version = "available")  # List versions
+#' }
+#'
 #' @export
 log_load <- function(
     id,

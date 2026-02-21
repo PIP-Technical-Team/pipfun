@@ -10,19 +10,27 @@ log_init(
 )
 }
 \arguments{
-\item{name}{Name of the log to create (default: "default").}
+\item{name}{Name of the log to create (default: \code{getOption("pipfun.log.default")}).}
 
-\item{overwrite}{Whether to overwrite an existing log with the same name.}
+\item{overwrite}{Whether to overwrite an existing log with the same name
+(default: \code{getOption("pipfun.log_init.ow")}).}
 }
 \value{
-Invisibly returns the initialized log name.
-\dontrun{
-log_init("testlog")
-# This basically checks whther it already exists
-log_init("testlog", overwrite = FALSE)
-}
+Invisibly returns the initialized log name as a character string.
 }
 \description{
-Creates a new named log as a list to store log entries. If the log already
-exists, it will be reset (unless \code{overwrite = FALSE}).
+Creates a new named log as an empty \code{piplog} data.table to store log entries.
+If the log already exists, it will be reset (unless \code{overwrite = FALSE}).
+}
+\details{
+The log is stored in the internal \code{.piplogenv} environment and can be
+retrieved with \code{log_get()}, filtered with \code{log_filter()}, saved with
+\code{log_save()}, or reset with \code{log_reset()}.
+}
+\examples{
+\dontrun{
+log_init("testlog")
+# This checks whether it already exists
+log_init("testlog", overwrite = FALSE)
+}
 }
