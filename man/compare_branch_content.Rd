@@ -34,7 +34,5 @@ Compare content of two branches
 # Different content
 compare_branch_content(repo   = "aux_ppp",
                       branch1 = "DEV",
-                      branch2 = "DEV_v2")
-
-}
+                      branch2 = "DEV_v2")}
 }

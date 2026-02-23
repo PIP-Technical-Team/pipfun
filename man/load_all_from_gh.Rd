@@ -35,6 +35,5 @@ load_all_from_gh(owner     = getOption("pipfun.ghowner"),
                  repo      = "pipfaker",
                  folder_path = "data/20240627_2017_01_02_PROD/_aux",
                  branch    = "aux_estimations",
-                 output_path = getwd())
-                 }
+                 output_path = getwd())}
 }

@@ -49,6 +49,6 @@ new_branch = "test")
 
 delete_branch(branch_to_delete = "test",
               measure = "regions",
-              ask = FALSE)
-}
+              ask = FALSE)}
+
 }

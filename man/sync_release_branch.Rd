@@ -32,6 +32,5 @@ If no release branch exists, it creates a new one from \code{DEV}
 }
 \examples{
 \dontrun{
-sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")
-}
+sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")}
 }

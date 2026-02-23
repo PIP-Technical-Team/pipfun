@@ -4,16 +4,16 @@
 \alias{get_pip_folders}
 \title{Retrieve folder paths registered for the active PIP working release}
 \usage{
-get_pip_folders(folder = NULL, name = "pip_folders", verbose = FALSE)
+get_pip_folders(name = NULL, verbose = TRUE)
 }
 \arguments{
-\item{folder}{character|null: optional specific folder name to return
-(e.g. \code{"aux_data"}). If \code{NULL} (default) the full named list is returned invisibly.}
-
 \item{name}{character: variable name to assign the full folder list to in
 the calling environment. Defaults to \code{"pip_folders"}.}
 
 \item{verbose}{logical: if \code{TRUE}, prints information about the retrieved paths.}
+
+\item{folder}{character|null: optional specific folder name to return
+(e.g. \code{"aux_data"}). If \code{NULL} (default) the full named list is returned invisibly.}
 }
 \value{
 Invisibly returns the named list of folder paths. If \code{folder} is

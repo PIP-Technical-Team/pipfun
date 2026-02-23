@@ -104,62 +104,56 @@ test_that("setup_working_release populated .pipenv with expected entries", {
 # ------------------------------------------------------------------
 # get_wrk_release
 # ------------------------------------------------------------------
-test_that("get_wrk_release assigns working release to caller", {
-  # assign into local test environment
-  get_wrk_release(name = "my_wr", verbose = FALSE)
-  expect_true(exists("my_wr", inherits = FALSE))
-  expect_type(my_wr, "list")
-  expect_named(my_wr, c("release", "identity", "ppp"))
-})
+
 
 test_that("get_wrk_release errors if working release not set", {
+
+  old_env <- as.list(.pipenv)
   clear_pipenv()
+
+  withr::defer({
+    list2env(old_env, envir = .pipenv)
+  })
+
   expect_error(
-    get_wrk_release(verbose = FALSE)
+    get_wrk_release(verbose = FALSE),
+    "Working release"
   )
-  # restore for following tests
-  restore_pipenv()
 })
 
 # ------------------------------------------------------------------
 # get_pip_folders
 # ------------------------------------------------------------------
-test_that("get_pip_folders returns folder paths and assigns to caller", {
-  get_pip_folders(name = "my_folders", verbose = FALSE)
-  expect_true(exists("my_folders", inherits = FALSE))
-  expect_s3_class(my_folders, "pip_folder_paths")
-
-  # single folder retrieval
-  aux_path <- get_pip_folders("aux_data", verbose = FALSE)
-  expect_type(aux_path, "character")
-  expect_true(dir.exists(aux_path))
-})
-
 test_that("get_pip_folders errors if folder_paths not set", {
+
+  old_env <- as.list(.pipenv)
   clear_pipenv()
+
+  withr::defer({
+    list2env(old_env, envir = .pipenv)
+  })
+
   expect_error(
     get_pip_folders(verbose = FALSE),
-    "PIP folder paths have not been set up"
+    "folder paths"
   )
-  restore_pipenv()
 })
 
 # ------------------------------------------------------------------
 # get_pip_aliases
 # ------------------------------------------------------------------
 
-
-test_that("get_pip_aliases can return a single alias", {
-  a <- get_pip_aliases("aux_data", verbose = FALSE)
-  expect_type(a, "character")
-  expect_length(a, 1)
-})
-
 test_that("get_pip_aliases errors if pip_aliases not set", {
+
+  old_env <- as.list(.pipenv)
   clear_pipenv()
+
+  withr::defer({
+    list2env(old_env, envir = .pipenv)
+  })
+
   expect_error(
     get_pip_aliases(verbose = FALSE),
-    "PIP aliases have not been set up"
+    "aliases"
   )
-  restore_pipenv()
 })

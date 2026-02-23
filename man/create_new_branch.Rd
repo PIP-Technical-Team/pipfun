@@ -49,6 +49,5 @@ new branch in repo
 # Fail
   create_new_branch("fjfjf",
   new_branch = "test") |>
-  try()
-}
+  try()}
 }

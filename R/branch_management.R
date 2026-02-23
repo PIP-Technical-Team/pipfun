@@ -27,8 +27,7 @@ utils::globalVariables(c("wrk_release", "vintage", "time"))
 #' # Fail
 #'   create_new_branch("fjfjf",
 #'   new_branch = "test") |>
-#'   try()
-#' }
+#'   try()}
 create_new_branch <- function(measure     = NULL,
                               owner       = getOption("pipfun.ghowner"),
                               repo        = ifelse(is.null(measure), NA,
@@ -154,8 +153,8 @@ create_new_branch <- function(measure     = NULL,
 #'
 #' delete_branch(branch_to_delete = "test",
 #'               measure = "regions",
-#'               ask = FALSE)
-#' }
+#'               ask = FALSE)}
+#'
 delete_branch <- function(branch_to_delete,
                           measure     = NULL,
                           owner       = getOption("pipfun.ghowner"),
@@ -239,8 +238,7 @@ delete_branch <- function(branch_to_delete,
 #' confirm_branch_exists("DEV", "regions")
 #'
 #' # Does not exist
-#' confirm_branch_exists("ijijiji", "regions")
-#' }
+#' confirm_branch_exists("ijijiji", "regions")}
 confirm_branch_exists <- function(branch,
                                   measure     = NULL,
                                   owner       = getOption("pipfun.ghowner"),
@@ -337,9 +335,7 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
 #' # Different content
 #' compare_branch_content(repo   = "aux_ppp",
 #'                       branch1 = "DEV",
-#'                       branch2 = "DEV_v2")
-#'
-#' }
+#'                       branch2 = "DEV_v2")}
 compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
                                    repo,
                                    branch1 = "main",
@@ -525,8 +521,7 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 #'   source_branch <- "DEV" # Branch to merge from
 #'   target_branch <- "20240512"     # Branch to merge into
 #'
-#'   merge_branch_into(owner, repo, source_branch, target_branch)
-#' }
+#'   merge_branch_into(owner, repo, source_branch, target_branch)}
 merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
                               repo,
                               source_branch,
@@ -595,8 +590,7 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 #'
 #' @examples
 #' \dontrun{
-#' sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")
-#' }
+#' sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")}
 sync_release_branch <- function(owner         = getOption("pipfun.ghowner"),
                                 repo,
                                 ref_branch    = "DEV",

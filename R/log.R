@@ -340,6 +340,8 @@ log_get <- function(name    = getOption("pipfun.log.default")) {
 #' @param ... Additional arguments forwarded to `stamp::st_save()`.
 #'
 #' @return Invisibly, the result returned by `stamp::st_save()`.
+#' 
+#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -347,7 +349,6 @@ log_get <- function(name    = getOption("pipfun.log.default")) {
 #' log_save("mylog", id = "results", metadata = list(run_id = "exp_001"))
 #' }
 #'
-#' @export
 log_save <- function(
     name     = getOption("pipfun.log.default", "default"),
     id       = name,
@@ -422,6 +423,7 @@ log_save <- function(
 #'
 #' @return The loaded `piplog` object (visibly), or if `version = "available"`,
 #'   a `data.table` of available versions with a `vintage` column.
+#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -429,7 +431,6 @@ log_save <- function(
 #' log_load("results", version = "available")  # List versions
 #' }
 #'
-#' @export
 log_load <- function(
     id,
     name      = id,

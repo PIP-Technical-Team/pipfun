@@ -84,8 +84,7 @@ downstream code can refer to those repositories by short alias.
 }
 \examples{
 
-
-\\dontrun{
+\dontrun{
 setup_working_release()
 }
 

@@ -1,8 +1,3 @@
-# The objective of all the functions below is to provide a suite of interactive
-# tools to work with github files or folders seamlessly. Ideally, these functions will
-# fully supersede the functions in load_from_gh.R
-
-
 #' Get file from Github
 #'
 #' @inheritParams get_file_info_from_gh
@@ -207,8 +202,7 @@ load_from_disk <- function(temp_file, ...) {
 #'                  repo      = "pipfaker",
 #'                  folder_path = "data/20240627_2017_01_02_PROD/_aux",
 #'                  branch    = "aux_estimations",
-#'                  output_path = getwd())
-#'                  }
+#'                  output_path = getwd())}
 load_all_from_gh <- function(owner= getOption("pipfun.ghowner"),
                              repo,
                              branch = "main",

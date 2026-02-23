@@ -4,7 +4,7 @@
 \alias{get_wrk_release}
 \title{Retrieve and assign the active working release}
 \usage{
-get_wrk_release(name = "wrk_release", verbose = getOption("pipfun.verbose"))
+get_wrk_release(name = NULL, verbose = TRUE)
 }
 \arguments{
 \item{name}{character: name to assign the working release object to in
@@ -27,7 +27,7 @@ is set, the function aborts with an informative message.
 }
 \examples{
 
-\\dontrun{
+\dontrun{
 hello <- function() {
   get_wrk_release()
   invisible(wrk_release)
