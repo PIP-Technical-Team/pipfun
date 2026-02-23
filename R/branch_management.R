@@ -38,7 +38,7 @@ create_new_branch <- function(measure     = NULL,
                               verbose     = getOption("pipfun.verbose")) {
 
   # Get working release
-  get_wrk_release()
+  wrk_release <- get_wrk_release()
 
   release        <- wrk_release$release
   identity       <- wrk_release$identity
@@ -603,7 +603,7 @@ sync_release_branch <- function(owner         = getOption("pipfun.ghowner"),
                                 target_branch = NULL,
                                 verbose       = FALSE) {
 
-  get_wrk_release()
+  wrk_release <- get_wrk_release()
 
   release        <- wrk_release$release
   identity       <- wrk_release$identity
