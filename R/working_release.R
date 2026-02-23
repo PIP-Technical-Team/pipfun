@@ -304,23 +304,20 @@ set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
 #' }
 #'
 #' @export
-get_wrk_release <- function(name = NULL, verbose = TRUE) {
-
-  if (!exists(".pipenv", envir = globalenv())) {
-    cli::cli_abort("Working release has not been set up.")
+get_wrk_release <- function(name = "wrk_release",
+                            verbose  = getOption("pipfun.verbose")) {
+  # Fetch the working release from the package environment
+  wrk_release <- get_from_pipenv("wrk_release")
+  if (is.null(wrk_release)) {
+    cli::cli_abort(
+      c(x = "Working release has not been set up",
+        i = "You need to set a working release with {.code pipfun::setup_working_release()}"))
+  } else {
+    if (verbose) cli::cli_alert_info("Your working release is {.field {wrk_release$release}}")
   }
 
-  if (!exists("wrk_release", envir = .pipenv, inherits = FALSE)) {
-    cli::cli_abort("Working release has not been set up.")
-  }
-
-  wr <- get("wrk_release", envir = .pipenv)
-
-  if (!is.null(name)) {
-    assign(name, wr, envir = parent.frame())
-  }
-
-  invisible(wr)
+  # Assign into the caller's frame for immediate use by the calling function
+  assign(name, wrk_release, envir = parent.frame())
 }
 
 
