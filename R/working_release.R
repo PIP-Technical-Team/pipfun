@@ -339,25 +339,37 @@ get_wrk_release <- function(name = "wrk_release",
 #'   provided, returns the single path (invisibly) for that folder.
 #'
 #' @export
-get_pip_folders <- function(name = NULL, verbose = TRUE) {
+get_pip_folders <- function(folder = NULL,
+                            name = "pip_folders",
+                            verbose = FALSE) {
 
-  if (!exists(".pipenv", envir = globalenv()) ||
-      !exists("folder_paths", envir = .pipenv, inherits = FALSE)) {
-    cli::cli_abort("PIP folder paths have not been set up")
+  pip_folders <- get_from_pipenv("folder_paths")
+
+  if (is.null(pip_folders)) {
+    cli::cli_abort(
+      c(x = "PIP folder paths have not been set up",
+        i = "You need to set a working release with {.code pipfun::setup_working_release()}"))
   }
 
-  folders <- get("folder_paths", envir = .pipenv)
-
-  if (!is.null(name) && length(name) == 1 && name %in% names(folders)) {
-    return(folders[[name]])
+  if (verbose) {
+    cli::cli_alert_info("Retrieved PIP folder paths")
+    print(pip_folders)
   }
 
-  if (!is.null(name)) {
-    assign(name, folders, envir = parent.frame())
+  # Assign to calling environment for convenience (so devs can access `pip_folders`)
+  assign(name,
+         pip_folders,
+         envir = parent.frame())
+
+  if (is.null(folder)) return(invisible(pip_folders))
+
+  if (!(folder %in% names(pip_folders))) {
+    cli::cli_abort("{.field {folder}} is not available in {.field pip_folders}")
   }
 
-  invisible(folders)
+  invisible(pip_folders[[folder]])
 }
+
 
 
 
@@ -386,20 +398,31 @@ get_pip_folders <- function(name = NULL, verbose = TRUE) {
 #' }
 #'
 #' @export
-get_pip_aliases <- function(name = NULL, verbose = TRUE) {
+get_pip_aliases <- function(folder = NULL,
+                            name = "pip_aliases",
+                            verbose = FALSE) {
 
-  if (!exists(".pipenv", envir = globalenv()) ||
-      !exists("pip_aliases", envir = .pipenv, inherits = FALSE)) {
-    cli::cli_abort("PIP aliases have not been set up")
+  pip_aliases <- get_from_pipenv("pip_aliases")
+
+  if (is.null(pip_aliases)) {
+    cli::cli_abort(
+      c(x = "PIP aliases have not been set up",
+        i = "Run {.code pipfun::setup_working_release()} to register aliases")
+    )
   }
 
-  aliases <- get("pip_aliases", envir = .pipenv)
-
-  if (!is.null(name)) {
-    return(aliases[[name]])
+  if (verbose) {
+    cli::cli_alert_info("Retrieved PIP aliases")
+    print(pip_aliases)
   }
 
-  invisible(aliases)
+  if (is.null(folder)) return(invisible(pip_aliases))
+
+  if (!(folder %in% names(pip_aliases))) {
+    cli::cli_abort("{.field {folder}} is not available in {.field pip_aliases}")
+  }
+
+  invisible(pip_aliases[[folder]])
 }
 
 #' Initialize and register stamp aliases for PIP folders
