@@ -2,16 +2,25 @@
 % Please edit documentation in R/log.R
 \name{log_get}
 \alias{log_get}
-\title{Get a particular log entries}
+\title{Get a log}
 \usage{
 log_get(name = getOption("pipfun.log.default"))
 }
 \arguments{
-\item{name}{Name of the log (default: \code{pipfun.log.default})}
+\item{name}{Name of the log (default: \code{getOption("pipfun.log.default")})}
 }
 \value{
-A raw \code{piplog} object.
+Invisibly returns the \code{piplog} object as a \code{data.table} with all
+log entries.
 }
 \description{
-Get a particular log entries
+Retrieves a named log from the internal \code{.piplogenv} environment.
+Restores the \code{piplog} class if it was dropped by data.table operations.
+}
+\examples{
+\dontrun{
+log_init("mylog")
+my_log <- log_get("mylog")
+}
+
 }

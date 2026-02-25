@@ -34,7 +34,7 @@ is appended to release-specific folders so multiple releases can coexist.
 }
 \examples{
 
-\\dontrun{
+\dontrun{
 set_pip_folders(main_dir = "~/pip_data", release = "20251211")
 }
 

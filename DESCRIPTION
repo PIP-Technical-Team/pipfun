@@ -31,10 +31,12 @@ Imports:
     base64enc,
     rlang,
     jsonlite,
-    lifecycle
+    lifecycle,
+    stamp (>= 0.0.9)
 Suggests: 
     covr,
     knitr,
+    mockery,
     rmarkdown,
     janitor,
     testthat (>= 3.0.0),
@@ -47,3 +49,5 @@ URL: https://pip-technical-team.github.io/pipfun, https://pip-technical-team.git
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)
+Remotes:  
+    randrescastaneda/stamp

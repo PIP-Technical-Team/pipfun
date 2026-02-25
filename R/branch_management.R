@@ -1,3 +1,4 @@
+utils::globalVariables(c("wrk_release", "vintage", "time"))
 #' Create new branch in repo
 #'
 #' By default it will create a new branch in aux PIP repo, but it can create a
@@ -11,7 +12,7 @@
 #' @param verbose A logical: whether to print detailed messages
 #'   about the process. The default is `TRUE`
 #'
-#' @return TRUE if [new_branch] already exists or if it was created
+#' @return TRUE if new branch already exists or if it was created
 #' @export
 #'
 #' @examples
@@ -26,8 +27,7 @@
 #' # Fail
 #'   create_new_branch("fjfjf",
 #'   new_branch = "test") |>
-#'   try()
-#' }
+#'   try()}
 create_new_branch <- function(measure     = NULL,
                               owner       = getOption("pipfun.ghowner"),
                               repo        = ifelse(is.null(measure), NA,
@@ -37,7 +37,7 @@ create_new_branch <- function(measure     = NULL,
                               verbose     = getOption("pipfun.verbose")) {
 
   # Get working release
-  get_wrk_release()
+  wrk_release <- get_wrk_release()
 
   release        <- wrk_release$release
   identity       <- wrk_release$identity
@@ -153,8 +153,8 @@ create_new_branch <- function(measure     = NULL,
 #'
 #' delete_branch(branch_to_delete = "test",
 #'               measure = "regions",
-#'               ask = FALSE)
-#' }
+#'               ask = FALSE)}
+#'
 delete_branch <- function(branch_to_delete,
                           measure     = NULL,
                           owner       = getOption("pipfun.ghowner"),
@@ -238,8 +238,7 @@ delete_branch <- function(branch_to_delete,
 #' confirm_branch_exists("DEV", "regions")
 #'
 #' # Does not exist
-#' confirm_branch_exists("ijijiji", "regions")
-#' }
+#' confirm_branch_exists("ijijiji", "regions")}
 confirm_branch_exists <- function(branch,
                                   measure     = NULL,
                                   owner       = getOption("pipfun.ghowner"),
@@ -277,6 +276,7 @@ confirm_branch_exists <- function(branch,
 #' @inheritParams confirm_branch_exists
 #' @param branch1 character: name of one branch
 #' @param branch2 character: name of the other branch
+#' @param verbose logical: whether to print messages about the comparison. Default is FALSE
 #' @return list of 3 elements: sha1, sha2 and updated (logical, TRUE if sha codes are equal)
 #' @export
 #'
@@ -335,9 +335,7 @@ compare_branches_sha <- function(owner  = getOption("pipfun.ghowner"),
 #' # Different content
 #' compare_branch_content(repo   = "aux_ppp",
 #'                       branch1 = "DEV",
-#'                       branch2 = "DEV_v2")
-#'
-#' }
+#'                       branch2 = "DEV_v2")}
 compare_branch_content <- function(owner = getOption("pipfun.ghowner"),
                                    repo,
                                    branch1 = "main",
@@ -420,6 +418,7 @@ get_repo_branches <- function(owner = getOption("pipfun.ghowner"),
 #' @param repo The name of the GitHub repository.
 #' @param branch1 The source branch whose latest commit is used to update `branch2`.
 #' @param branch2 The target branch that will be updated to match the latest commit of `branch1`.
+#' @param verbose logical. If `TRUE`, prints messages about the comparison and update process. Default is TRUE.
 #' @param force logical. If `FALSE`, ask permission to user before merging. Default is TRUE
 #'
 #' @return Returns `TRUE` if the update was successful or if the branches were already up-to-date, `FALSE` if an error occurred during the update.
@@ -522,8 +521,7 @@ update_branches <- function(owner = getOption("pipfun.ghowner"),
 #'   source_branch <- "DEV" # Branch to merge from
 #'   target_branch <- "20240512"     # Branch to merge into
 #'
-#'   merge_branch_into(owner, repo, source_branch, target_branch)
-#' }
+#'   merge_branch_into(owner, repo, source_branch, target_branch)}
 merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
                               repo,
                               source_branch,
@@ -584,24 +582,22 @@ merge_branch_into <- function(owner = getOption("pipfun.ghowner"),
 #'
 #' @param owner Character. The GitHub owner or organization name. Defaults to `getOption("pipfun.ghowner")`
 #' @param repo Character. The name of the repository.
+#' @param target_branch Character. The name of the release branch to create or update. If `NULL`, it will be set to `paste0(release, "_", identity)`
 #' @param ref_branch Character. The branch from which the release branch should be created or updated. Defaults to `"DEV"`
-#' @param release TBC
-#' @param identity Character. The identity used for naming the new branch if created. One of `getOption("pipfun.identities")`
-#'
+#' @param verbose logical: whether to print messages about the process. Default is FALSE
 #' @return Invisible `TRUE` if the process succeeds, otherwise an error message is displayed
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")
-#' }
+#' sync_release_branch(owner = "PIP-Technical-Team", repo = "aux_gdp")}
 sync_release_branch <- function(owner         = getOption("pipfun.ghowner"),
                                 repo,
                                 ref_branch    = "DEV",
                                 target_branch = NULL,
                                 verbose       = FALSE) {
 
-  get_wrk_release()
+  wrk_release <- get_wrk_release()
 
   release        <- wrk_release$release
   identity       <- wrk_release$identity

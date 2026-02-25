@@ -23,6 +23,8 @@ update_branches(
 \item{branch2}{The target branch that will be updated to match the latest commit of \code{branch1}.}
 
 \item{force}{logical. If \code{FALSE}, ask permission to user before merging. Default is TRUE}
+
+\item{verbose}{logical. If \code{TRUE}, prints messages about the comparison and update process. Default is TRUE.}
 }
 \value{
 Returns \code{TRUE} if the update was successful or if the branches were already up-to-date, \code{FALSE} if an error occurred during the update.

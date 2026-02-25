@@ -183,8 +183,7 @@ gitcreds_msg <- function(wh) {
 #'
 #' @examples
 #' \dontrun{
-#' check_github_token()
-#' }
+#' check_github_token()}
 get_github_creds <- function() {
   # Check that either GITHUB_PAT is set or credentials have been stored using gitcreds
   # If not, abort with a message
@@ -227,8 +226,7 @@ get_github_creds <- function() {
 #' @examples
 #' \dontrun{
 #' is_private_repo("cpi")
-#' is_private_repo("nan")
-#' }
+#' is_private_repo("nan")}
 is_private_repo <- function(measure   = NULL,
                             owner     = getOption("pipfun.ghowner"),
                             repo      = paste0("aux_", measure)) {

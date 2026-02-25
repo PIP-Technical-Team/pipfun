@@ -32,6 +32,5 @@ confirm branch exists in repo
 confirm_branch_exists("DEV", "regions")
 
 # Does not exist
-confirm_branch_exists("ijijiji", "regions")
-}
+confirm_branch_exists("ijijiji", "regions")}
 }

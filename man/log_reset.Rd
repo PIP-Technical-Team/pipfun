@@ -8,12 +8,20 @@ log_reset(name = getOption("pipfun.log.default", "default"))
 }
 \arguments{
 \item{name}{Name of the log to remove (default:
-\code{getOption("pipfun.log.default")}).}
+\code{getOption("pipfun.log.default", "default")}).}
 }
 \value{
-Invisibly returns TRUE if the log was removed.
+Invisibly returns \code{TRUE} if the log was successfully removed,
+\code{FALSE} if the log did not exist.
 }
 \description{
-Clears a log from the internal environment. Use this to start over or free
-memory.
+Clears a named log from the internal \code{.piplogenv} environment. Use this to
+start fresh or free memory.
+}
+\examples{
+\dontrun{
+log_init("mylog")
+log_reset("mylog")
+}
+
 }

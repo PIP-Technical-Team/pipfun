@@ -14,6 +14,5 @@ make sure your GITHUB credentials are properly setup
 }
 \examples{
 \dontrun{
-check_github_token()
-}
+check_github_token()}
 }

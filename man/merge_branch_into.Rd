@@ -48,6 +48,5 @@ to document the merge.
   source_branch <- "DEV" # Branch to merge from
   target_branch <- "20240512"     # Branch to merge into
 
-  merge_branch_into(owner, repo, source_branch, target_branch)
-}
+  merge_branch_into(owner, repo, source_branch, target_branch)}
 }

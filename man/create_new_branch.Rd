@@ -31,7 +31,7 @@ created.}
 about the process. The default is \code{TRUE}}
 }
 \value{
-TRUE if \link{new_branch} already exists or if it was created
+TRUE if new branch already exists or if it was created
 }
 \description{
 By default it will create a new branch in aux PIP repo, but it can create a
@@ -49,6 +49,5 @@ new branch in repo
 # Fail
   create_new_branch("fjfjf",
   new_branch = "test") |>
-  try()
-}
+  try()}
 }

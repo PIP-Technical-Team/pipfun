@@ -23,6 +23,8 @@ compare_branches_sha(
 \item{branch1}{character: name of one branch}
 
 \item{branch2}{character: name of the other branch}
+
+\item{verbose}{logical: whether to print messages about the comparison. Default is FALSE}
 }
 \value{
 list of 3 elements: sha1, sha2 and updated (logical, TRUE if sha codes are equal)

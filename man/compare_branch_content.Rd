@@ -20,6 +20,8 @@ compare_branch_content(
 \item{branch1}{character: name of one branch}
 
 \item{branch2}{character: name of the other branch}
+
+\item{verbose}{logical: whether to print messages about the comparison. Default is FALSE}
 }
 \value{
 list of 3 elements: tree sha of branch 1, tree sha of branch 2 and "same content" (TRUE if branches have same content, FALSE otherwise)
@@ -32,7 +34,5 @@ Compare content of two branches
 # Different content
 compare_branch_content(repo   = "aux_ppp",
                       branch1 = "DEV",
-                      branch2 = "DEV_v2")
-
-}
+                      branch2 = "DEV_v2")}
 }

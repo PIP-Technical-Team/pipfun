@@ -27,6 +27,5 @@ check if the Repo is private or not
 \examples{
 \dontrun{
 is_private_repo("cpi")
-is_private_repo("nan")
-}
+is_private_repo("nan")}
 }

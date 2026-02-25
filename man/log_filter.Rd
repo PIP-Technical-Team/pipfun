@@ -13,19 +13,31 @@ log_filter(
 )
 }
 \arguments{
-\item{name}{Name of the log (default: \code{pipfun.log.default})}
+\item{name}{Name of the log (default: \code{getOption("pipfun.log.default")})}
 
-\item{event}{Type of event to filter ("info", "warning", "error", etc.)}
+\item{event}{Type of event to filter (e.g., \code{"info"}, \code{"warning"}, \code{"error"}).
+Can be a character vector to match multiple event types.}
 
-\item{fun}{Optional: function name(s) to filter}
+\item{fun}{Optional: function name(s) to filter as a character vector.}
 
-\item{after}{Optional: filter entries after this datetime}
+\item{after}{Optional: filter entries after this datetime. Coerced to
+\code{POSIXct} if needed.}
 
-\item{before}{Optional: filter entries before this datetime}
+\item{before}{Optional: filter entries before this datetime. Coerced to
+\code{POSIXct} if needed.}
 }
 \value{
-A filtered \code{piplog} object.
+A filtered \code{piplog} object (a \code{data.table} with class \code{piplog}).
+If no rows match the filters, returns an empty \code{piplog}.
 }
 \description{
-Filter log entries
+Subsets a log by event type, function name, or time range. Returns a new
+\code{piplog} object without modifying the original.
+}
+\examples{
+\dontrun{
+log_filter(name = "mylog", event = "error")
+log_filter(name = "mylog", fun = "my_function", event = c("warning", "error"))
+}
+
 }

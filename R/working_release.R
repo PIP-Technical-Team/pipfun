@@ -45,9 +45,8 @@
 #'   and `pip_aliases`).
 #'
 #' @examples
-#' 
-#' 
-#' \\dontrun{
+#'
+#' \dontrun{
 #' setup_working_release()
 #' }
 #'
@@ -195,7 +194,7 @@ setup_working_release <- function(release  = NULL,
 #'
 #' @examples
 #' 
-#' \\dontrun{
+#' \dontrun{
 #' set_pip_folders(main_dir = "~/pip_data", release = "20251211")
 #' }
 #'
@@ -295,7 +294,7 @@ set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
 #'
 #' @examples
 #' 
-#' \\dontrun{
+#' \dontrun{
 #' hello <- function() {
 #'   get_wrk_release()
 #'   invisible(wrk_release)
@@ -374,6 +373,7 @@ get_pip_folders <- function(folder = NULL,
 
 
 
+
 #' Retrieve stamp aliases registered for PIP folders
 #'
 #' Returns the alias mapping that was created by `init_pip_aliases()` and
@@ -424,7 +424,6 @@ get_pip_aliases <- function(folder = NULL,
 
   invisible(pip_aliases[[folder]])
 }
-
 
 #' Initialize and register stamp aliases for PIP folders
 #'
@@ -499,7 +498,7 @@ init_pip_aliases <- function(folder_paths,
 
     if (verbose) {
       cli::cli_alert_success(
-        "Registered alias {.field {alias}} → {.path {root}}"
+        "Registered alias {.field {alias}} -> {.path {root}}"
       )
     }
   }
