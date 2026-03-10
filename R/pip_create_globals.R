@@ -29,54 +29,47 @@
 #' \dontrun{
 #' pip_create_globals()
 #' }
-pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
-                               out_dir            = root_dir,
-                               vintage            = NULL,
-                               clean              = FALSE,
-                               verbose            = getOption("pipfun.verbose"),
-                               create_dir         = FALSE,
-                               max_year_country   = NULL,
-                               max_year_lineup    = NULL,
-                               max_year_aggregate = NULL) {
-
-
+pip_create_globals <- function(
+  root_dir = Sys.getenv("PIP_ROOT_DIR"),
+  out_dir = root_dir,
+  vintage = NULL,
+  clean = FALSE,
+  verbose = getOption("pipfun.verbose"),
+  create_dir = FALSE,
+  max_year_country = NULL,
+  max_year_lineup = NULL,
+  max_year_aggregate = NULL
+) {
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Defenses   ---------
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   # vintage
-  stopifnot( exprs = {
+  stopifnot(exprs = {
     is.list(vintage) || is.character(vintage) || is.null(vintage)
-  }
-  )
+  })
 
   if (is.character(vintage)) {
-
     if (length(vintage) == 1) {
-
       if (!(vintage %in% c("latest", "new"))) {
         # pattern that identifies folders
         vintage_pattern <- "\\d{8}_\\d{4}_\\d{1,2}_\\d{1,2}_(PROD|TEST|INT)$"
         if (!grepl(vintage_pattern, vintage)) {
-          msg     <- c(
+          msg <- c(
             "Incorrect vintage name",
             "x" = "Vintage must check TRUE with {.field '{vintage_pattern}'}",
             "i" = "vintage must follow this convention,
             {.field %Y%m%d_YYYY_##_##_SSS}"
           )
-          cli::cli_abort(msg,
-                         class = "pipfun_error",
-                         wrap = TRUE
-          )
+          cli::cli_abort(msg, class = "pipfun_error", wrap = TRUE)
         }
-
       } # end of pattern check
-
     } else if (length(vintage) == 2) {
-
-      if(!(any(c("latest", "new") %in% vintage) &&
-           any(c("prod", "test", "int") %in% tolower(vintage)))) {
-        msg     <- c(
+      if (
+        !(any(c("latest", "new") %in% vintage) &&
+          any(c("prod", "test", "int") %in% tolower(vintage)))
+      ) {
+        msg <- c(
           "When Vintage is character vector of length 2, it must meet the
           following",
           "*" = "One of its elements should be either {.field latest}
@@ -85,42 +78,36 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
           {.field test}, or {.field int}",
           "x" = "you provided {.field {vintage}}"
         )
-        cli::cli_abort(msg,
-                       class = "pipfun_error",
-                       wrap  = TRUE
-        )
-
+        cli::cli_abort(msg, class = "pipfun_error", wrap = TRUE)
       }
     } else {
-      msg     <- c(
+      msg <- c(
         "When vintage is character vector, it must be
           of {.fn legth} 1 or 2",
-        "x" = "you provided {.field vintage} of length {length(vintage)}")
-      cli::cli_abort(msg,
-                     class = "error_class",
-                     wrap  = TRUE
+        "x" = "you provided {.field vintage} of length {length(vintage)}"
       )
-
+      cli::cli_abort(msg, class = "error_class", wrap = TRUE)
     }
   }
-
-
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Read from Renviron --------
   if (verbose) {
     if (root_dir == "" || is.null(root_dir)) {
-      cli::cli_alert_warning("{.field root_dir} is not defined.
+      cli::cli_alert_warning(
+        "{.field root_dir} is not defined.
                              Directory paths
                              will lack network-drive root directory",
-                             wrap = TRUE)
+        wrap = TRUE
+      )
     } else if (root_dir != Sys.getenv("PIP_ROOT_DIR")) {
-      cli::cli_alert_info("Alternative root directory for {.field root_dir} is
+      cli::cli_alert_info(
+        "Alternative root directory for {.field root_dir} is
                           set to {.url {root_dir}}",
-                          wrap = TRUE)
+        wrap = TRUE
+      )
     }
   }
-
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## init list and basic inputs --------
@@ -135,39 +122,48 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   # welfare data dir
-  glbs$PIP_DATA_DIR     <- fs::path(root_dir, 'PIP-Data_QA/')
+  glbs$PIP_DATA_DIR <- fs::path(root_dir, 'PIP-Data_QA/')
 
   # '//w1wbgencifs01/pip/pip_ingestion_pipeline/' # Output dir
-  glbs$PIP_PIPE_DIR     <- fs::path(root_dir, 'pip_ingestion_pipeline/')
+  glbs$PIP_PIPE_DIR <- fs::path(root_dir, 'pip_ingestion_pipeline/')
 
   # Old POVCalnet
   si <- Sys.info()
   authorized <- c("wb384996", "wb499754", "wb561460") # temporal solution
   # if (grepl("^wb", tolower(si[["user"]]))) {
   if (tolower(si[["user"]]) %in% authorized) {
-    glbs$POVCALNET        <-  "//wbntpcifs/povcalnet/01.PovcalNet/"
+    glbs$POVCALNET <- "//wbntpcifs/povcalnet/01.PovcalNet/"
     # Povcalnet master
-    glbs$PCN_MASTER       <- fs::path(glbs$POVCALNET, "00.Master/02.vintage/")
+    glbs$PCN_MASTER <- fs::path(glbs$POVCALNET, "00.Master/02.vintage/")
   }
 
   #
-  glbs$DLW_RAW_DIR          <- fs::path(root_dir,"DLW-RAW")
+  glbs$DLW_RAW_DIR <- fs::path(root_dir, "DLW-RAW")
   if (isTRUE(create_dir)) {
     create_dir(glbs)
   }
-
-
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # OUTPUT dirs   ---------
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (!is.null(vintage)) {
-
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ## Poverty calculator --------
 
-    # Main output folder
-    glbs$OUT_DIR_PC   <- fs::path(out_dir, 'pip_ingestion_pipeline/pc_data/output-tfs-sync/ITSES-POVERTYSCORE-DATA/')
+    # Main output folder.
+    # If the environment variable PIPAPI_DATA_ROOT_FOLDER_LOCAL is set, use it
+    # directly as the output root (fast local SSD path, e.g. "e:/PIP/pipapi_data/").
+    # Otherwise fall back to the canonical network path under out_dir.
+    local_out_dir <- Sys.getenv("PIPAPI_DATA_ROOT_FOLDER_LOCAL")
+
+    if (nzchar(local_out_dir)) {
+      glbs$OUT_DIR_PC <- fs::path(local_out_dir)
+    } else {
+      glbs$OUT_DIR_PC <- fs::path(
+        out_dir,
+        'pip_ingestion_pipeline/pc_data/output-tfs-sync/ITSES-POVERTYSCORE-DATA/'
+      )
+    }
 
     if (isTRUE(create_dir)) {
       create_dir(glbs)
@@ -177,73 +173,82 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
     ## vintage directories --------
 
     # create vintage dir for PC
-    vintage_dir <- check_and_create(dir        = glbs$OUT_DIR_PC,
-                                    vintage    = vintage,
-                                    DATE       = glbs$DATE,
-                                    clean      = clean,
-                                    verbose    = verbose,
-                                    create_dir = create_dir)
+    vintage_dir <- check_and_create(
+      dir = glbs$OUT_DIR_PC,
+      vintage = vintage,
+      DATE = glbs$DATE,
+      clean = clean,
+      verbose = verbose,
+      create_dir = create_dir
+    )
 
     glbs$vintage_dir <- vintage_dir
-    out_path_pc     <- fs::path(glbs$OUT_DIR_PC, vintage_dir)
+    out_path_pc <- fs::path(glbs$OUT_DIR_PC, vintage_dir)
 
-
-    glbs$available_OUT_DIR_PC <- fs::dir_ls(path = glbs$OUT_DIR_PC,
-                                            type = "directory")
+    glbs$available_OUT_DIR_PC <- fs::dir_ls(
+      path = glbs$OUT_DIR_PC,
+      type = "directory"
+    )
     # Final survey data output dir
-    glbs$OUT_SVY_DIR_PC   <- fs::path(out_path_pc, '/survey_data/')
+    glbs$OUT_SVY_DIR_PC <- fs::path(out_path_pc, '/survey_data/')
 
     #  Estimations output dir
-    glbs$OUT_EST_DIR_PC   <- fs::path(out_path_pc, '/estimations/')
+    glbs$OUT_EST_DIR_PC <- fs::path(out_path_pc, '/estimations/')
 
     # aux data output dir
-    glbs$OUT_AUX_DIR_PC   <- fs::path(out_path_pc, '/_aux/')
+    glbs$OUT_AUX_DIR_PC <- fs::path(out_path_pc, '/_aux/')
+
+    # Lineup / CMD distribution data output dir
+    glbs$OUT_LINEUP_DIR_PC <- fs::path(out_path_pc, '/lineup_data/')
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ## Cached survey data dir -----
     cache_ppp <- vintage_dir
     # cache_ppp <- paste0(cache_ppp, collapse = "_")
 
-    glbs$CACHE_SVY_DIR_PC <- fs::path(glbs$PIP_PIPE_DIR,
-                                      'pc_data/cache/clean_survey_data',
-                                      cache_ppp)
+    glbs$CACHE_SVY_DIR_PC <- fs::path(
+      glbs$PIP_PIPE_DIR,
+      'pc_data/cache/clean_survey_data',
+      cache_ppp
+    )
     # cache PPP version
     glbs$cache_ppp <- cache_ppp
-
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ## Table Maker --------
     #  Main TB output folder
-    glbs$OUT_DIR_TB   <- fs::path(out_dir,
-                                  'pip_ingestion_pipeline/tb_data/output')
+    glbs$OUT_DIR_TB <- fs::path(
+      out_dir,
+      'pip_ingestion_pipeline/tb_data/output'
+    )
     if (isTRUE(create_dir)) {
       create_dir(glbs)
     }
-
-  } else { # end of vintage not null
+  } else {
+    # end of vintage not null
 
     # if no vintage is selected, the default cache directory is the most recent
     # version of PPP
-    clean_data <- fs::path(glbs$PIP_PIPE_DIR,
-                           'pc_data/cache/clean_survey_data')
+    clean_data <- fs::path(glbs$PIP_PIPE_DIR, 'pc_data/cache/clean_survey_data')
 
     cache_ppp <-
       fs::dir_ls(clean_data) |>
       fs::path_file() |>
       max()
 
-    glbs$CACHE_SVY_DIR_PC <- fs::path(glbs$PIP_PIPE_DIR,
-                                      'pc_data/cache/clean_survey_data',
-                                      cache_ppp)
+    glbs$CACHE_SVY_DIR_PC <- fs::path(
+      glbs$PIP_PIPE_DIR,
+      'pc_data/cache/clean_survey_data',
+      cache_ppp
+    )
   }
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Max dates   ---------
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-  c_year   <- as.integer(format(Sys.Date(), "%Y"))
-  c_month  <- as.integer(format(Sys.Date(), "%m"))
+  c_year <- as.integer(format(Sys.Date(), "%Y"))
+  c_month <- as.integer(format(Sys.Date(), "%m"))
 
   if (is.null(max_year_country)) {
     # max_year <- ifelse(c_month >= 8,  # August
@@ -258,23 +263,21 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
     max_year_lineup <- max_year
   }
   # Years used in PIP
-  glbs$PIP_YEARS        <- 1977:(max_year + 1)
+  glbs$PIP_YEARS <- 1977:(max_year + 1)
   # Years used in the interpolated means table
-  glbs$PIP_REF_YEARS    <- 1981:c_year
+  glbs$PIP_REF_YEARS <- 1981:c_year
 
   # lineup years for aggregate
-  glbs$PIP_LINEUP_YEARS    <- 1981:max_year_lineup
-
+  glbs$PIP_LINEUP_YEARS <- 1981:max_year_lineup
 
   # Compression level for .fst output files
-  glbs$FST_COMP_LVL     <- 20
+  glbs$FST_COMP_LVL <- 20
 
   if (is.null(max_year_aggregate)) {
     glbs$max_year_aggregate <-
       Sys.Date() |>
       format("%Y") |>
       as.integer()
-
   } else {
     glbs$max_year_aggregate <- max_year_aggregate
   }
@@ -287,22 +290,19 @@ pip_create_globals <- function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
 #' @param glbs list of object. Some of them are fs_paths
 #' @noRd
 create_dir <- function(glbs) {
-
   is_fs_path <- which(purrr::map_lgl(glbs, inherits, "fs_path"))
 
-  purrr::walk(.x = glbs[is_fs_path],
-              .f = ~{
-                if (!fs::dir_exists(.x[length(.x)])) {
-                  fs::dir_create(path    = .x,
-                                 recurse = TRUE)
-                }
-              })
+  purrr::walk(
+    .x = glbs[is_fs_path],
+    .f = ~ {
+      if (!fs::dir_exists(.x[length(.x)])) {
+        fs::dir_create(path = .x, recurse = TRUE)
+      }
+    }
+  )
 
   return(invisible(TRUE))
 }
-
-
-
 
 
 #' check vintage version and create directory name
@@ -311,17 +311,16 @@ create_dir <- function(glbs) {
 #' @param DATE character: date of the form "%Y%m%d"
 #' @inheritParams pip_create_globals
 #' @noRd
-check_and_create <- function(dir,
-                             vintage,
-                             DATE = format(Sys.Date(), "%Y%m%d"),
-                             clean,
-                             verbose,
-                             create_dir) {
-
+check_and_create <- function(
+  dir,
+  vintage,
+  DATE = format(Sys.Date(), "%Y%m%d"),
+  clean,
+  verbose,
+  create_dir
+) {
   # on.exit ------------
-  on.exit({
-
-  })
+  on.exit({})
 
   # pattern that identifies folders
   vintage_pattern <- "\\d{8}_\\d{4}_\\d{1,2}_\\d{1,2}_(PROD|TEST|INT)$"
@@ -330,14 +329,11 @@ check_and_create <- function(dir,
   # if character --------
 
   if (is.character(vintage)) {
-
     if (length(vintage) == 1 && grepl(vintage_pattern, vintage)) {
       ## if vintage comes in name form ---------
 
       out_dir <- pip_create_vintage(vintage = vintage)
-
     } else {
-
       if ("latest" %in% vintage) {
         # if the latest is wanted
 
@@ -345,118 +341,93 @@ check_and_create <- function(dir,
 
         # computations
         # create vintage dir for PC
-        available_paths <- fs::dir_ls(dir,
-                                      type = "directory",
-                                      regexp = vintage_pattern)
-
+        available_paths <- fs::dir_ls(
+          dir,
+          type = "directory",
+          regexp = vintage_pattern
+        )
 
         # all available directories
-        vintages_av  <-
+        vintages_av <-
           fs::path_file(available_paths) |>
           sort(decreasing = TRUE)
-
 
         # Find out the latest vintage available
         if (length(vintages_av) == 0) {
           out_dir <- pip_create_vintage()
-
         } else {
-
           vintages_prod <- vintages_av[grepl("PROD$", vintages_av)]
           vintages_prod <- sort(vintages_prod, decreasing = TRUE)
 
           vintages_test <- vintages_av[grepl("TEST$", vintages_av)]
           vintages_test <- sort(vintages_test, decreasing = TRUE)
 
-          vintages_int  <- vintages_av[grepl("INT$",  vintages_av)]
-          vintages_int  <- sort(vintages_int, decreasing = TRUE)
-
+          vintages_int <- vintages_av[grepl("INT$", vintages_av)]
+          vintages_int <- sort(vintages_int, decreasing = TRUE)
 
           # find latest depending on selection
           if ("prod" %in% tolower(vintage)) {
             if (length(vintages_prod) == 0) {
-
-              msg     <- c(
+              msg <- c(
                 "The combination {.field latest} and {.field prod} is
                 not available in the output folder {.file {dir}}",
                 "*" = "vintages availables are {.file {vintages_av}}"
               )
-              cli::cli_abort(msg,
-                             class = "pipfun_error"
-              )
-
+              cli::cli_abort(msg, class = "pipfun_error")
             }
             out_dir <- vintages_prod[[1]]
-
-          } else if  ("int" %in% tolower(vintage)) {
-
+          } else if ("int" %in% tolower(vintage)) {
             if (length(vintages_int) == 0) {
-
-              msg     <- c(
+              msg <- c(
                 "The combination {.field latest} and {.field int} is
                 not available in the output folder {.file {dir}}",
                 "*" = "vintages availables are {.file {vintages_av}}"
               )
-              cli::cli_abort(msg,
-                             class = "pipfun_error"
-              )
-
+              cli::cli_abort(msg, class = "pipfun_error")
             }
 
             out_dir <- vintages_int[[1]]
-
-          } else if  ("test" %in% tolower(vintage)) {
-
+          } else if ("test" %in% tolower(vintage)) {
             if (length(vintages_test) == 0) {
-
-              msg     <- c(
+              msg <- c(
                 "The combination {.field latest} and {.field test} is
                 not available in the output folder {.file {dir}}",
                 "*" = "vintages availables are {.file {vintages_av}}"
               )
-              cli::cli_abort(msg,
-                             class = "pipfun_error"
-              )
-
+              cli::cli_abort(msg, class = "pipfun_error")
             }
 
             out_dir <- vintages_test[[1]]
-
           } else {
             out_dir <- vintages_av[[1]]
           }
-
         } # end of finding latest
-
-
       } else if ("new" %in% vintage) {
         # If new vintage is wanted
 
         if ("prod" %in% tolower(vintage)) {
           identity <- "PROD"
-        } else if  ("test" %in% tolower(vintage)) {
+        } else if ("test" %in% tolower(vintage)) {
           identity <- "TEST"
-        } else if  ("int" %in% tolower(vintage)) {
+        } else if ("int" %in% tolower(vintage)) {
           identity <- "INT"
         } else {
           identity <- "PROD"
         }
 
-        out_dir <- pip_create_vintage(vintage = list(release  = DATE,
-                                                     identity = identity))
-
+        out_dir <- pip_create_vintage(
+          vintage = list(release = DATE, identity = identity)
+        )
       } else {
         # this should never happen
         out_dir <- NULL
       }
     } # end of if is.character()
-
   } else {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # If list --------
     out_dir <- pip_create_vintage(vintage = vintage)
   }
-
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # folder creation   ---------
@@ -465,9 +436,7 @@ check_and_create <- function(dir,
   out_path <- fs::path(dir, out_dir)
 
   if (create_dir == TRUE & !fs::dir_exists(out_path)) {
-
     fs::dir_create(out_path, recurse = TRUE)
-
   }
 
   if (isTRUE(clean)) {
@@ -478,14 +447,11 @@ check_and_create <- function(dir,
         fs::dir_delete(x)
       }
     }
-
   }
 
   # Return -------------
   return(out_dir)
-
 }
-
 
 
 #' Add gls list to the global envirnment. To be used in zzz.R in other packages
@@ -499,18 +465,18 @@ check_and_create <- function(dir,
 #'
 #' @return TRUE
 #' @export
-add_gls_to_env <- function(root_dir = NULL,
-                           out_dir  = NULL,
-                           vintage  = "latest",
-                           clean    = FALSE) {
-
+add_gls_to_env <- function(
+  root_dir = NULL,
+  out_dir = NULL,
+  vintage = "latest",
+  clean = FALSE
+) {
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # evaluate global environment   ---------
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
   ## defined values --------
-  obj <-  ls(pos = ".GlobalEnv")
+  obj <- ls(pos = ".GlobalEnv")
 
   # remove gls if it  exists
   rm(list = obj[obj %in% c("gls")], pos = ".GlobalEnv")
@@ -523,21 +489,21 @@ add_gls_to_env <- function(root_dir = NULL,
   ## if root_dir should come from Renviron --------
 
   if (is.null(root_dir)) {
-
     # If root_dir does not exist, create it
     if (!("root_dir" %in% obj)) {
-      root_dir  <-  Sys.getenv("PIP_ROOT_DIR")
+      root_dir <- Sys.getenv("PIP_ROOT_DIR")
       # root_dir  <-  Sys.getenv("PIP_ROOT_DIRfff")
 
       # assign('root_dir', root_dir, envir = globalenv())
-
     } else {
-      cli::cli_alert_info("object {.envvar root_dir} is already defined in
+      cli::cli_alert_info(
+        "object {.envvar root_dir} is already defined in
                    Global env to  {.url {get('root_dir', envir = globalenv())}}.
                    To get back to default
                    values, make sure you remove it from memory by typing
                    {.code rm(root_dir)}",
-                   wrap = TRUE)
+        wrap = TRUE
+      )
       root_dir <- get('root_dir', envir = globalenv())
     }
   }
@@ -552,27 +518,27 @@ add_gls_to_env <- function(root_dir = NULL,
   # create promises and assign to global env
   if (root_dir != "") {
     # globals
-    gls <- pip_create_globals(root_dir = root_dir,
-                                      out_dir  = out_dir,
-                                      vintage  = vintage,
-                                      clean    = clean)
+    gls <- pip_create_globals(
+      root_dir = root_dir,
+      out_dir = out_dir,
+      vintage = vintage,
+      clean = clean
+    )
     assign('gls', gls, envir = globalenv())
-
   } else {
-
     # assign('root_dir', "", envir = globalenv())
-    delayedAssign(x          =  "gls",
-                  value      = pip_create_globals(root_dir = root_dir,
-                                                          out_dir  = out_dir,
-                                                          vintage  = vintage,
-                                                          clean    = clean),
-                  assign.env =  globalenv(),
-                  eval.env   = globalenv())
+    delayedAssign(
+      x = "gls",
+      value = pip_create_globals(
+        root_dir = root_dir,
+        out_dir = out_dir,
+        vintage = vintage,
+        clean = clean
+      ),
+      assign.env = globalenv(),
+      eval.env = globalenv()
+    )
   }
 
   return(invisible(TRUE))
-
 }
-
-
-
