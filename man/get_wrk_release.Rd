@@ -4,7 +4,7 @@
 \alias{get_wrk_release}
 \title{Retrieve and assign the active working release}
 \usage{
-get_wrk_release(name = NULL, verbose = TRUE)
+get_wrk_release(name = "wrk_release", verbose = getOption("pipfun.verbose"))
 }
 \arguments{
 \item{name}{character: name to assign the working release object to in

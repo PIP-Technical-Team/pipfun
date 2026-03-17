@@ -392,7 +392,7 @@ get_pip_folders <- function(folder = NULL,
 #'
 #' @examples
 #' 
-#' \\dontrun{
+#' \dontrun{
 #' setup_working_release()
 #' get_pip_aliases()             # returns all aliases
 #' get_pip_aliases("aux_data")  # returns alias for aux_data

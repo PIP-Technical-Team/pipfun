@@ -32,14 +32,15 @@ hidden variables (those starting with a dot).
 }
 \examples{
 # Inside a function:
+\dontrun{
 my_fun <- function(x, y = 1, ...) {
-  capture_log_args(log_info, environment())
+  pipfun:::capture_log_args(log_info, environment())
 }
 my_fun(3, z = 9)
 
 # Interactive use:
 a <- 1; b <- 2
-capture_log_args(log_info, environment())
-
+pipfun:::capture_log_args(log_info, environment())
+}
 }
 \keyword{internal}
