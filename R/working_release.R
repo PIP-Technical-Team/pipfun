@@ -143,7 +143,8 @@ setup_working_release <- function(release  = NULL,
   aliases <- init_pip_aliases(
     folder_paths,
     include_release = alias_include_release,
-    release = pr[, release]
+    release = pr[, release],
+    verbose = verbose
   )
 
   # ------------------------------------------------------------------
@@ -443,20 +444,21 @@ get_pip_aliases <- function(folder = NULL,
 #'   The vector's names correspond to the keys of `folder_paths`.
 #'
 #' @keywords internal
-init_pip_aliases <- function(folder_paths,
-                             verbose = getOption("pipfun.verbose"),
-                             include_release = FALSE,
-                             release = NULL) {
-
+init_pip_aliases <- function(
+  folder_paths,
+  verbose = getOption("pipfun.verbose"),
+  include_release = FALSE,
+  release = NULL
+) {
   # Map from folder key -> short base alias
   alias_map <- c(
-    aux_data      = "aux",
-    aux_metadata  = "aux_meta",
-    dlw_data      = "dlw",
+    aux_data = "aux",
+    aux_metadata = "aux_meta",
+    dlw_data = "dlw",
     dlw_inventory = "dlw_inv",
-    dlw_metadata  = "dlw_meta",
-    pip_data      = "pip",
-    pip_metadata  = "pip_meta",
+    dlw_metadata = "dlw_meta",
+    pip_data = "pip",
+    pip_metadata = "pip_meta",
     pip_inventory = "pip_inv",
     pip_master_inventory = "pip_master"
   )
@@ -475,30 +477,40 @@ init_pip_aliases <- function(folder_paths,
   }
 
   # Build the final alias names (append release suffix for specific folders)
-  final_aliases <- vapply(names(alias_map), function(nm) {
-    base <- alias_map[[nm]]
-    if (include_release && (nm %in% release_specific)) {
-      paste0(base, "_", release)
-    } else {
-      base
-    }
-  }, FUN.VALUE = character(1))
+  final_aliases <- vapply(
+    names(alias_map),
+    function(nm) {
+      base <- alias_map[[nm]]
+      if (include_release && (nm %in% release_specific)) {
+        paste0(base, "_", release)
+      } else {
+        base
+      }
+    },
+    FUN.VALUE = character(1)
+  )
 
   # Register aliases with stamp for each folder; stamp will report
   # conflicts or errors as appropriate.
   for (nm in names(final_aliases)) {
-
     alias <- final_aliases[[nm]]
-    root  <- fs::path_norm(folder_paths[[nm]])
-
-    stamp::st_init(
-      root  = root,
-      alias = alias
-    )
+    root <- fs::path_norm(folder_paths[[nm]])
 
     if (verbose) {
+      stamp::st_init(
+        root = root,
+        alias = alias
+      )
+
       cli::cli_alert_success(
         "Registered alias {.field {alias}} -> {.path {root}}"
+      )
+    } else {
+      suppressMessages(
+        stamp::st_init(
+          root = root,
+          alias = alias
+        )
       )
     }
   }
