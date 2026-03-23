@@ -4,7 +4,11 @@
 \alias{get_pip_aliases}
 \title{Retrieve stamp aliases registered for PIP folders}
 \usage{
-get_pip_aliases(folder = NULL, name = "pip_aliases", verbose = FALSE)
+get_pip_aliases(
+  folder = NULL,
+  name = "pip_aliases",
+  verbose = getOption("pipfun.verbose")
+)
 }
 \arguments{
 \item{folder}{character|null: optional folder name (key of aliases) to return.

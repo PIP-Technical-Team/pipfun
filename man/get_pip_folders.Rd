@@ -4,7 +4,11 @@
 \alias{get_pip_folders}
 \title{Retrieve folder paths registered for the active PIP working release}
 \usage{
-get_pip_folders(folder = NULL, name = "pip_folders", verbose = FALSE)
+get_pip_folders(
+  folder = NULL,
+  name = "pip_folders",
+  verbose = getOption("pipfun.verbose")
+)
 }
 \arguments{
 \item{folder}{character|null: optional specific folder name to return
