@@ -73,7 +73,7 @@ pip_sign_save <- function(x,
       }
     }
 
-    qs::qsave(
+    qs2::qs_save(
       x = x,
       file = fs::path(msrdir, measure, ext = "qs")
     )
@@ -88,9 +88,14 @@ pip_sign_save <- function(x,
       }
     }
 
-    qs::qsave(
+    qs2::qsave(
       x = x,
-      file = fs::path(msrdir, "_vintage/", paste0(measure, "_", time), ext = "qs")
+      file = fs::path(
+        msrdir,
+        "_vintage/",
+        paste0(measure, "_", time),
+        ext = "qs"
+      )
     )
 
     # Write new signature
