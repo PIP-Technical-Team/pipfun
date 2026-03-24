@@ -13,7 +13,7 @@ use get_from_pipenv("releases")'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">pipfun</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,7 +25,7 @@ use get_from_pipenv("releases")'></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/interact_with_Github.html">Tools for GitHub Interaction</a></li>
-    <li><a class="dropdown-item" href="../articles/log.html">Using pipfun's Logging System</a></li>
+    <li><a class="dropdown-item" href="../articles/log.html">Structured Logging with pipfun</a></li>
     <li><a class="dropdown-item" href="../articles/pip_release_management.html">PIP Release Management</a></li>
     <li><a class="dropdown-item" href="../articles/release_branch_management.html">Functions for managing release branches</a></li>
     <li><a class="dropdown-item" href="../articles/working_with_releases.html">Working with PIP releases</a></li>
@@ -102,17 +102,35 @@ use <code>get_from_pipenv("releases")</code></p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">get_pip_releases</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Git credentials are missing or invalid in non-interactive mode.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     release identity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;int&gt;   &lt;char&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: 20240326     PROD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: 20241101     PROD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: 20250203     TEST</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: 20250501     TEST</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: 20250711     TEST</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6: 20250717     TEST</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7: 20250718     TEST</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8: 20250721     TEST</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9: 20250725     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      release identity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        &lt;int&gt;   &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1: 20240326     PROD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2: 20241101     PROD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3: 20250203     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4: 20250501     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5: 20250711     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6: 20250717     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7: 20250718     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8: 20250721     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9: 20250725     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10: 20250730     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11: 20250805     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12: 20250806     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13: 20250807     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14: 20250808     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15: 20250810     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16: 20250811     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17: 20251205     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18: 20251211     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19: 20260203     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20: 20260204     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21: 20260206     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22: 20260202     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23: 20260101     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24: 20260221     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25: 20260223     TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      release identity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        &lt;int&gt;   &lt;char&gt;</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -124,7 +142,7 @@ use <code>get_from_pipenv("releases")</code></p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

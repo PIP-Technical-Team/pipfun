@@ -1,0 +1,277 @@
+# Tools for GitHub Interaction
+
+``` r
+library(pipfun)
+```
+
+## Introduction
+
+The [pipfun](https://pip-technical-team.github.io/pipfun) package
+provides a set of tools for interacting with GitHub content, especially
+designed for working with PIP repositories. These functions act as
+lightweight wrappers around the [gh](https://gh.r-lib.org/) package,
+offering a simpler and more focused interface for specific GitHub tasks
+related to PIP.
+
+## Managing Credentials
+
+The [pipfun](https://pip-technical-team.github.io/pipfun) package
+utilizes the [gitcreds](https://gitcreds.r-lib.org/) package to manage,
+store, and authenticate GitHub credentials.
+[gitcreds](https://gitcreds.r-lib.org/) provides a straightforward way
+to securely store your GitHub Personal Access Token (PAT) and ensure
+seamless access when using
+[pipfun](https://pip-technical-team.github.io/pipfun).
+
+To set up your credentials, you can follow the instructions provided on
+the [official `{gitcreds}` documentation
+page](https://gitcreds.r-lib.org/), or refer to Jenny Bryan’s excellent
+guide, [Happy Git With
+R](https://happygitwithr.com/https-pat.html#gitcreds-package). Both
+resources provide detailed explanations on how to properly configure
+your Git credentials.
+
+Please note that [pipfun](https://pip-technical-team.github.io/pipfun)
+requires valid GitHub credentials to interact with repositories. If your
+credentials are not set up correctly with
+[gitcreds](https://gitcreds.r-lib.org/), you will be unable to use
+[pipfun](https://pip-technical-team.github.io/pipfun) for any
+GitHub-related functionality.
+
+## Getting Data from GitHub
+
+The functions in [pipfun](https://pip-technical-team.github.io/pipfun)
+are organized to build upon one another, allowing for progressively more
+complex interactions with GitHub. Below, we’ll start by introducing the
+foundational, lower-level functions that provide core metadata and file
+information. We will then move towards the higher-level, more abstracted
+functions that make complex tasks easier.
+
+### Retrieving File Metadata from GitHub
+
+Every file stored in a GitHub repository contains a rich set of
+metadata, which can be very useful for tracking changes, validating
+updates, and managing file versions. For example, each file has a unique
+hash code that serves as a signature for its version. Whenever a file is
+updated, its hash changes, making it possible to determine whether a
+file has been modified since the last time it was accessed. This hash is
+also used to confirm overwriting files in a GitHub repository.
+
+To retrieve this metadata, you can use the
+[`get_file_info_from_gh()`](https://pip-technical-team.github.io/pipfun/reference/get_file_info_from_gh.md)
+function as follows:
+
+``` r
+ghf_info <- get_file_info_from_gh(
+  owner     = getOption("pipfun.ghowner"),
+  repo      = "pip_info",
+  file_path = "releases.csv",
+  branch    = "releases"
+)
+#> Git credentials are missing or invalid in non-interactive mode.
+
+names(ghf_info)
+#>  [1] "name"         "path"         "sha"          "size"         "url"         
+#>  [6] "html_url"     "git_url"      "download_url" "type"         "content"     
+#> [11] "encoding"     "_links"       "owner"        "repo"         "branch"
+```
+
+In this example, we use the function to get information about the file
+`"releases.csv"` in the `"releases"` branch of the `"pip_info"`
+repository. The `owner` argument specifies the GitHub repository owner,
+which by default will be the value returned by
+`getOption("pipfun.ghowner")`. This default value simplifies repeated
+calls, especially when consistently working within a specific
+organization’s repositories.
+
+The function returns metadata about the file, such as its current hash
+and other useful information that can be leveraged for version control
+or ensuring file consistency.
+
+### Retrieving branch metadata from Github
+
+In a similar way, users can use the
+[`get_branch_info_from_gh()`](https://pip-technical-team.github.io/pipfun/reference/get_branch_info_from_gh.md)
+function to retrieve detailed metadata about a specific branch within a
+GitHub repository. This function provides essential information, such as
+the branch’s name, the latest commit’s hash, and details about branch
+protection rules (if any). Like other {pipfun} functions, it uses the
+GitHub API for these queries, leveraging your credentials to
+authenticate requests. The output can be used for tasks such as
+verifying the latest changes, ensuring compliance with branch protection
+rules, or tracking updates across branches in the repository.
+
+``` r
+gh_branch_info <- get_branch_info_from_gh(
+  owner     = getOption("pipfun.ghowner"),
+  repo      = "aux_ppp",
+  branch    = "DEV"
+)
+#> Git credentials are missing or invalid in non-interactive mode.
+
+names(gh_branch_info)
+#> [1] "name"           "commit"         "_links"         "protected"     
+#> [5] "protection"     "protection_url" "owner"          "repo"          
+#> [9] "branch"
+```
+
+### Downloading a File from GitHub and Reading from Local Drive
+
+Downloading and reading files from GitHub can be challenging due to the
+diversity of file formats, many of which cannot be read directly. This
+is where the
+[`get_file_from_gh()`](https://pip-technical-team.github.io/pipfun/reference/get_file_from_gh.md)
+function in [pipfun](https://pip-technical-team.github.io/pipfun) comes
+into play.
+
+The
+[`get_file_from_gh()`](https://pip-technical-team.github.io/pipfun/reference/get_file_from_gh.md)
+function simplifies this process by identifying the format of the file,
+downloading it as a temporary file on your local drive (when necessary),
+and then loading it directly into memory. This function supports the
+most common file formats used in the PIP project, including:
+
+- CSV (`.csv`)
+- Excel files (`.xls`, `.xlsx`)
+- Stata (`.dta`)
+- Quick Serialization (`.qs`)
+- Fast serialization (`.fst`)
+- YAML (`.yaml`)
+- R Data (`.rds`)
+- JSON (`.json`)
+
+This flexibility allows users to work seamlessly with various data types
+commonly encountered in PIP, without worrying about the specific steps
+needed to handle each format.
+
+``` r
+dt  <- get_file_from_gh(owner     = getOption("pipfun.ghowner"),
+                repo      = "pip_info",
+                file_path = "releases.csv",
+                branch    = "releases")
+#> Git credentials are missing or invalid in non-interactive mode.
+
+head(dt)
+#>     release identity
+#>       <int>   <char>
+#> 1: 20240326     PROD
+#> 2: 20241101     PROD
+#> 3: 20250203     TEST
+#> 4: 20250501     TEST
+#> 5: 20250711     TEST
+#> 6: 20250717     TEST
+```
+
+## Saving Data to GitHub
+
+To save data to GitHub using
+[pipfun](https://pip-technical-team.github.io/pipfun), you need to have
+appropriate permissions configured in your R environment. Ensure that
+the token you use with [gitcreds](https://gitcreds.r-lib.org/) has the
+necessary permissions to write files to GitHub repositories.
+
+The process of saving data with the
+[`save_to_gh()`](https://pip-technical-team.github.io/pipfun/reference/save_to_gh.md)
+function differs from the traditional Git workflow of staging,
+committing, and pushing changes. Instead,
+[`save_to_gh()`](https://pip-technical-team.github.io/pipfun/reference/save_to_gh.md)
+interacts directly with the GitHub API, allowing you to upload data
+without manually handling Git commands. This approach provides a
+convenient way to programmatically save or update files in a repository.
+
+The
+[`save_to_gh()`](https://pip-technical-team.github.io/pipfun/reference/save_to_gh.md)
+function provides a streamlined way to save or update files in a GitHub
+repository. If the file already exists, it will be updated with new
+content. If it does not exist, a new file will be created. By default,
+[`save_to_gh()`](https://pip-technical-team.github.io/pipfun/reference/save_to_gh.md)
+saves the data in CSV format, but you can choose any of the supported
+formats mentioned earlier.
+
+Below are examples demonstrating how to use it:
+
+#### Example 1: create a new file
+
+This will create a new file named data_example.csv in the DEV branch of
+the aux_test repository.
+
+``` r
+#library(pipfun)
+
+# Example data frame
+# df <- data.frame(a = 1:5, b = letters[1:5])
+# 
+# # Save the data to a repository
+# save_to_gh(
+#   df       = df,
+#   owner    = getOption("pipfun.ghowner"),
+#   repo     = "aux_test", 
+#   filename = "data_example", 
+#   ext      = "csv"
+# )
+```
+
+#### Example 2: updating an existing file
+
+``` r
+
+# Updated data frame
+df <- data.frame(a = 6:10, b = letters[6:10])
+
+# Update the file in the repository
+save_to_gh(
+  df       = df,
+  repo     = "aux_test", 
+  filename = "data_example", 
+  ext      = "csv"
+)
+```
+
+#### Example 3: Saving the Same Data to the Same File (No Change)
+
+``` r
+# Save the same data to the same file
+result_no_change <- save_to_gh(
+  df = df,
+  repo = "aux_test",
+  filename = "data_example",
+  ext = "csv"
+)
+
+# Check if the data was changed
+print(result_no_change$data_change)  # Should be FALSE as the content is identical
+```
+
+Additionally, recall that if you have metadata for an existing file, you
+can pass it directly to the function through the `metadata` argument.
+
+#### Understanding its output
+
+The
+[`save_to_gh()`](https://pip-technical-team.github.io/pipfun/reference/save_to_gh.md)
+function returns a list invisibly, containing information about the
+upload or update operation. The key elements of this output list are:
+
+- **`content`**: Metadata about the uploaded or updated file, including
+  its SHA hash, path in the repository, and other details.
+- **`commit`**: Information about the commit associated with the upload
+  or update operation, such as the commit SHA and message.
+- **`init`**: Metadata of the file before the operation. If the file did
+  not exist, this will be `NULL`.
+- **`owner`**: The GitHub username or organization that owns the
+  repository.
+- **`repo`**: The name of the GitHub repository where the file was
+  uploaded or updated.
+- **`branch`**: The branch of the repository where the file was uploaded
+  or updated.
+- **`data_change`**: A logical value indicating whether the file’s
+  content was updated (`TRUE`) or remained unchanged (`FALSE`).  
+  *Note*: If the file did not exist before the operation, `data_change`
+  will be `TRUE` because creating a new file is considered a change to
+  the repository’s data state.
+
+## Delete from Github
+
+## Branches management
+
+Blah

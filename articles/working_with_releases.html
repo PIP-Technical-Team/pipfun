@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pipfun</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/interact_with_Github.html">Tools for GitHub Interaction</a></li>
-    <li><a class="dropdown-item" href="../articles/log.html">Using pipfun's Logging System</a></li>
+    <li><a class="dropdown-item" href="../articles/log.html">Structured Logging with pipfun</a></li>
     <li><a class="dropdown-item" href="../articles/pip_release_management.html">PIP Release Management</a></li>
     <li><a class="dropdown-item" href="../articles/release_branch_management.html">Functions for managing release branches</a></li>
     <li><a class="dropdown-item" href="../articles/working_with_releases.html">Working with PIP releases</a></li>
@@ -71,39 +71,216 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Creating releases goes beyond organization, information, and vintage
-control. The main purpose is having a well-defined structure that
-enables a clear, efficient and reproducible workflow.</p>
+<p>The PIP workflow is built around the concept of a working release. A
+working release defines:</p>
+<ul>
+<li><p>the release identifier</p></li>
+<li><p>the identity (e.g., production, testing)</p></li>
+<li><p>the PPP round</p></li>
+<li><p>the folder structure on disk</p></li>
+<li><p>the registered stamp aliases</p></li>
+<li><p>global metadata required by downstream functions</p></li>
+</ul>
+<p>Setting a working release ensures a consistent, reproducible, and
+isolated data layout for each release.</p>
+<p>All release-related state is stored internally in the package’s
+private .pipenv environment.</p>
 </div>
 <div class="section level2">
-<h2 id="set-up-a-release">Set up a release<a class="anchor" aria-label="anchor" href="#set-up-a-release"></a>
+<h2 id="set-up-a-release">1. Set up a release<a class="anchor" aria-label="anchor" href="#set-up-a-release"></a>
 </h2>
+<p>The entry point is the function <code><a href="../reference/setup_working_release.html">setup_working_release()</a></code>,
+which takes care of all the necessary steps to set up a working release
+environment. You can specify the release identifier, identity, PPP
+round, and other parameters, or simply use the defaults to set up the
+latest release.</p>
+<ul>
+<li><p>identity must match one of
+getOption(“pipfun.identities”)</p></li>
+<li><p>ppp must match one of getOption(“pipfun.ppps”)</p></li>
+<li><p>Invalid values trigger informative errors.</p></li>
+</ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">creds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_github_creds.html">get_github_creds</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">wr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setup_working_release.html">setup_working_release</a></span><span class="op">(</span>creds <span class="op">=</span> <span class="va">creds</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Notice that, by default, the working release will correspond to the
-latest release of the most recent PPP round. Also, if you try to setup
-the release again, you’ll get an error because there is release already
-in the <code>.pipenv</code> environment.</p>
+latest release of the most recent PPP round. If you try to setup the
+same release more than once, you’ll get an error because there is
+release already in the <code>.pipenv</code> environment.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">wr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setup_working_release.html">setup_working_release</a></span><span class="op">(</span>creds <span class="op">=</span> <span class="va">creds</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>If you need to set the environment again, you need to either restart
 your R session or use argument <code>force = TRUE</code></p>
 </div>
 <div class="section level2">
-<h2 id="the--pipenv-environment">The <code>.pipenv</code> environment<a class="anchor" aria-label="anchor" href="#the--pipenv-environment"></a>
+<h2 id="what-happens-internally">2. What happens internally?<a class="anchor" aria-label="anchor" href="#what-happens-internally"></a>
 </h2>
-<p>The <code>.pipenv</code> environment contains many pieces of
-information that are use internally by other functions of the PIP
-ecosystem. For instance, the <code>wr</code> object that is returned
-invisibly by <code><a href="../reference/setup_working_release.html">setup_working_release()</a></code> is available in</p>
+<p><code><a href="../reference/setup_working_release.html">setup_working_release()</a></code> deliberately separates
+responsibilities:</p>
+<p><strong>Resolve release metadata</strong></p>
+<p><code><a href="../reference/get_latest_pip_release.html">get_latest_pip_release()</a></code> or
+<code><a href="../reference/get_pip_releases.html">get_pip_releases()</a></code> + <code><a href="../reference/find_release.html">find_release()</a></code></p>
+<p><strong>Create global metadata</strong></p>
+<p><code>pip_create_globals(create_dir = FALSE, ...)</code></p>
+<p><strong>Create folders on disk</strong></p>
+<p><code><a href="../reference/set_pip_folders.html">set_pip_folders()</a></code></p>
+<p><strong>Register aliases</strong></p>
+<p><code><a href="../reference/init_pip_aliases.html">init_pip_aliases()</a></code></p>
+<p><strong>Persist state</strong></p>
+<p>Objects are stored in .pipenv:</p>
+<p><code>stamp_root</code></p>
+<p><code>wrk_release</code></p>
+<p><code>gls</code></p>
+<p><code>folder_paths</code></p>
+<p><code>pip_aliases</code></p>
+<p>This separation makes the system easier to test and reason about.</p>
+<div class="section level3">
+<h3 id="directory-structure">2.1 Directory structure<a class="anchor" aria-label="anchor" href="#directory-structure"></a>
+</h3>
+<p>The function <code><a href="../reference/set_pip_folders.html">set_pip_folders()</a></code> creates and returns the
+canonical folder layout for a release.</p>
+<p>Release-specific folders use the suffix:</p>
+<p><release>_<identity></identity></release></p>
+<p>This allows multiple releases to coexist safely.</p>
+<p>The returned object contains:</p>
+<ul>
+<li><code>aux_data</code></li>
+<li><code>aux_metadata</code></li>
+<li><code>dlw_data</code></li>
+<li><code>dlw_inventory</code></li>
+<li><code>dlw_metadata</code></li>
+<li><code>pip_data</code></li>
+<li><code>pip_metadata</code></li>
+<li><code>pip_inventory</code></li>
+<li><code>pip_master_inventory</code></li>
+<li><code>stamp_root</code></li>
+</ul>
+<p>You do not call <code><a href="../reference/set_pip_folders.html">set_pip_folders()</a></code> directly — it is
+called automatically by <code><a href="../reference/setup_working_release.html">setup_working_release()</a></code>.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="stamp-aliases">3. Stamp aliases<a class="anchor" aria-label="anchor" href="#stamp-aliases"></a>
+</h2>
+<p>Each folder is registered as a stamp alias.</p>
+<p>Example aliases:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Folder key</th>
+<th>Alias</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>aux_data</td>
+<td>aux</td>
+</tr>
+<tr class="even">
+<td>pip_metadata</td>
+<td>pip_meta</td>
+</tr>
+<tr class="odd">
+<td>pip_inventory</td>
+<td>pip_inv</td>
+</tr>
+</tbody>
+</table>
+<p>Aliases allow downstream code to reference repositories by short
+names instead of full paths.</p>
+<p>If you want release-specific aliases:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_from_pipenv.html">get_from_pipenv</a></span><span class="op">(</span><span class="st">"working_release"</span><span class="op">)</span></span></code></pre></div>
-<p>Moreover, all the information contained in the old function
-<code><a href="../reference/pip_create_globals.html">pip_create_globals()</a></code> is now available in</p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_working_release.html">setup_working_release</a></span><span class="op">(</span>alias_include_release <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>Then aliases like:</p>
+<p><code>pip_meta_20251211</code></p>
+<p>are created for release-specific folders.</p>
+</div>
+<div class="section level2">
+<h2 id="accessing-the-active-release">4. Accessing the active release<a class="anchor" aria-label="anchor" href="#accessing-the-active-release"></a>
+</h2>
+<div class="section level3">
+<h3 id="retrieve-working-release">4.1 Retrieve working release<a class="anchor" aria-label="anchor" href="#retrieve-working-release"></a>
+</h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gls</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_from_pipenv.html">get_from_pipenv</a></span><span class="op">(</span><span class="st">"gls"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">gls</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_wrk_release.html">get_wrk_release</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>This assigns <code>wrk_release</code> in the calling environment:</p>
+<p><code>wrk_release$release</code> <code>wrk_release$identity</code>
+<code>wrk_release$ppp</code></p>
+<p>If no release has been set, the function aborts with a clear
+message.</p>
+</div>
+<div class="section level3">
+<h3 id="retrieve-folder-paths">4.2 Retrieve folder paths<a class="anchor" aria-label="anchor" href="#retrieve-folder-paths"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_pip_folders.html">get_pip_folders</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>This assigns <code>pip_folders</code> in your environment.</p>
+<p>To retrieve a specific folder:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_pip_folders.html">get_pip_folders</a></span><span class="op">(</span><span class="st">"aux_data"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="retrieve-aliases">4.3 Retrieve aliases<a class="anchor" aria-label="anchor" href="#retrieve-aliases"></a>
+</h3>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_pip_aliases.html">get_pip_aliases</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>To retrieve a specific alias:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_pip_aliases.html">get_pip_aliases</a></span><span class="op">(</span><span class="st">"pip_metadata"</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="the--pipenv-environment">5. The .pipenv environment<a class="anchor" aria-label="anchor" href="#the--pipenv-environment"></a>
+</h2>
+<p>All state is stored in the internal .pipenv environment.</p>
+<p>Stored objects include:</p>
+<ul>
+<li><p><code>wrk_release</code></p></li>
+<li><p><code>gls</code></p></li>
+<li><p><code>folder_paths</code></p></li>
+<li><p><code>pip_aliases</code></p></li>
+<li><p><code>stamp_root</code></p></li>
+</ul>
+<p>These are accessed indirectly through helper functions such as:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_from_pipenv.html">get_from_pipenv</a></span><span class="op">(</span><span class="st">"wrk_release"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/get_from_pipenv.html">get_from_pipenv</a></span><span class="op">(</span><span class="st">"gls"</span><span class="op">)</span></span></code></pre></div>
+<p>Users should generally rely on the public accessors instead of
+interacting with .pipenv directly.</p>
+</div>
+<div class="section level2">
+<h2 id="recommended-workflow">6. Recommended workflow<a class="anchor" aria-label="anchor" href="#recommended-workflow"></a>
+</h2>
+<p>A typical session:</p>
+<div class="section level4">
+<h4 id="set-release">1. Set release<a class="anchor" aria-label="anchor" href="#set-release"></a>
+</h4>
+<p><code><a href="../reference/setup_working_release.html">setup_working_release()</a></code></p>
+</div>
+<div class="section level4">
+<h4 id="retrieve-release-info-when-needed">2. Retrieve release info when needed<a class="anchor" aria-label="anchor" href="#retrieve-release-info-when-needed"></a>
+</h4>
+<p><code><a href="../reference/get_wrk_release.html">get_wrk_release()</a></code></p>
+</div>
+<div class="section level4">
+<h4 id="access-folders-or-aliases">3. Access folders or aliases<a class="anchor" aria-label="anchor" href="#access-folders-or-aliases"></a>
+</h4>
+<p><code><a href="../reference/get_pip_folders.html">get_pip_folders()</a></code> <code><a href="../reference/get_pip_aliases.html">get_pip_aliases()</a></code></p>
+<p>All downstream PIP functions assume that a working release has
+already been set.</p>
+</div>
+<div class="section level3">
+<h3 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</h3>
+<p>The working release system provides:</p>
+<ul>
+<li><p>Controlled vintage management</p></li>
+<li><p>Explicit folder isolation per release</p></li>
+<li><p>Automatic directory creation</p></li>
+<li><p>Registered stamp aliases</p></li>
+<li><p>Centralized state management via .pipenv</p></li>
+</ul>
+<p>This design ensures that PIP workflows remain reproducible, explicit,
+and easy to maintain across multiple releases.</p>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -116,7 +293,7 @@ invisibly by <code><a href="../reference/setup_working_release.html">setup_worki
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

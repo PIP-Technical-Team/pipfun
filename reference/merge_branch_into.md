@@ -1,0 +1,67 @@
+# Merge a Source Branch into a Target Branch
+
+This function merges the content of a source branch into a target branch
+within a specified GitHub repo. It uses the GitHub API to ensure that
+the target branch is updated with the latest changes from the source
+branch while preserving commit history.
+
+## Usage
+
+``` r
+merge_branch_into(
+  owner = getOption("pipfun.ghowner"),
+  repo,
+  source_branch,
+  target_branch,
+  force = TRUE
+)
+```
+
+## Arguments
+
+- owner:
+
+  Character. The GitHub username that owns the repository Defaults to
+  the value of the `pipfun.ghowner` option
+
+- repo:
+
+  Character. The name of the repository.
+
+- source_branch:
+
+  Character. The name of the branch to merge from
+
+- target_branch:
+
+  Character. The name of the branch to merge into
+
+- force:
+
+  logical. If `FALSE`, ask permission to user before merging. Default is
+  TRUE
+
+## Value
+
+Logical. Returns `TRUE` if the merge was successful or the branches
+already had the same content. Returns `FALSE` if the merge failed.
+
+## Details
+
+The function first checks whether the branches already have the same
+content by comparing their latest commit tree SHAs. If the branches are
+identical, no action is taken. Otherwise, the function performs a merge
+operation using GitHub's API. A descriptive commit message is added to
+document the merge.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+  owner <- getOption("pipfun.ghowner")            # GitHub username
+  repo <- "aux_test"         # Repository name
+  source_branch <- "DEV" # Branch to merge from
+  target_branch <- "20240512"     # Branch to merge into
+
+  merge_branch_into(owner, repo, source_branch, target_branch)} # }
+```
