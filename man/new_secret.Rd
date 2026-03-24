@@ -16,6 +16,6 @@ x with class "secrete"
 Right from the Advanced R Book
 }
 \examples{
-y <- new_secrete("284092sdhfjsld")
+y <- new_secret("284092sdhfjsld")
 y
 }

@@ -143,7 +143,8 @@ setup_working_release <- function(release  = NULL,
   aliases <- init_pip_aliases(
     folder_paths,
     include_release = alias_include_release,
-    release = pr[, release]
+    release = pr[, release],
+    verbose = verbose
   )
 
   # ------------------------------------------------------------------
@@ -186,6 +187,7 @@ setup_working_release <- function(release  = NULL,
 #'   `NULL`, the latest release is resolved via `get_latest_pip_release()`.
 #' @param identity character: identity token used as suffix. Default comes
 #'   from `getOption("pipfun.identities")` and is validated with `match.arg()`.
+#' @param verbose logical: print progress messages when `TRUE`.
 #'
 #' @return A named list of paths (class `pip_folder_paths`) containing
 #'   `stamp_root`, `aux_data`, `aux_metadata`, `dlw_data`, `dlw_inventory`,
@@ -193,16 +195,18 @@ setup_working_release <- function(release  = NULL,
 #'   `pip_master_inventory`.
 #'
 #' @examples
-#' 
+#'
 #' \dontrun{
 #' set_pip_folders(main_dir = "~/pip_data", release = "20251211")
 #' }
 #'
 #' @export
-set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
-                            release  = NULL,
-                            identity  = getOption("pipfun.identities")) {
-
+set_pip_folders <- function(
+  main_dir = getOption("pipfun.main_dir"),
+  release = NULL,
+  identity = getOption("pipfun.identities"),
+  verbose = getOption("pipfun.verbose")
+) {
   # Validate inputs
   identity <- match.arg(identity)
   if (is.null(release)) {
@@ -224,27 +228,31 @@ set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
   # DLW (data-lake/work) repository layout
   # - create top-level DLW directory and subfolders used by pipeline
   # ------------------------------------------------------------------
-  dlw_dir           <- fs::path(main_dir, "dlw_repository") |>
+  dlw_dir <- fs::path(main_dir, "dlw_repository") |>
     fs::dir_create(recurse = TRUE)
-  dlw_data_dir      <- fs::path(dlw_dir, "dlw_data") |>
+  dlw_data_dir <- fs::path(dlw_dir, "dlw_data") |>
     fs::dir_create(recurse = TRUE)
   dlw_inventory_dir <- fs::path(dlw_dir, "dlw_inventory") |>
     fs::dir_create(recurse = TRUE)
-  dlw_metadata_dir  <- fs::path(dlw_dir, "dlw_metadata", rt) |>
+  dlw_metadata_dir <- fs::path(dlw_dir, "dlw_metadata", rt) |>
     fs::dir_create(recurse = TRUE)
 
   # ------------------------------------------------------------------
   # PIP repository layout (surveys, metadata, inventories)
   # ------------------------------------------------------------------
-  pip_dir                  <- fs::path(main_dir, "pip_repository") |>
+  pip_dir <- fs::path(main_dir, "pip_repository") |>
     fs::dir_create(recurse = TRUE)
-  pip_data_dir             <- fs::path(pip_dir, "pip_data", "surveys") |>
+  pip_data_dir <- fs::path(pip_dir, "pip_data", "surveys") |>
     fs::dir_create(recurse = TRUE)
-  pip_master_inventory_dir <- fs::path(pip_dir, "pip_data", "master_inventory") |>
+  pip_master_inventory_dir <- fs::path(
+    pip_dir,
+    "pip_data",
+    "master_inventory"
+  ) |>
     fs::dir_create(recurse = TRUE)
-  pip_metadata_dir         <- fs::path(pip_dir, "pip_data", "surveys_metadata", rt) |>
+  pip_metadata_dir <- fs::path(pip_dir, "pip_data", "surveys_metadata", rt) |>
     fs::dir_create(recurse = TRUE)
-  pip_inventory_dir        <- fs::path(pip_dir, "pip_inventory", rt) |>
+  pip_inventory_dir <- fs::path(pip_dir, "pip_inventory", rt) |>
     fs::dir_create(recurse = TRUE)
 
   # The stamp project root is the top-level main_dir; stamp is used to
@@ -253,19 +261,19 @@ set_pip_folders <- function(main_dir  = getOption("pipfun.main_dir"),
 
   # Initialize stamp if needed. This creates `.stamp` under `stamp_root`.
   if (!fs::dir_exists(fs::path(stamp_root, ".stamp"))) {
-    stamp::st_init(root = stamp_root)
+    stamp::st_init(root = stamp_root, verbose = verbose)
   }
 
   # Return named list of canonical repository paths
   folder_paths <- list(
-    stamp_root    = stamp_root,
-    aux_data      = aux_dir[1],
-    aux_metadata  = aux_dir[2],
-    dlw_data      = dlw_data_dir,
+    stamp_root = stamp_root,
+    aux_data = aux_dir[1],
+    aux_metadata = aux_dir[2],
+    dlw_data = dlw_data_dir,
     dlw_inventory = dlw_inventory_dir,
-    dlw_metadata  = dlw_metadata_dir,
-    pip_data      = pip_data_dir,
-    pip_metadata  = pip_metadata_dir,
+    dlw_metadata = dlw_metadata_dir,
+    pip_data = pip_data_dir,
+    pip_metadata = pip_metadata_dir,
     pip_inventory = pip_inventory_dir,
     pip_master_inventory = pip_master_inventory_dir
   )
@@ -339,16 +347,20 @@ get_wrk_release <- function(name = "wrk_release",
 #'   provided, returns the single path (invisibly) for that folder.
 #'
 #' @export
-get_pip_folders <- function(folder = NULL,
-                            name = "pip_folders",
-                            verbose = FALSE) {
-
+get_pip_folders <- function(
+  folder = NULL,
+  name = "pip_folders",
+  verbose = getOption("pipfun.verbose")
+) {
   pip_folders <- get_from_pipenv("folder_paths")
 
   if (is.null(pip_folders)) {
     cli::cli_abort(
-      c(x = "PIP folder paths have not been set up",
-        i = "You need to set a working release with {.code pipfun::setup_working_release()}"))
+      c(
+        x = "PIP folder paths have not been set up",
+        i = "You need to set a working release with {.code pipfun::setup_working_release()}"
+      )
+    )
   }
 
   if (verbose) {
@@ -357,11 +369,11 @@ get_pip_folders <- function(folder = NULL,
   }
 
   # Assign to calling environment for convenience (so devs can access `pip_folders`)
-  assign(name,
-         pip_folders,
-         envir = parent.frame())
+  assign(name, pip_folders, envir = parent.frame())
 
-  if (is.null(folder)) return(invisible(pip_folders))
+  if (is.null(folder)) {
+    return(invisible(pip_folders))
+  }
 
   if (!(folder %in% names(pip_folders))) {
     cli::cli_abort("{.field {folder}} is not available in {.field pip_folders}")
@@ -390,24 +402,27 @@ get_pip_folders <- function(folder = NULL,
 #'   is provided, returns the single alias string (invisibly).
 #'
 #' @examples
-#' 
-#' \\dontrun{
+#'
+#' \dontrun{
 #' setup_working_release()
 #' get_pip_aliases()             # returns all aliases
 #' get_pip_aliases("aux_data")  # returns alias for aux_data
 #' }
 #'
 #' @export
-get_pip_aliases <- function(folder = NULL,
-                            name = "pip_aliases",
-                            verbose = FALSE) {
-
+get_pip_aliases <- function(
+  folder = NULL,
+  name = "pip_aliases",
+  verbose = getOption("pipfun.verbose")
+) {
   pip_aliases <- get_from_pipenv("pip_aliases")
 
   if (is.null(pip_aliases)) {
     cli::cli_abort(
-      c(x = "PIP aliases have not been set up",
-        i = "Run {.code pipfun::setup_working_release()} to register aliases")
+      c(
+        x = "PIP aliases have not been set up",
+        i = "Run {.code pipfun::setup_working_release()} to register aliases"
+      )
     )
   }
 
@@ -416,7 +431,9 @@ get_pip_aliases <- function(folder = NULL,
     print(pip_aliases)
   }
 
-  if (is.null(folder)) return(invisible(pip_aliases))
+  if (is.null(folder)) {
+    return(invisible(pip_aliases))
+  }
 
   if (!(folder %in% names(pip_aliases))) {
     cli::cli_abort("{.field {folder}} is not available in {.field pip_aliases}")
@@ -443,20 +460,21 @@ get_pip_aliases <- function(folder = NULL,
 #'   The vector's names correspond to the keys of `folder_paths`.
 #'
 #' @keywords internal
-init_pip_aliases <- function(folder_paths,
-                             verbose = getOption("pipfun.verbose"),
-                             include_release = FALSE,
-                             release = NULL) {
-
+init_pip_aliases <- function(
+  folder_paths,
+  verbose = getOption("pipfun.verbose"),
+  include_release = FALSE,
+  release = NULL
+) {
   # Map from folder key -> short base alias
   alias_map <- c(
-    aux_data      = "aux",
-    aux_metadata  = "aux_meta",
-    dlw_data      = "dlw",
+    aux_data = "aux",
+    aux_metadata = "aux_meta",
+    dlw_data = "dlw",
     dlw_inventory = "dlw_inv",
-    dlw_metadata  = "dlw_meta",
-    pip_data      = "pip",
-    pip_metadata  = "pip_meta",
+    dlw_metadata = "dlw_meta",
+    pip_data = "pip",
+    pip_metadata = "pip_meta",
     pip_inventory = "pip_inv",
     pip_master_inventory = "pip_master"
   )
@@ -475,25 +493,29 @@ init_pip_aliases <- function(folder_paths,
   }
 
   # Build the final alias names (append release suffix for specific folders)
-  final_aliases <- vapply(names(alias_map), function(nm) {
-    base <- alias_map[[nm]]
-    if (include_release && (nm %in% release_specific)) {
-      paste0(base, "_", release)
-    } else {
-      base
-    }
-  }, FUN.VALUE = character(1))
+  final_aliases <- vapply(
+    names(alias_map),
+    function(nm) {
+      base <- alias_map[[nm]]
+      if (include_release && (nm %in% release_specific)) {
+        paste0(base, "_", release)
+      } else {
+        base
+      }
+    },
+    FUN.VALUE = character(1)
+  )
 
   # Register aliases with stamp for each folder; stamp will report
   # conflicts or errors as appropriate.
   for (nm in names(final_aliases)) {
-
     alias <- final_aliases[[nm]]
-    root  <- fs::path_norm(folder_paths[[nm]])
+    root <- fs::path_norm(folder_paths[[nm]])
 
     stamp::st_init(
-      root  = root,
-      alias = alias
+      root = root,
+      alias = alias,
+      verbose = verbose
     )
 
     if (verbose) {

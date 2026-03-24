@@ -11,11 +11,8 @@ create_temp_main_dir <- function() {
 }
 
 clear_pipenv <- function() {
-  if (exists(".pipenv", envir = globalenv())) {
-    rm(list = ls(envir = .pipenv), envir = .pipenv)
-  } else {
-    return(NULL)
-  }
+  env <- get_pipenv()
+  rm(list = ls(envir = env), envir = env)
 }
 
 restore_pipenv <- function() {
@@ -117,7 +114,7 @@ test_that("get_wrk_release errors if working release not set", {
 
   expect_error(
     get_wrk_release(verbose = FALSE),
-    "Working release"
+    "Working release has not been set up"
   )
 })
 
@@ -135,7 +132,7 @@ test_that("get_pip_folders errors if folder_paths not set", {
 
   expect_error(
     get_pip_folders(verbose = FALSE),
-    "folder paths"
+    "PIP folder paths have not been set up"
   )
 })
 
@@ -154,6 +151,6 @@ test_that("get_pip_aliases errors if pip_aliases not set", {
 
   expect_error(
     get_pip_aliases(verbose = FALSE),
-    "aliases"
+    "PIP aliases have not been set up"
   )
 })

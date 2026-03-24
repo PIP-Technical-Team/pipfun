@@ -19,7 +19,9 @@ Displays a summary of PIP pins boards in a beautiful cli output.
 Shows the common directory path, each board's name, its relative path, and cache size.
 }
 \examples{
+\dontrun{
 boards <- set_pip_boards()
 print(boards)
+}
 
 }

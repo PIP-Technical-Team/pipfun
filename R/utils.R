@@ -87,7 +87,7 @@ get_latest_ppp_versions <- function(ppps = getOption("pipfun.ppps")) {
 #' @export
 #'
 #' @examples
-#' y <- new_secrete("284092sdhfjsld")
+#' y <- new_secret("284092sdhfjsld")
 #' y
 new_secret <- function(x = double()) {
   structure(x, class = "secret")
@@ -119,8 +119,10 @@ print.secret <- function(x, ...) {
 ##' @return Invisibly returns the input `pip_boards` object.
 ##'
 ##' @examples
+##' \dontrun{
 ##' boards <- set_pip_boards()
 ##' print(boards)
+##' }
 ##'
 ##' @export
 print.pip_boards <- function(x, ...) {

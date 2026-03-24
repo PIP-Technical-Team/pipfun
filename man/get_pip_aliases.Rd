@@ -4,16 +4,20 @@
 \alias{get_pip_aliases}
 \title{Retrieve stamp aliases registered for PIP folders}
 \usage{
-get_pip_aliases(name = NULL, verbose = TRUE)
+get_pip_aliases(
+  folder = NULL,
+  name = "pip_aliases",
+  verbose = getOption("pipfun.verbose")
+)
 }
 \arguments{
+\item{folder}{character|null: optional folder name (key of aliases) to return.
+If \code{NULL}, returns the full named character vector of aliases.}
+
 \item{name}{character: variable name to assign the aliases to in the
 calling environment. Defaults to \code{"pip_aliases"}.}
 
 \item{verbose}{logical: if \code{TRUE}, prints a summary of aliases retrieved.}
-
-\item{folder}{character|null: optional folder name (key of aliases) to return.
-If \code{NULL}, returns the full named character vector of aliases.}
 }
 \value{
 Invisibly returns a named character vector of aliases. If \code{folder}
@@ -26,7 +30,7 @@ actual folder paths registered with \code{stamp}.
 }
 \examples{
 
-\\dontrun{
+\dontrun{
 setup_working_release()
 get_pip_aliases()             # returns all aliases
 get_pip_aliases("aux_data")  # returns alias for aux_data

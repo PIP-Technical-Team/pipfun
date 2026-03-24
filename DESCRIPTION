@@ -23,7 +23,6 @@ Imports:
     haven,
     httr2,
     purrr,
-    qs,
     readr,
     readxl,
     remotes,
@@ -32,7 +31,8 @@ Imports:
     rlang,
     jsonlite,
     lifecycle,
-    stamp (>= 0.0.9)
+    stamp (>= 0.0.9),
+    qs2
 Suggests: 
     covr,
     knitr,
@@ -49,5 +49,5 @@ URL: https://pip-technical-team.github.io/pipfun, https://pip-technical-team.git
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)
-Remotes:  
+Remotes: 
     randrescastaneda/stamp

@@ -7,7 +7,8 @@
 set_pip_folders(
   main_dir = getOption("pipfun.main_dir"),
   release = NULL,
-  identity = getOption("pipfun.identities")
+  identity = getOption("pipfun.identities"),
+  verbose = getOption("pipfun.verbose")
 )
 }
 \arguments{
@@ -18,6 +19,8 @@ set_pip_folders(
 
 \item{identity}{character: identity token used as suffix. Default comes
 from \code{getOption("pipfun.identities")} and is validated with \code{match.arg()}.}
+
+\item{verbose}{logical: print progress messages when \code{TRUE}.}
 }
 \value{
 A named list of paths (class \code{pip_folder_paths}) containing

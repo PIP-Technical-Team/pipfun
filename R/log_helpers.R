@@ -21,15 +21,16 @@
 ##'
 ##' @examples
 ##' # Inside a function:
+##' \dontrun{
 ##' my_fun <- function(x, y = 1, ...) {
-##'   capture_log_args(log_info, environment())
+##'   pipfun:::capture_log_args(log_info, environment())
 ##' }
 ##' my_fun(3, z = 9)
 ##'
 ##' # Interactive use:
 ##' a <- 1; b <- 2
-##' capture_log_args(log_info, environment())
-##'
+##' pipfun:::capture_log_args(log_info, environment())
+##' }
 ##' @keywords internal
 capture_log_args <- function(helper_name, .env) {
   # Get the parent function and call (one level up from the helper)
