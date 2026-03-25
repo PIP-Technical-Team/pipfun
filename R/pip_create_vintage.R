@@ -79,7 +79,7 @@ pip_create_vintage <- function(vintage = list(),
       "x" = "name{?s} {.emph {no_sect}} not allowed"
     )
     cli::cli_abort(msg,
-                   class = "pipload_error"
+                   class = "pipfun_error"
     )
   }
 
@@ -92,7 +92,7 @@ pip_create_vintage <- function(vintage = list(),
         "x" = "You selected {.emph {user_sect}}"
       )
       cli::cli_abort(msg,
-                     class = "pipload_error"
+                     class = "pipfun_error"
       )
     }
 
@@ -104,9 +104,10 @@ pip_create_vintage <- function(vintage = list(),
     ## Load PPP vintage complementary data --------
     ppp_v <-
       load_from_gh(measure = "ppp",
-                 owner  = owner,
-                 branch = branch,
-                 filename = "ppp_vintage")
+                 owner     = owner,
+                 branch    = branch,
+                 filename  = "ppp_vintage",
+                 ext       = "csv")
 
     # remove Vs in case they are available and add zeros
     ver_vars <- c("ppp_rv", "ppp_av")
@@ -134,7 +135,7 @@ pip_create_vintage <- function(vintage = list(),
           "x" = "you provided {.emph {vintage$release}}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
       }
 
@@ -146,7 +147,7 @@ pip_create_vintage <- function(vintage = list(),
             which is {nchar(vintage$release)}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
 
       }
@@ -174,7 +175,7 @@ pip_create_vintage <- function(vintage = list(),
           "x" = "you provided {.emph {vintage$ppp_year}}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
       }
 
@@ -185,7 +186,7 @@ pip_create_vintage <- function(vintage = list(),
           "x" = "you provided {vintage$ppp_year}, which is {nchar(vintage$ppp_year)}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
 
       }
@@ -197,7 +198,7 @@ pip_create_vintage <- function(vintage = list(),
           "i" = "{.field ppp_year} must be one of {ppp_v[, unique(ppp_year)]}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
 
       }
@@ -234,7 +235,7 @@ pip_create_vintage <- function(vintage = list(),
           "x" = "you provided {.emph {vintage$ppp_rv}}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
       }
 
@@ -245,7 +246,7 @@ pip_create_vintage <- function(vintage = list(),
           "x" = "you provided {vintage$ppp_rv}, which is {nchar(vintage$ppp_rv)}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
 
       }
@@ -260,7 +261,7 @@ pip_create_vintage <- function(vintage = list(),
           "i" = "{.field ppp_rv} must be {u_rv}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
 
       }
@@ -299,7 +300,7 @@ pip_create_vintage <- function(vintage = list(),
           "x" = "you provided {.emph {vintage$ppp_av}}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
       }
 
@@ -310,7 +311,7 @@ pip_create_vintage <- function(vintage = list(),
           "x" = "you provided {vintage$ppp_av}, which is {nchar(vintage$ppp_av)}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
 
       }
@@ -325,7 +326,7 @@ pip_create_vintage <- function(vintage = list(),
           "i" = "{.field ppp_av} must be {u_av}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
 
       }
@@ -346,7 +347,7 @@ pip_create_vintage <- function(vintage = list(),
       vintage$identity <- toupper(vintage$identity)
 
       # correct identity
-      ident_opt <- c("PROD", "INT", "TEST")
+      ident_opt <- getOption("pipfun.identities")
 
       if (!(vintage$identity %in% ident_opt)) {
         msg     <- c(
@@ -354,7 +355,7 @@ pip_create_vintage <- function(vintage = list(),
           "i" = "you must use one of {.emph {ident_opt}}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error"
+                       class = "pipfun_error"
         )
 
       }

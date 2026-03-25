@@ -2,16 +2,16 @@
 % Please edit documentation in R/load_from_gh.R
 \name{load_from_gh}
 \alias{load_from_gh}
-\title{Load Raw Auxiliary data}
+\title{Load Data from github. This function is inspired from the gh package.}
 \usage{
 load_from_gh(
   measure,
   owner = getOption("pipfun.ghowner"),
   repo = paste0("aux_", measure),
-  branch = c("DEV", "PROD", "main"),
-  tag = match.arg(branch),
+  branch = "DEV",
+  tag = branch,
   filename = measure,
-  ext = "csv",
+  ext = NULL,
   ...
 )
 }
@@ -37,9 +37,8 @@ Default is \code{measure}}
 extension used}
 }
 \value{
-dataset
+data.table
 }
 \description{
-Load Raw Auxiliary data
+Load Data from github. This function is inspired from the gh package.
 }
-\keyword{internal}

@@ -1,0 +1,123 @@
+---
+title: "PIP Release Management"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PIP Release Management}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
+
+```{r setup}
+#devtools::load_all(".")
+library(pipfun)
+```
+
+
+# Introduction
+
+The World Bank's Poverty and Inequality Platform (PIP) updates global poverty data twice a year, typically about a month before the Spring and Annual Meetings. The `{pipfun}` package allows you to manage PIP releases directly from your R session, simplifying tasks related to accessing and managing these updates.
+
+# Basics
+
+The most relevant information for PIP is stored in the *pip_info* repository of the *PIP-Technical-team* GitHub group. To retrieve all available releases, run:
+
+```{r}
+old_release <- get_pip_releases()
+old_release
+```
+
+To minimize GitHub API calls, `get_pip_releases()` saves results in the `.pipenv` environment. This cached information is available for the duration of your session, making it easy to access without repeatedly querying the API.
+
+For the most recent release, simply use:
+
+```{r latest-release}
+get_latest_pip_release()
+```
+
+# Creating a New PIP Release
+
+To initiate a new release, use the `new_pip_release` function. Although all arguments have default values, it is recommended to specify values explicitly. By default, the release date is set to the current date in `YYYYMMDD` format (e.g., `format(Sys.Date(), "%Y%m%d")`). If the date format is incorrect, an error will occur:
+
+```{r wrong-release, error=TRUE}
+new_pip_release(release = "10-28-2020") # incorrect date format
+```
+
+The release identity defaults to "PROD" but can be set to "INT" for internal reports or "TEST" for developer testing. Note that "TEST" releases are not intended for transparency or replication purposes. Their main objective is to provide developers of pip a clear environment to experiment with new data and methodologies.
+
+```{r new-pip-release}
+tmp_dir <- tempdir()
+release_date <- "20241105"
+identity     <-  "TEST"
+
+# Create a New PIP Release (NPR)
+npr <- new_pip_release(release = release_date,
+                       identity = identity,
+                       root_dir = tmp_dir)
+
+
+# npr <- remove_pip_release(release = release_date,
+#                        identity = identity,
+#                        root_dir = tmp_dir)
+
+```
+
+When a new release is created, several steps are performed, all stored in the `new_pip_release()` function's returned object. You can view auxiliary directories set up in the directory specified by the `root_dir` argument. If no directory is specified, `{pipfun}` defaults to an official directory path, provided you have the necessary permissions.
+
+## Working Directories
+
+In this example, we use a temporary directory.
+
+Auxiliary data directory:
+
+```{r aux-dir}
+npr$aux_dir |> 
+  names() |> 
+  fs::dir_exists()
+```
+
+Poverty Calculator directory:
+
+```{r pc-dir}
+npr$pc_dir |> 
+  names() |> 
+  fs::dir_exists()
+```
+
+## Checking for New Releases
+
+```{r new-release}
+release <- get_pip_releases()
+release
+```
+
+The release data is obtained from the GitHub API directly. This guarantees that you always get the latest information. If you need the "releases" available in the  cached data of `.pipenv`, you may use `get_from_pipenv("releases")`. 
+
+# Removing a PIP Release
+
+If you need to remove a release, perhaps due to a mistake, use `remove_pip_release()`. This function is irreversible, so use it with caution.
+
+```{r remove-release}
+removed_release <- 
+  remove_pip_release(release     = release_date, 
+                     identity    = identity, 
+                     working_dir = tmp_dir)
+
+# Check that "20241105-TEST" has been removed
+(get_pip_releases())
+```
+
+# Underlying Functions
+
+Both `new_pip_release()` and `remove_pip_release()` act as wrappers around `yyy_aux_dir()` and `yyy_pc_dir()`, where `yyy` can be either `create` or `remove`. You can use these helper functions independently if desired. Additionally, these functions rely on `save_to_gh()`, a wrapper for `gh::gh()` that facilitates easy interactions with GitHub repositories.
+
+Both `new_pip_release()` and `remove_pip_release()` return a list containing all values produced by the underlying helper functions, giving you complete information about the operation's results.
+

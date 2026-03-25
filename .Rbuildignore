@@ -7,3 +7,6 @@
 ^pkgdown$
 ^\.github$
 ^codecov\.yml$
+^doc$
+^Meta$
+^data-raw$

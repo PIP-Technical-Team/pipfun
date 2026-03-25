@@ -8,5 +8,6 @@
 
 library(testthat)
 library(pipfun)
+library(mockery)
 
 test_check("pipfun")

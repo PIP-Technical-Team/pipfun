@@ -13,8 +13,14 @@
 #'   `getOption("pipfun.verbose")`
 #' @param create_dir logical: If TRUE creates output directory or any other
 #'   directory that is part of the returned global and that does not exist.
-#'   Otherwise it just returns the directory path **even if**  the
-#'   directory does not exist
+#'   Otherwise it just returns the directory path **even if**  the directory
+#'   does not exist
+#' @param max_year_country numeric: Max year for country lineup. Default NULL,
+#'   which is a heuristics that depends on the date this function is executed.
+#' @param max_year_aggregate numeric: Max year for regional nowcast.Default
+#'   NULL, which is the current year
+#' @param max_year_lineup numeric: Max year for regional lineup.Default NULL,
+#'   which is two years before the current year
 #'
 #' @return list
 #' @export
@@ -23,12 +29,16 @@
 #' \dontrun{
 #' pip_create_globals()
 #' }
-pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
-                               out_dir    = root_dir,
-                               vintage    = NULL,
-                               clean      = FALSE,
-                               verbose    = getOption("pipfun.verbose"),
-                               create_dir = FALSE) {
+pip_create_globals <-
+  function(root_dir           = Sys.getenv("PIP_ROOT_DIR"),
+           out_dir            = root_dir,
+           vintage            = NULL,
+           clean              = FALSE,
+           verbose            = getOption("pipfun.verbose"),
+           create_dir         = FALSE,
+           max_year_country   = NULL,
+           max_year_lineup    = NULL,
+           max_year_aggregate = NULL) {
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,7 +66,7 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
             {.field %Y%m%d_YYYY_##_##_SSS}"
           )
           cli::cli_abort(msg,
-                         class = "pipload_error",
+                         class = "pipfun_error",
                          wrap = TRUE
           )
         }
@@ -77,7 +87,7 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
           "x" = "you provided {.field {vintage}}"
         )
         cli::cli_abort(msg,
-                       class = "pipload_error",
+                       class = "pipfun_error",
                        wrap  = TRUE
         )
 
@@ -144,7 +154,7 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
   #
   glbs$DLW_RAW_DIR          <- fs::path(root_dir,"DLW-RAW")
   if (isTRUE(create_dir)) {
-    create_dir(glbs)
+    create_directories(glbs)
   }
 
 
@@ -158,10 +168,14 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
     ## Poverty calculator --------
 
     # Main output folder
-    glbs$OUT_DIR_PC   <- fs::path(out_dir, 'pip_ingestion_pipeline/pc_data/output-tfs-sync/ITSES-POVERTYSCORE-DATA/')
+    glbs$OUT_DIR_PC   <- fs::path(out_dir,
+                                  'pip_ingestion_pipeline/pc_data/output-tfs-sync/ITSES-POVERTYSCORE-DATA/') |>
+      fs::dir_create()
 
     if (isTRUE(create_dir)) {
-      create_dir(glbs)
+      create_directories(glbs)
+
+
     }
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -192,8 +206,8 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ## Cached survey data dir -----
-    cache_ppp <- data.table::tstrsplit(vintage_dir, "_", keep = c(2:5))
-    cache_ppp <- paste0(cache_ppp, collapse = "_")
+    cache_ppp <- vintage_dir
+    # cache_ppp <- paste0(cache_ppp, collapse = "_")
 
     glbs$CACHE_SVY_DIR_PC <- fs::path(glbs$PIP_PIPE_DIR,
                                       'pc_data/cache/clean_survey_data',
@@ -208,7 +222,7 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
     glbs$OUT_DIR_TB   <- fs::path(out_dir,
                                   'pip_ingestion_pipeline/tb_data/output')
     if (isTRUE(create_dir)) {
-      create_dir(glbs)
+      create_directories(glbs)
     }
 
   } else { # end of vintage not null
@@ -232,29 +246,43 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
   # Max dates   ---------
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  max_year_country   <- 2019
+
+  c_year   <- as.integer(format(Sys.Date(), "%Y"))
+  c_month  <- as.integer(format(Sys.Date(), "%m"))
+
   if (is.null(max_year_country)) {
-
-    c_year   <- as.integer(format(Sys.Date(), "%Y"))
-    c_month  <- as.integer(format(Sys.Date(), "%m"))
-
-    max_year <- ifelse(c_month >= 8,  # August
-                       c_year - 1, # After or in August
-                       c_year - 2) # Before August
-
+    # max_year <- ifelse(c_month >= 8,  # August
+    #                    c_year - 1, # After or in August
+    #                    c_year - 2) # Before August
+    max_year <- c_year
   } else {
-
     max_year <- max_year_country
+  }
 
+  if (is.null(max_year_lineup)) {
+    max_year_lineup <- max_year
   }
   # Years used in PIP
   glbs$PIP_YEARS        <- 1977:(max_year + 1)
   # Years used in the interpolated means table
-  glbs$PIP_REF_YEARS    <- 1981:max_year
-  # Compression level for .fst output files
-  glbs$FST_COMP_LVL     <- 100
+  glbs$PIP_REF_YEARS    <- 1981:c_year
 
-  glbs$max_year_aggregate <- 2017
+  # lineup years for aggregate
+  glbs$PIP_LINEUP_YEARS    <- 1981:max_year_lineup
+
+
+  # Compression level for .fst output files
+  glbs$FST_COMP_LVL     <- 20
+
+  if (is.null(max_year_aggregate)) {
+    glbs$max_year_aggregate <-
+      Sys.Date() |>
+      format("%Y") |>
+      as.integer()
+
+  } else {
+    glbs$max_year_aggregate <- max_year_aggregate
+  }
 
   return(glbs)
 }
@@ -263,7 +291,7 @@ pip_create_globals <- function(root_dir   = Sys.getenv("PIP_ROOT_DIR"),
 #'
 #' @param glbs list of object. Some of them are fs_paths
 #' @noRd
-create_dir <- function(glbs) {
+create_directories <- function(glbs) {
 
   is_fs_path <- which(purrr::map_lgl(glbs, inherits, "fs_path"))
 
@@ -359,7 +387,7 @@ check_and_create <- function(dir,
                 "*" = "vintages availables are {.file {vintages_av}}"
               )
               cli::cli_abort(msg,
-                             class = "pipload_error"
+                             class = "pipfun_error"
               )
 
             }
@@ -375,7 +403,7 @@ check_and_create <- function(dir,
                 "*" = "vintages availables are {.file {vintages_av}}"
               )
               cli::cli_abort(msg,
-                             class = "pipload_error"
+                             class = "pipfun_error"
               )
 
             }
@@ -392,7 +420,7 @@ check_and_create <- function(dir,
                 "*" = "vintages availables are {.file {vintages_av}}"
               )
               cli::cli_abort(msg,
-                             class = "pipload_error"
+                             class = "pipfun_error"
               )
 
             }
@@ -462,4 +490,94 @@ check_and_create <- function(dir,
   return(out_dir)
 
 }
+
+
+
+#' Add gls list to the global envirnment. To be used in zzz.R in other packages
+#'
+#' if you don't the official value in `Sys.getenv("PIP_ROOT_DIR")` you can
+#' provide the object `root_dir  <- "<you directory>"` before executing the first
+#' function. In this way, object `gls`, which is a promise, will be
+#' created using with you `root_dir`. Otherwise, you can specify the complete
+#' directory path for each function.
+#' @inheritParams pip_create_globals
+#'
+#' @return TRUE
+#' @export
+add_gls_to_env <- function(root_dir = NULL,
+                           out_dir  = NULL,
+                           vintage  = "latest",
+                           clean    = FALSE) {
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # evaluate global environment   ---------
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+  ## defined values --------
+  obj <-  ls(pos = ".GlobalEnv")
+
+  # remove gls if it  exists
+  rm(list = obj[obj %in% c("gls")], pos = ".GlobalEnv")
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # define root_dir   ---------
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ## if root_dir should come from Renviron --------
+
+  if (is.null(root_dir)) {
+
+    # If root_dir does not exist, create it
+    if (!("root_dir" %in% obj)) {
+      root_dir  <-  Sys.getenv("PIP_ROOT_DIR")
+      # root_dir  <-  Sys.getenv("PIP_ROOT_DIRfff")
+
+      # assign('root_dir', root_dir, envir = globalenv())
+
+    } else {
+      cli::cli_alert_info("object {.envvar root_dir} is already defined in
+                   Global env to  {.url {get('root_dir', envir = globalenv())}}.
+                   To get back to default
+                   values, make sure you remove it from memory by typing
+                   {.code rm(root_dir)}",
+                   wrap = TRUE)
+      root_dir <- get('root_dir', envir = globalenv())
+    }
+  }
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ## If root_dir is provided by user or not found in Renviron --------
+
+  if (is.null(out_dir)) {
+    out_dir <- root_dir
+  }
+
+  # create promises and assign to global env
+  if (root_dir != "") {
+    # globals
+    gls <- pip_create_globals(root_dir = root_dir,
+                                      out_dir  = out_dir,
+                                      vintage  = vintage,
+                                      clean    = clean)
+    # assign('gls', gls, envir = globalenv())
+
+  } else {
+
+    # assign('root_dir', "", envir = globalenv())
+    delayedAssign(x          =  "gls",
+                  value      = pip_create_globals(root_dir = root_dir,
+                                                          out_dir  = out_dir,
+                                                          vintage  = vintage,
+                                                          clean    = clean),
+                  assign.env =  globalenv(),
+                  eval.env   = globalenv())
+  }
+
+  return(invisible(TRUE))
+
+}
+
+
 

@@ -1,0 +1,281 @@
+---
+title: "Structured Logging with pipfun"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Structured Logging with pipfun}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(pipfun)
+#devtools::load_all()
+```
+
+# Overview
+
+{pipfun} provides a structured, in-memory logging system designed for package development and data pipelines.
+
+Unlike `message()` or `cat()`, pipfun logs:
+
+* store entries as structured rows
+
+* capture function arguments automatically
+
+* record return values
+
+* attach metadata
+
+* persist to disk with versioning (via {stamp})
+
+Each log is a named piplog object stored in memory and behaves like a data.table.
+
+## The Mental Model
+
+A log is:
+
+* A named table
+
+* Stored in an internal environment
+
+* Appended row-by-row
+
+* Queried later
+
+* Optionally saved to disk
+
+Each log entry records:
+
+| Column   | Meaning                                  |
+|----------|------------------------------------------|
+| time     | Timestamp                                |
+| event    | Event type ("info", "warning", "error", etc.) |
+| message  | Human-readable description               |
+| fun      | Calling function                         |
+| package  | Calling environment                      |
+| args     | Captured function arguments              |
+| logmeta  | Custom metadata                          |
+| output   | Return value or summary                  |
+| trace    | Call trace                               |
+
+## 1. Basic Usage
+Initialize a Log:
+
+```{r}
+log_init("analysis", overwrite = TRUE)
+
+#This creates an empty piplog.
+
+# Add entries
+log_add("info", "Pipeline started", name = "analysis")
+log_add("warning", "Missing values detected", name = "analysis")
+log_add("error", "Model failed to converge", name = "analysis")
+
+# Inspect
+log_get("analysis")
+```
+
+## 2. Logging Inside Functions
+The real power comes from automatic argument capture.
+```{r}
+compute_mean <- function(x, na_rm = TRUE) {
+  
+  log_add("info", "Starting computation", name = "analysis")
+  
+  result <- mean(x, na.rm = na_rm)
+  
+  log_add("info", "Computation finished",
+          name = "analysis",
+          output = result)
+  
+  result
+}
+
+compute_mean(c(1, 2, 3, NA))
+```
+
+The log now contains:
+
+* the arguments (x, na_rm)
+* the return value
+* the function call
+* the timestamp
+
+Inspect captured arguments:
+
+```{r}
+log_get("analysis")$args[[1]]
+```
+
+3. Adding Structured Metadata
+
+Use logmeta for domain-specific context.
+
+``` {r}
+log_add(
+  "validation",
+  "Invalid country code",
+  name = "analysis",
+  logmeta = list(
+    field = "country",
+    value = "XX",
+    stage = "input_check"
+  )
+)
+```
+
+## 4. Filtering logs
+Logs are queryable
+
+```{r}
+# By event type
+log_filter("analysis", event = "error")
+# By multiple event types
+log_filter("analysis", event = c("warning", "error"))
+# By function name
+log_filter("analysis", fun = "compute_mean(c(1, 2, 3, NA))")
+# By time window
+log_filter("analysis", after = Sys.time() - 60)
+
+```
+
+Filtering does not modify the original log.
+
+## 5. Robust Error Logging
+
+A common pattern is structured logging inside tryCatch():
+
+```{r}
+log_init("pipeline", overwrite = TRUE)
+
+read_data <- function(path) {
+  tryCatch({
+    
+    log_add("io", "Reading file",
+            name = "pipeline",
+            logmeta = list(path = path))
+    
+    data <- read.csv(path)
+    
+    log_add("io", "File loaded",
+            name = "pipeline",
+            output = list(rows = nrow(data)))
+    
+    data
+    
+  }, error = function(e) {
+    
+    log_add("error", "File read failed",
+            name = "pipeline",
+            logmeta = list(
+              path = path,
+              message = e$message
+            ))
+    
+    NULL
+  })
+}
+
+```
+
+## 6. Saving and Loading Logs
+
+Logs are stored in memory by default.
+
+To persist them, use `log_save()` and `log_load()` (powered by {stamp}).
+
+#### Save
+```{r}
+tmp <- tempdir()
+stamp::st_init(tmp, alias = "demo")
+
+log_save(
+  name  = "analysis",
+  id    = file.path(tmp, "analysis_log"),
+  alias = "demo"
+)
+```
+
+#### Load
+```{r}
+log_reset("analysis")
+
+log_load(
+  id    = file.path(tmp, "analysis_log.qs2"),
+  name  = "analysis",
+  alias = "demo"
+)
+```
+
+You can also list available versions:
+```{r}
+log_load(
+  id = file.path(tmp, "analysis_log.qs2"),
+  version = "available",
+  alias = "demo"
+)
+```
+
+## 7. Recommended Usage Patterns
+**Initialize once**
+
+Create logs at:
+
+* package load (.onLoad)
+
+* pipeline start
+
+* test setup
+
+## Log entry and exit
+```{r}
+log_add("start", "Beginning step", name = "analysis")
+# ...
+log_add("end", "Step completed", name = "analysis")
+```
+
+## Use consistent event types
+
+Common choices:
+
+* "info"
+
+* "warning"
+
+* "error"
+
+* "debug"
+
+* domain-specific tags like "validation", "io", "model"
+
+## Keep messages human-readable
+
+Use logmeta for structured data.
+
+## When Should You Use pipfun Logging?
+
+This system is especially useful when:
+
+* Building R packages
+
+* Writing reproducible pipelines
+
+* Running long batch jobs
+
+* Needing audit trails
+
+* Collaborating across teams
+
+* Saving logs with version control
+
+It is less necessary for:
+
+* Simple scripts
+
+* One-off analyses
+
+* Interactive exploration

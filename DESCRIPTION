@@ -1,6 +1,6 @@
 Package: pipfun
 Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9002
+Version: 0.3.11
 Authors@R: person("R.Andres", 
                   "Castaneda",
                   email = "acastanedaa@worldbank.org",
@@ -10,20 +10,44 @@ Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.2
 Imports: 
     cli,
     data.table,
     digest,
     fs,
     fst,
+    gh,
+    gitcreds,
     glue,
     haven,
+    httr2,
     purrr,
-    qs,
-    readr
+    readr,
+    readxl,
+    remotes,
+    yaml,
+    base64enc,
+    rlang,
+    jsonlite,
+    lifecycle,
+    stamp (>= 0.0.9),
+    qs2
 Suggests: 
     covr,
-    testthat (>= 3.0.0)
+    knitr,
+    mockery,
+    rmarkdown,
+    janitor,
+    testthat (>= 3.0.0),
+    writexl,
+    collapse,
+    stats,
+    withr
 Config/testthat/edition: 3
-URL: https://pip-technical-team.github.io/pipfun/
+URL: https://pip-technical-team.github.io/pipfun, https://pip-technical-team.github.io/pipfun/
+VignetteBuilder: knitr
+Depends: 
+    R (>= 3.5)
+Remotes: 
+    randrescastaneda/stamp
