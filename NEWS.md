@@ -1,3 +1,5 @@
+# pipfun 1.0.0
+
 # pipfun 0.3.11
 * Fix tests of branch management. 
 
