@@ -11,6 +11,7 @@ pipfun_default_options <- list(
   pipfun.log.default    = "default",
   pipfun.log_init.ow    = FALSE,
   pipfun.confirm_remove = FALSE,
+  pipfun.working_dir    = "PIP_ingestion_pipeline_v2",
   pipfun.main_dir       = fs::path(Sys.getenv("PIP_ROOT_DIR"),
                                    working_dir)
 )
