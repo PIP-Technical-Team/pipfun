@@ -21,14 +21,12 @@ new_pip_release <-
            identity    = getOption("pipfun.identities"),
            verbose     = getOption("pipfun.verbose"),
            root_dir    = Sys.getenv("PIP_ROOT_DIR"),
-           working_dir = fs::path(root_dir,
-                                  getOption("pipfun.working_dir")),
+           working_dir = fs::path(root_dir, getOption("pipfun.working_dir")),
            ppps        = getOption("pipfun.ppps"),
            ...) {
 
-  # defenses ----------
-  identity <- match.arg(identity)
-  call_args <- all_args()
+  identity  <- match.arg(identity)
+  call_args <- mget(setdiff(names(formals()), "..."), envir = environment())
   check_pip_release_inputs(call_args)
 
 
@@ -211,8 +209,8 @@ remove_pip_release <-
            confirm_remove = getOption("pipfun.confirm_remove"),
            ...) {
   # defenses ----------
-  identity <- match.arg(identity)
-  call_args <- all_args()
+  identity  <- match.arg(identity)
+  call_args <- mget(setdiff(names(formals()), "..."), envir = environment())
   check_pip_release_inputs(call_args)
 
   if (is.null(working_dir)) {
@@ -473,20 +471,17 @@ get_latest_pip_release <- function(identity = getOption("pipfun.identities"),
 check_pip_release_inputs <- function(call_args) {
   list2env(call_args, envir = environment())
 
-  if (exists("release", envir = environment(), inherits = FALSE)){
+  if (exists("release", envir = environment(), inherits = FALSE)) {
     if (!grepl("[0-9]{8}", release))
       cli::cli_abort("{.arg release} must be a numeric chracter,
                      representing a date in the form {.field \"%Y%m%d\"}.
                      You provided {.strong {release}}")
   }
 
-  if (exists("working_dir")){
-    if (!fs::dir_exists(working_dir))
+  if (exists("working_dir", envir = environment(), inherits = FALSE)) {
+    if (!is.null(working_dir) && !fs::dir_exists(working_dir))
       cli::cli_alert_danger("Directory {.file {working_dir}} does not exist. Please check")
   }
-
-
-
 }
 
 
