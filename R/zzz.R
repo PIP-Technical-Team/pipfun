@@ -1,19 +1,17 @@
 
-working_dir <- "PIP_ingestion_pipeline_v2"
+working_dir <- "PIP_ingestion_pipeline_v2" # Remember to update in default options as well.
 
 pipfun_default_options <- list(
-  pipfun.verbose        = TRUE,
-  pipfun.ghowner        = "PIP-Technical-Team",
-  pipfun.ppps           = c(2021, 2017, 2011), # must be descending order
-  pipfun.working_dir    = working_dir,
-  pipfun.identities     = c("TEST", "PROD", "INT"),
-  pipfun.log.auto       = TRUE,
-  pipfun.log.default    = "default",
-  pipfun.log_init.ow    = FALSE,
+  pipfun.verbose = TRUE,
+  pipfun.ghowner = "PIP-Technical-Team",
+  pipfun.ppps = c(2021, 2017, 2011), # must be descending order
+  pipfun.identities = c("TEST", "PROD", "INT"),
+  pipfun.log.auto = TRUE,
+  pipfun.log.default = "default",
+  pipfun.log_init.ow = FALSE,
   pipfun.confirm_remove = FALSE,
-  pipfun.working_dir    = "PIP_ingestion_pipeline_v2",
-  pipfun.main_dir       = fs::path(Sys.getenv("PIP_ROOT_DIR"),
-                                   working_dir)
+  pipfun.working_dir = "PIP_ingestion_pipeline_v2", # Needed for Rossana's workflow
+  pipfun.main_dir = fs::path(Sys.getenv("PIP_ROOT_DIR"), working_dir)
 )
 
 .onLoad <- function(libname, pkgname) {
