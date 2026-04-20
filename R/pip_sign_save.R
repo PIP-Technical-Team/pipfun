@@ -88,13 +88,13 @@ pip_sign_save <- function(x,
       }
     }
 
-    qs2::qsave(
+    qs2::qs_save(
       x = x,
       file = fs::path(
         msrdir,
         "_vintage/",
         paste0(measure, "_", time),
-        ext = "qs"
+        ext = "qs2"
       )
     )
 

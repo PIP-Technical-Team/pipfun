@@ -31,7 +31,7 @@ Imports:
     rlang,
     jsonlite,
     lifecycle,
-    stamp (>= 0.0.9),
+    stamp (>= 0.0.10),
     qs2
 Suggests: 
     covr,
