@@ -1,3 +1,8 @@
+# pipfun 1.0.1
+
+* Add `log_save_checkpoint()` for stage-specific `piplog` persistence with
+  checkpoint metadata.
+
 # pipfun 1.0.0
 
 # pipfun 0.3.11
