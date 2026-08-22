@@ -5,20 +5,30 @@
 \title{Save a named logging checkpoint}
 \usage{
 log_save_checkpoint(
-  name = getOption("pipfun.log.default"),
-  stage = c("dlw", "pipeline"),
-  alias = "log_checkpoint",
+  name = getOption("pipfun.log.default", "default"),
+  stage = "dlw",
+  alias = NULL,
+  metadata = list(),
+  code = NULL,
   ...
 )
 }
 \arguments{
-\item{name}{Name of the in-memory log to save.}
+\item{name}{Name of the in-memory log to save (default: \code{"default"}).}
 
-\item{stage}{Checkpoint stage: \code{"dlw"} or \code{"pipeline"}.}
+\item{stage}{Checkpoint stage. Must be exactly \code{"dlw"} or \code{"pipeline"}.}
 
-\item{alias}{Stamp alias used for persistence.}
+\item{alias}{Optional stamp alias used for persistence. Defaults to the
+stamp package default alias.}
 
-\item{...}{Additional arguments passed to \code{\link[=log_save]{log_save()}}.}
+\item{metadata}{Optional named list of custom checkpoint metadata. The
+canonical \code{stage} and \code{checkpoint_time} fields are always supplied by this
+function.}
+
+\item{code}{Optional code object to include in the checkpoint code hash.}
+
+\item{...}{Additional named arguments passed to \code{\link[=log_save]{log_save()}} and then to
+\code{stamp::st_save()}.}
 }
 \value{
 Invisibly returns the result from \code{\link[=log_save]{log_save()}}.
@@ -26,5 +36,5 @@ Invisibly returns the result from \code{\link[=log_save]{log_save()}}.
 \description{
 Saves the current named \code{piplog} with a stage-specific identifier and
 checkpoint metadata. The wrapper keeps checkpoint naming consistent across
-DLW and pipeline stages while forwarding additional \code{log_save()} options.
+DLW and pipeline stages while forwarding safe additional \code{log_save()} options.
 }

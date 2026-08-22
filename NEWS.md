@@ -2,6 +2,8 @@
 
 * Add `log_save_checkpoint()` for stage-specific `piplog` persistence with
   checkpoint metadata.
+* Validate checkpoint names and stages, protect canonical metadata, support
+  custom metadata, and persist repeated unchanged checkpoints.
 
 # pipfun 1.0.0
 

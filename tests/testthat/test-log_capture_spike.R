@@ -9,7 +9,7 @@ test_that("typed logging preserves structured metadata in tryCatch handlers", {
           conditionMessage(e),
           name = "capture_spike",
           logmeta = list(
-            error = "dlw_download_inf",
+            error = "dlw_acquisition_inf",
             country = country,
             year = year,
             condition_msg = conditionMessage(e)
@@ -22,7 +22,7 @@ test_that("typed logging preserves structured metadata in tryCatch handlers", {
   capture_in_handler("CHN", 2020L)
   entry <- log_get("capture_spike")[.N]
 
-  expect_equal(entry$logmeta[[1L]]$error, "dlw_download_inf")
+  expect_equal(entry$logmeta[[1L]]$error, "dlw_acquisition_inf")
   expect_equal(entry$logmeta[[1L]]$country, "CHN")
   expect_equal(entry$logmeta[[1L]]$year, 2020L)
   expect_equal(entry$logmeta[[1L]]$condition_msg, "synthetic failure")
