@@ -10,3 +10,7 @@
 ^doc$
 ^Meta$
 ^data-raw$
+^\.git$
+^\.stamp$
+^.*\.Rcheck$
+^.*\.tar\.gz$

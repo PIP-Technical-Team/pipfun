@@ -40,7 +40,7 @@ about the process. The default is \code{TRUE}}
 \item{ppps}{numeric: vector of PPP years.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
+  Arguments passed on to \code{\link{get_pip_releases}}
   \describe{
     \item{\code{owner}}{character: owner of repo}
     \item{\code{repo}}{character: repository name}

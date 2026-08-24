@@ -15,7 +15,7 @@ download_from_gh(url, temp_file, creds = NULL)
 \item{creds}{list. Basically, it is \code{get_github_creds()}}
 }
 \value{
-file of extension in \link{path}
+file of extension in \link[fs:path]{path}
 }
 \description{
 Download file from Github
