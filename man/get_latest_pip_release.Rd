@@ -10,7 +10,7 @@ get_latest_pip_release(identity = getOption("pipfun.identities"), ...)
 \item{identity}{character: one of "PROD", "INT", or "TEST"}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_pip_releases]{get_pip_releases}}
+  Arguments passed on to \code{\link{get_pip_releases}}
   \describe{
     \item{\code{verbose}}{logical: whether to display additional information}
     \item{\code{owner}}{character: owner of repo}

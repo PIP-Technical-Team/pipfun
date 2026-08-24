@@ -18,5 +18,10 @@ Useful links:
 \author{
 \strong{Maintainer}: R.Andres Castaneda \email{acastanedaa@worldbank.org}
 
+Authors:
+\itemize{
+  \item R.Andres Castaneda \email{acastanedaa@worldbank.org}
+}
+
 }
 \keyword{internal}

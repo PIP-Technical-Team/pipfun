@@ -10,3 +10,8 @@ inst/doc
 /Meta/
 
 docs
+
+# R build and check artifacts
+.stamp/
+*.Rcheck/
+*.tar.gz

@@ -46,6 +46,6 @@ logical vector. the names of the elements correspond to the directory
 paths
 }
 \description{
-This function is an informative wrapper around \link[fs:create]{fs::dir_create}
+This function is an informative wrapper around \link[fs:dir_create]{fs::dir_create}
 }
 \keyword{internal}

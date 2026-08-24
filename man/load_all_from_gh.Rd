@@ -24,7 +24,7 @@ load_all_from_gh(
 \item{output_path}{character: folder path}
 }
 \value{
-file of extension in \link{path}
+file of extension in \link[fs:path]{path}
 }
 \description{
 Get all files from folder in Github
