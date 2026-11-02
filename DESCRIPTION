@@ -49,5 +49,5 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 4.3.0)
 Remotes: 
-    randrescastaneda/stamp
+    github::randrescastaneda/stamp@4a1fa5d92313aa223296fae0e29cf3446a314aea
 Config/roxygen2/version: 8.0.0
