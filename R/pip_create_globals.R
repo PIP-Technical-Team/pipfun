@@ -232,14 +232,15 @@ pip_create_globals <-
     clean_data <- fs::path(glbs$PIP_PIPE_DIR,
                            'pc_data/cache/clean_survey_data')
 
-    cache_ppp <-
-      fs::dir_ls(clean_data) |>
-      fs::path_file() |>
-      max()
+    glbs$CACHE_SVY_DIR_PC <- clean_data
+    if (fs::dir_exists(clean_data)) {
+      cache_ppp <- fs::dir_ls(clean_data) |>
+        fs::path_file()
 
-    glbs$CACHE_SVY_DIR_PC <- fs::path(glbs$PIP_PIPE_DIR,
-                                      'pc_data/cache/clean_survey_data',
-                                      cache_ppp)
+      if (length(cache_ppp) > 0) {
+        glbs$CACHE_SVY_DIR_PC <- fs::path(clean_data, max(cache_ppp))
+      }
+    }
   }
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
